@@ -19,12 +19,12 @@ export default function GetStartedModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center min-h-screen p-4">
-            <div className="bg-white w-full max-w-[500px] rounded-3xl p-8 relative shadow-2xl animate-in fade-in zoom-in duration-300 my-auto">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center min-h-screen p-3 sm:p-4 overflow-y-auto">
+            <div className="bg-white w-full max-w-[500px] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative shadow-2xl animate-in fade-in zoom-in duration-300 my-auto">
                 {/* Close button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-gray-600 transition-colors p-1"
                 >
                     <X size={20} />
                 </button>
@@ -79,13 +79,14 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         <div className="space-y-3 pt-2">
                             <label className="block text-xs font-black uppercase tracking-widest text-gray-700">One Time Password (OTP)</label>
                             <div className="flex items-center justify-between gap-3">
-                                <div className="flex gap-1.5">
+                                <div className="flex gap-1 sm:gap-1.5 flex-wrap justify-center sm:justify-start">
                                     {[1, 2, 3, 4, 5, 6].map((idx) => (
                                         <input
                                             key={idx}
                                             type="text"
                                             maxLength={1}
-                                            className="w-9 h-11 border border-gray-100 rounded-lg text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500 transition-all"
+                                            inputMode="numeric"
+                                            className="w-8 h-10 sm:w-9 sm:h-11 border border-gray-100 rounded-lg text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500 transition-all"
                                         />
                                     ))}
                                 </div>

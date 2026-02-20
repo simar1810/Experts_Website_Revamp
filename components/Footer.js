@@ -13,7 +13,7 @@ export default function Footer() {
     ];
 
     return (
-        <footer className="bg-black text-[#858585] py-20 px-6 font-sans">
+        <footer className="bg-black text-[#858585] py-12 sm:py-20 px-4 sm:px-6 font-sans">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 md:gap-12 mb-20 text-center md:text-left">
                     {/* App Download Section */}

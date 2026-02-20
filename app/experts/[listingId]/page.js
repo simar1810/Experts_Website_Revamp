@@ -40,10 +40,10 @@ function EnquiryBox({ listingId }) {
     }
 
     return (
-        <div className="lg:col-span-4">
-            <div className="sticky top-24 space-y-6">
-                <h3 className="text-lg font-bold text-gray-900 ml-4">Your Enquiry Here</h3>
-                <div className="bg-white border border-gray-100 rounded-[2rem] p-5 shadow-sm">
+        <div className="lg:col-span-4 order-first lg:order-none">
+            <div className="lg:sticky lg:top-24 space-y-4 sm:space-y-6">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 sm:ml-4">Your Enquiry Here</h3>
+                <div className="bg-white border border-gray-100 rounded-2xl sm:rounded-[2rem] p-4 sm:p-5 shadow-sm">
                     <form onSubmit={handleSubmit}>
                         <div className="flex flex-col gap-4 mb-4">
                             <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#fdfdfd] rounded-xl p-4 text-sm text-gray-700 outline-none resize-none border-none placeholder-gray-300 shadow-inner" />
@@ -214,15 +214,15 @@ export default function CoachProfilePage({ params }) {
             <div className="h-[72px]"></div>
 
             {/* Breadcrumb & Search Section */}
-            <section className="bg-white px-6 py-4 max-w-7xl mx-auto">
-                <div className="flex items-center gap-1 text-sm text-gray-400 mb-6">
+            <section className="bg-white px-4 sm:px-6 py-4 max-w-7xl mx-auto">
+                <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6">
                     <Search className="w-3 h-3" />
                     <span>Search / </span>
                     <span className="text-[#84cc16] font-medium font-bold">Coach Profile</span>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-4 py-2.5 border border-gray-100 relative">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-3 sm:px-4 py-2.5 border border-gray-100 relative min-w-0">
                         <Search className="w-5 h-5 text-blue-500 shrink-0" />
                         <div className="flex flex-wrap gap-1.5 flex-1 items-center">
                             {selectedSpecialities.map(spec => (
@@ -255,7 +255,7 @@ export default function CoachProfilePage({ params }) {
                             />
                         )}
                     </div>
-                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-4 py-2.5 border border-gray-100 relative">
+                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-3 sm:px-4 py-2.5 border border-gray-100 relative min-w-0">
                         <MapPin className="w-5 h-5 text-gray-300 shrink-0" />
                         <input
                             type="text"
@@ -264,13 +264,13 @@ export default function CoachProfilePage({ params }) {
                             onChange={(e) => setLocationQuery(e.target.value)}
                             onFocus={() => setShowLocationDropdown(true)}
                             onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
-                            className="bg-transparent w-full outline-none text-gray-700 text-sm"
+                            className="bg-transparent w-full outline-none text-gray-700 text-sm min-w-0"
                         />
                         {showLocationDropdown && (
                             <LocationSelectorDropdown setLocationQuery={setLocationQuery} setShowLocationDropdown={setShowLocationDropdown} />
                         )}
                     </div>
-                    <button onClick={handleSearch} className="bg-[#84cc16] hover:bg-[#76b813] text-white px-10 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-lg shadow-lime-500/20">
+                    <button onClick={handleSearch} className="w-full md:w-auto bg-[#84cc16] hover:bg-[#76b813] text-white px-10 py-3 sm:py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-lime-500/20">
                         <Search className="w-4 h-4" />
                         Search
                     </button>
@@ -293,14 +293,14 @@ export default function CoachProfilePage({ params }) {
             </section>
 
             {/* Main Content Area */}
-            <section className="max-w-7xl mx-auto px-6 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12">
                     {/* Left Column: Profile Card & Tabs */}
                     <div className="lg:col-span-8 space-y-12">
                         {/* Profile Overview Card */}
                         <div className="space-y-6">
                             <div className="flex flex-col md:flex-row gap-8">
-                                <div className="relative w-40 h-40 shrink-0">
+                                <div className="relative w-32 h-32 sm:w-40 sm:h-40 shrink-0 mx-auto md:mx-0">
                                     <div className="w-full h-full rounded-full border-[3px] border-[#84cc16] overflow-hidden p-1">
                                         <div className="w-full h-full rounded-full overflow-hidden">
                                             <img src="/images/coach.png" alt="Dr. Shantanu Jambhekar" className="w-full h-full object-cover" />
@@ -311,8 +311,8 @@ export default function CoachProfilePage({ params }) {
                                     </div>
                                 </div>
 
-                                <div className="flex-1 space-y-2">
-                                    <h1 className="text-3xl font-bold text-gray-900">Dr. Shantanu Jambhekar</h1>
+                                <div className="flex-1 space-y-2 text-center md:text-left">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dr. Shantanu Jambhekar</h1>
                                     <p className="text-gray-400 text-sm font-bold uppercase tracking-wider">Dentist</p>
                                     <p className="text-gray-500 text-base font-medium">15 years experience overall</p>
                                     <div className="flex items-center gap-1.5 text-gray-900 text-base font-bold pt-1">
@@ -343,11 +343,11 @@ export default function CoachProfilePage({ params }) {
 
                         {/* Tabs Container */}
                         <div>
-                            <div className="flex items-center gap-8 border-b border-gray-100 pb-px mb-8">
+                            <div className="flex items-center gap-2 sm:gap-8 border-b border-gray-100 pb-px mb-8 overflow-x-auto scrollbar-hide -mx-1 px-1">
                                 {['Info', 'Stories', 'Services', "FAQ's"].map((tab, i) => (
                                     <button
                                         key={tab}
-                                        className={`pb-4 text-sm font-bold uppercase tracking-widest transition-colors ${i === 0 ? 'text-white bg-[#84cc16] px-10 py-3 rounded-t-lg' : 'text-gray-400 px-6'}`}
+                                        className={`shrink-0 pb-4 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors whitespace-nowrap ${i === 0 ? 'text-white bg-[#84cc16] px-6 sm:px-10 py-3 rounded-t-lg' : 'text-gray-400 px-4 sm:px-6'}`}
                                     >
                                         {tab}
                                     </button>

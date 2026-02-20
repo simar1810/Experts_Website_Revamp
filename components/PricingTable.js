@@ -81,9 +81,46 @@ export default function PricingTable() {
     ];
 
     return (
-        <section className="py-12 px-6 max-w-7xl mx-auto overflow-x-auto">
-            <div className="min-w-[1000px] bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-sm">
-                <table className="w-full border-collapse">
+        <section className="py-8 sm:py-12 px-4 sm:px-6 max-w-7xl mx-auto">
+            {/* Mobile: Plan cards stacked */}
+            <div className="md:hidden space-y-6">
+                <h2 className="text-xl font-black text-gray-900 tracking-tight mb-2">Compare plans</h2>
+                <p className="text-[10px] text-gray-400 font-medium leading-relaxed mb-6">
+                    Choose your workspace plan according to your organisational plan
+                </p>
+                {plans.map((plan, i) => (
+                    <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                        <div className="mb-4">
+                            <span className="text-2xl font-black text-gray-900">{plan.price}</span>
+                            <span className="text-gray-400 text-[10px] font-medium ml-1">{plan.period}</span>
+                        </div>
+                        <button className={`w-full py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${plan.buttonClass}`}>
+                            {plan.buttonText}
+                        </button>
+                        <ul className="mt-4 space-y-3 text-left">
+                            {features.slice(0, 5).map((feature, fi) => (
+                                <li key={fi} className="text-xs text-gray-600 flex items-start gap-2">
+                                    {feature.values[i] === true ? (
+                                        <Check size={14} className="text-[#71BC2B] shrink-0 mt-0.5" strokeWidth={3} />
+                                    ) : typeof feature.values[i] === 'object' && feature.values[i] !== null ? (
+                                        <span className="text-gray-700 font-medium shrink-0">{feature.values[i].main}</span>
+                                    ) : feature.values[i] ? (
+                                        <span className="shrink-0">{feature.values[i]}</span>
+                                    ) : (
+                                        <span className="text-gray-300 shrink-0">—</span>
+                                    )}
+                                    <span className="text-gray-500 font-normal">{feature.title}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop: Full comparison table */}
+            <div className="hidden md:block overflow-x-auto">
+                <div className="min-w-[1000px] bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-sm">
+                    <table className="w-full border-collapse">
                     <thead>
                         <tr>
                             <th className="p-8 text-left w-1/4 border-r border-gray-100">
@@ -144,6 +181,7 @@ export default function PricingTable() {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </div>
         </section>
     );

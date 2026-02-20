@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Prevent horizontal overflow on small screens */
+html, body {
+    overflow-x: hidden;
+}
+
 @layer utilities {
     .scrollbar-hide {
         -ms-overflow-style: none;
