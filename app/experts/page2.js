@@ -273,6 +273,11 @@ function ExpertsPage2Content() {
     const [showLocationDropdown, setShowLocationDropdown] = useState(false);
     const [showSpecialityDropdown, setShowSpecialityDropdown] = useState(false);
 
+    // Filter states
+    const [consultationType, setConsultationType] = useState('offline');
+    const [sortBy, setSortBy] = useState('name-asc');
+    const [distanceRange, setDistanceRange] = useState(12); // Default range in KM
+
     const [coordinateLocation, setCoordinateLocation] = useState(null);
 
     const [page, setPage] = useState(1);
@@ -303,28 +308,35 @@ function ExpertsPage2Content() {
 
     useEffect(() => {
         async function loadInitialExperts() {
-            if (coordinateLocation) {
-                try {
-                    // const experts = await fetchAPI(`/experts/listing/search`,
-                    //     {
-                    //         "clientLocation": {
-                    //             "coordinates": [coordinateLocation.longitude, coordinateLocation.latitude]
-                    //         },
-                    //         "radiusKm": 80000,
-                    //         "consultationMode": "in_person"
-                    //     }
-                    // )
-                    const data = await fetchAPI('/experts/listing/home/top-rated');
-                    console.log('topRatedExperts', data);
-                    setFilteredExperts(Array.isArray(data?.items) ? data.items.slice(0, 10) : []);
-                } catch (err) {
-                    console.error("Failed to fetch initial experts:", err);
-                    setFilteredExperts([]);
+
+            try {
+                // const data = await fetchAPI(`/experts/listing/search`,
+                //     {
+                //         "clientLocation": {
+                //             "coordinates": [coordinateLocation.longitude, coordinateLocation.latitude]
+                //         },
+                //         "radiusKm": 80000,
+                //         "consultationMode": "in_person"
+                //     }
+                // )
+                const data = await fetchAPI('/experts/listing/top-coaches-block',
+                    {
+                    consultationMode:consultationType || null,
+                    expertiseTags:[],
+                    languages:[],
+                    clientLocation:coordinateLocation || null,
+                    radiusKm:distanceRange || null,
+                    limit:10});
+                console.log('topRatedExperts', data);
+                setFilteredExperts(Array.isArray(data?.items) ? data.items.slice(0, 10) : []);
+            } catch (err) {
+                console.error("Failed to fetch initial experts:", err);
+                setFilteredExperts([]);
                 }
-            }
+
         }
         loadInitialExperts();
-    }, [coordinateLocation]);
+    }, [coordinateLocation, consultationType,distanceRange]);
 
 
     const handleSearch = async () => {
@@ -461,7 +473,7 @@ function ExpertsPage2Content() {
 
             {/* Popular Categories Section */}
             {showPopularExperts &&
-                <section className="max-w-7xl mx-auto px-6 mt-15">
+                <section className="max-w-7xl mx-auto px-6 mt-15 mb-10">
                     <div className="mb-6 sm:mb-10 text-center sm:text-left">
                         <h2 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">Popular Categories</h2>
                         <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold opacity-80">Choose from various specialities</p>
@@ -479,6 +491,85 @@ function ExpertsPage2Content() {
                     </div>
                 </section>
             }
+
+            {/* Filters Section */}
+            <section className="max-w-7xl mx-auto px-6 py-4 mb-4 border-b border-gray-50">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
+                    {/* Left: Consultation Type & Sort By */}
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-10">
+                        {/* Consultation Type */}
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-bold text-gray-900 whitespace-nowrap tracking-tight">Consultation Type</span>
+                            <div className="relative group min-w-[140px]">
+                                <select
+                                    className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-bold text-gray-800 focus:outline-none focus:border-[#84cc16] cursor-pointer transition-all shadow-sm pr-10"
+                                    value={consultationType}
+                                    onChange={(e) => setConsultationType(e.target.value)}
+                                >
+                                    <option value="offline">Offline</option>
+                                    <option value="online">Online</option>
+                                    <option value="both">Both</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#84cc16] pointer-events-none group-hover:scale-110 transition-transform" />
+                            </div>
+                        </div>
+
+                        {/* Sort By */}
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-bold text-gray-900 whitespace-nowrap tracking-tight">Sort By</span>
+                            <div className="relative group min-w-[170px]">
+                                <select
+                                    className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-bold text-gray-800 focus:outline-none focus:border-[#84cc16] cursor-pointer transition-all shadow-sm pr-10"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value="name-asc">Name (Ascending)</option>
+                                    <option value="name-desc">Name (Descending)</option>
+                                    <option value="rating">Top Rated</option>
+                                    <option value="experience">Experience</option>
+                                </select>
+                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#84cc16] pointer-events-none group-hover:scale-110 transition-transform" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Distance Range Slider */}
+                    <div className="flex items-center gap-3 sm:gap-6 w-full md:w-auto overflow-visible py-2">
+                        <span className="text-sm font-bold text-gray-900 whitespace-nowrap tracking-tight">Distance Range</span>
+                        <div className="flex-1 md:w-[320px] relative pt-6 pb-2">
+                            <div className="relative h-1.5 bg-gray-100 rounded-full overflow-visible">
+                                {/* Controlled green bar */}
+                                <div
+                                    className="absolute left-0 top-0 h-full bg-[#84cc16] rounded-full transition-all duration-300"
+                                    style={{ width: `${((distanceRange - 5) / 15) * 100}%` }}
+                                ></div>
+                                <div
+                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-[#84cc16] border-4 border-white rounded-full shadow-lg shadow-lime-500/30 cursor-pointer hover:scale-110 transition-all z-10"
+                                    style={{ left: `${((distanceRange - 5) / 15) * 100}%` }}
+                                ></div>
+
+                                {/* Hidden native slider for touch/mouse interaction */}
+                                <input
+                                    type="range"
+                                    min="5"
+                                    max="20"
+                                    step="1"
+                                    value={distanceRange}
+                                    onChange={(e) => setDistanceRange(parseInt(e.target.value))}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                                />
+                            </div>
+                            {/* Labels */}
+                            <div className="flex justify-between mt-4">
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 5 ? 'text-[#84cc16]' : 'text-gray-300'}`}>5 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 10 ? 'text-[#84cc16]' : 'text-gray-300'}`}>10 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 15 ? 'text-[#84cc16]' : 'text-gray-300'}`}>15 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 20 ? 'text-[#84cc16]' : 'text-gray-300'}`}>20 KM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
 
 

@@ -14,6 +14,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
     const [timer, setTimer] = useState(23);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [otp, setOtp] = useState(['', '', '', '']);
@@ -50,6 +51,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
             setTimer(23);
             setName('');
             setPhone('');
+            setEmail('');
             setCity('');
             setState('');
             setOtp(['', '', '', '']);
@@ -63,6 +65,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
         const newErrors = {};
         if (!name) newErrors.name = true;
         if (!phone) newErrors.phone = true;
+        if (!email) newErrors.email = true;
         if (!city) newErrors.city = true;
         if (!state) newErrors.state = true;
 
@@ -73,13 +76,19 @@ export default function GetStartedModal({ isOpen, onClose }) {
         }
 
         try {
+            console.log('name', name);
+            console.log('phone', phone);
+            console.log('email', email);
+            console.log('city', city);
+            console.log('state', state);
             const res = await fetchAPI('/experts/client/register', {
                 name: name,
-                phone: phone,
+                mobileNumber: phone,
+                email: email,
                 city: city,
                 state: state,
             }, 'POST');
-            setShowOtp(true); 
+            setShowOtp(true);
             console.log(res)
         } catch (error) {
             console.error('Registration failed:', error);
@@ -91,7 +100,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
     const handleResendOtp = async () => {
         try {
             await fetchAPI('/experts/client/send-otp', {
-                phone: phone,
+                mobileNumber: phone,
             }, 'POST');
             setTimer(23);
         } catch (error) {
@@ -102,13 +111,13 @@ export default function GetStartedModal({ isOpen, onClose }) {
     const handleVerifyOtp = async () => {
         try {
             const response = await fetchAPI('/experts/client/verify-otp', {
-                phone: phone,
+                mobileNumber: phone,
                 otp: otp.join(''),
             }, 'POST');
             const token = response.token;
-            console.log(token);
+            console.log(response);
             if (token) {
-                login(token);
+                login(token, response.client_snapshot);
             }
             onClose();
 
@@ -202,6 +211,24 @@ export default function GetStartedModal({ isOpen, onClose }) {
                                             }}
                                             placeholder="Write here..."
                                             className={`w-full px-6 py-4 bg-gray-50 border rounded-full text-sm focus:outline-none transition-all placeholder:text-gray-400 font-medium ${touched && errors.phone ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500'}`}
+                                        />
+                                    </div>
+
+                                    {/* Email Field */}
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-center px-1">
+                                            <label className="block text-sm font-bold text-gray-900">Email</label>
+                                            {touched && errors.email && <span className="text-[10px] sm:text-xs font-bold text-red-500 animate-in fade-in slide-in-from-right-1 tracking-tight">(required)</span>}
+                                        </div>
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => {
+                                                setEmail(e.target.value);
+                                                if (touched && e.target.value) setErrors(prev => ({ ...prev, email: false }));
+                                            }}
+                                            placeholder="Write here..."
+                                            className={`w-full px-6 py-4 bg-gray-50 border rounded-full text-sm focus:outline-none transition-all placeholder:text-gray-400 font-medium ${touched && errors.email ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500'}`}
                                         />
                                     </div>
 

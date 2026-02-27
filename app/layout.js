@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
         <AuthProvider>
-          <Navbar />
+          <Navbar/>
           {children}
           <Footer />
         </AuthProvider>

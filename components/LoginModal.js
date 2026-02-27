@@ -61,7 +61,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
 
         try {
             await fetchAPI('/experts/client/send-otp', {
-                phone: phone,
+                mobileNumber: phone,
             }, 'POST');
             setShowOtp(true);
         } catch (error) {
@@ -74,7 +74,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
     const handleResendOtp = async () => {
         try {
             await fetchAPI('/experts/client/send-otp', {
-                phone: phone,
+                mobileNumber: phone,
             }, 'POST');
             setTimer(23);
         } catch (error) {
@@ -86,13 +86,13 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
         try {
             // Using temporary endpoint as requested
             const response = await fetchAPI('/experts/client/verify-otp', {
-                phone: phone,
+                mobileNumber: phone,
                 otp: otp.join(''),
             }, 'POST');
 
             const token = response.token;
             if (token) {
-                login(token);
+                login(token, response.client_snapshot);
             }
             onClose();
 

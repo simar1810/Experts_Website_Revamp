@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import GetStartedModal from './GetStartedModal';
 import LoginModal from './LoginModal';
-import { Bell, User, ChevronDown, Menu, X, ArrowLeftIcon } from 'lucide-react';
+import { Bell, User, ChevronDown, Menu, X, ArrowLeftIcon, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar({ userName = "Simarpreet Singh" }) {
     const pathname = usePathname();
     const {
         isAuthenticated,
+        user,
+        logout,
         isLoginModalOpen,
         openLoginModal,
         closeLoginModal,
@@ -20,6 +22,7 @@ export default function Navbar({ userName = "Simarpreet Singh" }) {
         closeRegisterModal
     } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
     const isActive = (path) => pathname === path ? "text-[#84cc16] border-b-2 border-[#84cc16] md:pb-1 font-bold" : "text-gray-500 hover:text-gray-900 font-medium";
 
@@ -28,6 +31,11 @@ export default function Navbar({ userName = "Simarpreet Singh" }) {
         { name: 'Experts', href: '/experts' },
         { name: 'Pricing', href: '/pricing' },
     ];
+
+    const handleLogout = () => {
+        logout();
+        setIsProfileDropdownOpen(false);
+    };
 
     return (
         <>
@@ -56,13 +64,40 @@ export default function Navbar({ userName = "Simarpreet Singh" }) {
                                 <button className="text-gray-900 p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors">
                                     <Bell className="w-5 h-5 fill-current" />
                                 </button>
-                                <button className="flex items-center gap-2 border border-gray-200 rounded-xl px-2 py-1.5 sm:px-4 sm:py-2 hover:bg-gray-50 transition-colors shadow-sm">
-                                    <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#84cc16] rounded-full flex items-center justify-center text-white shadow-inner shrink-0">
-                                        <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                    </div>
-                                    <span className="hidden sm:inline text-xs font-black text-gray-800 tracking-tight">{userName}</span>
-                                    <ChevronDown className="w-4 h-4 text-gray-400" />
-                                </button>
+
+                                {/* Profile Dropdown */}
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                        className="flex items-center gap-2 border border-gray-200 rounded-xl px-2 py-1.5 sm:px-4 sm:py-2 hover:bg-gray-50 transition-colors shadow-sm"
+                                    >
+                                        <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#84cc16] rounded-full flex items-center justify-center text-white shadow-inner shrink-0">
+                                            <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                        </div>
+                                        <span className="hidden sm:inline text-xs font-black text-gray-800 tracking-tight">{user?.name || userName}</span>
+                                        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {isProfileDropdownOpen && (
+                                        <>
+                                            {/* Invisible backdrop for closing */}
+                                            <div
+                                                className="fixed inset-0 z-10"
+                                                onClick={() => setIsProfileDropdownOpen(false)}
+                                            ></div>
+
+                                            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl py-2 z-20 animate-in fade-in zoom-in duration-200">
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="w-full flex items-center gap-3 px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+                                                >
+                                                    <LogOut className="w-4 h-4" />
+                                                    Logout
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         ) : (
                             <div className="flex items-center gap-1.5 sm:gap-3">
@@ -106,9 +141,17 @@ export default function Navbar({ userName = "Simarpreet Singh" }) {
                                     {link.name}
                                 </Link>
                             ))}
-                            {!isAuthenticated && (
+                            {!isAuthenticated ? (
                                 <button onClick={openLoginModal} className="w-full text-left px-4 py-3 rounded-lg text-sm text-[#84cc16] font-bold hover:bg-gray-50 border-t border-gray-50 mt-2">
                                     Log In
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full text-left px-4 py-3 rounded-lg text-sm text-red-500 font-bold hover:bg-red-50 border-t border-gray-50 mt-2 flex items-center gap-2"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Logout
                                 </button>
                             )}
                         </div>
