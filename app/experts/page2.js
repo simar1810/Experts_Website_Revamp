@@ -4,11 +4,14 @@ import { useState, useEffect } from 'react';
 import { Search, MapPin, Bell, User, ChevronDown, CheckCircle2, MessageSquare, ThumbsUp, X } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
-
+import { useAuth } from '@/context/AuthContext';
 
 function ExpertCard({ expert }) {
+    const { isAuthenticated, openLoginModal } = useAuth();
+    const router = useRouter();
+
     let specializations_string = ''
     const specs = expert.specializations || expert.expertiseTags || [];
     if (specs.length > 2) {
@@ -21,8 +24,21 @@ function ExpertCard({ expert }) {
         specializations_string = specs[0]
     }
 
+    const handleCardClick = (e) => {
+        e.preventDefault();
+        const id = expert._id || expert.coach?._id || expert.id;
+        if (!id) return;
+
+        if (!isAuthenticated) {
+            localStorage.setItem('redirect_after_login', id);
+            openLoginModal();
+        } else {
+            router.push(`/experts/${id}`);
+        }
+    };
+
     return (
-        <Link href={`/experts/${expert._id}`} className="block">
+        <div onClick={handleCardClick} className="block cursor-pointer">
             <div className="bg-white border border-gray-100 rounded-[2rem] p-5 sm:p-8 flex flex-col md:flex-row gap-6 sm:gap-10 shadow-sm hover:shadow-xl hover:border-lime-100/50 transition-all duration-500 relative group overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-lime-50 rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
@@ -70,7 +86,7 @@ function ExpertCard({ expert }) {
                     </div>
                 </div>
             </div>
-        </Link>
+        </div>
     )
 }
 function ExpertList({ experts }) {
@@ -82,7 +98,7 @@ function ExpertList({ experts }) {
         </>
     )
 }
-function LocationSelectorDropdown({coordinateLocation, setLocationQuery, setShowLocationDropdown }) {
+function LocationSelectorDropdown({ coordinateLocation, setLocationQuery, setShowLocationDropdown }) {
     return (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-[999]">
             {/* Near me option */}
@@ -90,7 +106,7 @@ function LocationSelectorDropdown({coordinateLocation, setLocationQuery, setShow
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={async () => {
                     if (coordinateLocation) {
-                        const city = await findCityFromCoordinates({coordinates: coordinateLocation});
+                        const city = await findCityFromCoordinates({ coordinates: coordinateLocation });
                         console.log(city);
                         if (city) {
                             setLocationQuery(city);
@@ -206,12 +222,12 @@ function Pagination({ totalPages, page, setPage }) {
         </div>
     )
 }
-async function findCityFromCoordinates({coordinates}){
+async function findCityFromCoordinates({ coordinates }) {
     if (!coordinates || !coordinates.latitude || !coordinates.longitude) {
         console.error('Invalid coordinates provided');
         return null;
     }
-    
+
     try {
         const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coordinates.latitude}&longitude=${coordinates.longitude}`);
         const data = await res.json();
@@ -289,17 +305,18 @@ function ExpertsPage2Content() {
         async function loadInitialExperts() {
             if (coordinateLocation) {
                 try {
-                    const experts = await fetchAPI(`/experts/listing/search`,
-                        {
-                            "clientLocation": {
-                                "coordinates": [coordinateLocation.longitude, coordinateLocation.latitude]
-                            },
-                            "radiusKm": 8000,
-                            "consultationMode": "in_person"
-                        }
-                    )
-                    console.log('initail', experts)
-                    setFilteredExperts(...experts.free, ...experts.paid);
+                    // const experts = await fetchAPI(`/experts/listing/search`,
+                    //     {
+                    //         "clientLocation": {
+                    //             "coordinates": [coordinateLocation.longitude, coordinateLocation.latitude]
+                    //         },
+                    //         "radiusKm": 80000,
+                    //         "consultationMode": "in_person"
+                    //     }
+                    // )
+                    const data = await fetchAPI('/experts/listing/home/top-rated');
+                    console.log('topRatedExperts', data);
+                    setFilteredExperts(Array.isArray(data?.items) ? data.items.slice(0, 10) : []);
                 } catch (err) {
                     console.error("Failed to fetch initial experts:", err);
                     setFilteredExperts([]);
@@ -319,13 +336,14 @@ function ExpertsPage2Content() {
                 {
                     "city": locationQuery,
                     "consultationMode": "in_person",
-                    "expertiseTags":selectedSpecialities ,
+                    "expertiseTags": selectedSpecialities,
                     "languages": ["Hindi"],
                     "page": page,
                 },
                 "POST"
             )
-            setFilteredExperts([...experts.free, ...experts.paid]);
+            setFilteredExperts([...(experts.free || []), ...(experts.paid || [])]);
+            console.log('filtered', experts)
             setShowPopularExperts(false)
         }
     }

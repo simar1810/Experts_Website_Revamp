@@ -6,13 +6,13 @@ import { fetchAPI } from '@/lib/api';
 function ExpertCard({ expert }) {
     let specializations_string = ''
     if (expert.specializations.length > 2) {
-        specializations_string = expert.specializations[0] + ", " + expert.specializations[1] +  " more..."
+        specializations_string = expert.specializations[0] + ", " + expert.specializations[1] + " more..."
     }
-    else if (expert.specializations.length == 2){
+    else if (expert.specializations.length == 2) {
         specializations_string = expert.specializations[0] + ", " + expert.specializations[1]
 
     }
-    else{
+    else {
         specializations_string = expert.specializations[0]
     }
 
@@ -34,7 +34,7 @@ function ExpertList({ experts }) {
     console.log('experts', experts);
     return (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 sm:gap-x-6 gap-y-10 mb-16">
-            {experts.map((expert, i) => (
+            {Array.isArray(experts) && experts.map((expert, i) => (
                 <ExpertCard key={i} expert={expert} />
             ))}
         </div>
@@ -87,7 +87,7 @@ function LocationSelectorDropdown({ setLocationQuery, setShowLocationDropdown })
 }
 
 export default function ExpertsPage1() {
-    
+
 
     return (
         <main className="min-h-screen bg-white font-sans selection:bg-lime-200">
