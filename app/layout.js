@@ -18,6 +18,7 @@ export const metadata = {
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({ children }) {
   return (
@@ -26,7 +27,36 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
         <AuthProvider>
-          <Navbar/>
+          <Toaster
+            position="bottom-right"
+            reverseOrder={false}
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#fff',
+                color: '#1a1a1a',
+                padding: '16px 24px',
+                borderRadius: '1.25rem',
+                fontSize: '14px',
+                fontWeight: '600',
+                boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)',
+                border: '1px solid #f3f4f6',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#84cc16',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
+          <Navbar />
           {children}
           <Footer />
         </AuthProvider>

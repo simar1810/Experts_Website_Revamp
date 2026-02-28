@@ -1,55 +1,48 @@
-'use client'
+'use client';
 
-import { Search, MapPin, ThumbsUp, CheckCircle2, Star, ChevronDown, Bell, User, X } from 'lucide-react';
+import { Search, MapPin, ThumbsUp, CheckCircle2, Star, ChevronDown, Bell, User, X, Globe, Trophy, GraduationCap, Users } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '../../../components/Navbar';
 import { fetchAPI, sendData } from '@/lib/api';
 import { useState, use, useEffect } from 'react';
-
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 function EnquiryBox({ listingId }) {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
+    const { isAuthenticated, openLoginModal } = useAuth();
     const [message, setMessage] = useState('');
 
     async function handleSubmit(e) {
         e.preventDefault();
-        try {
-            const success = await sendData('/experts/inquiry/create',
-                {
-                    "listingId": listingId,
-                    "name": name,
-                    "email": email,
-                    "phone": phone,
-                    "message": message,
-                    "consultationMode": "online"
 
-                });
+        if (!isAuthenticated) {
+            openLoginModal();
+            return;
+        }
+
+        try {
+            const success = await fetchAPI('/experts/inquiry/create', {
+                listingId: listingId,
+                message: message,
+                consultationMode: "online"
+            });
+            console.log(success)
             if (success) {
-                alert('Enquiry sent successfully');
-                setName('');
-                setEmail('');
-                setPhone('');
+                toast.success('Enquiry sent successfully');
                 setMessage('');
             }
         } catch (error) {
             console.error(error);
-            alert('Enquiry failed: ' + (error.message || 'Unknown error'));
+            toast.error('Enquiry failed: ' + (error.message || 'Unknown error'));
         }
     }
 
     return (
-        <div className="lg:col-span-4 order-first lg:order-none">
+        <div className="lg:col-span-4">
             <div className="lg:sticky lg:top-24 space-y-4 sm:space-y-6">
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 sm:ml-4">Your Enquiry Here</h3>
                 <div className="bg-white border border-gray-100 rounded-2xl sm:rounded-[2rem] p-4 sm:p-5 shadow-sm">
                     <form onSubmit={handleSubmit}>
-                        <div className="flex flex-col gap-4 mb-4">
-                            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#fdfdfd] rounded-xl p-4 text-sm text-gray-700 outline-none resize-none border-none placeholder-gray-300 shadow-inner" />
-                            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#fdfdfd] rounded-xl p-4 text-sm text-gray-700 outline-none resize-none border-none placeholder-gray-300 shadow-inner" />
-                            <input type="tel" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-[#fdfdfd] rounded-xl p-4 text-sm text-gray-700 outline-none resize-none border-none placeholder-gray-300 shadow-inner" />
-                        </div>
                         <textarea
                             placeholder="Write your Message"
                             value={message}
@@ -60,6 +53,122 @@ function EnquiryBox({ listingId }) {
                             Send Enquiry
                         </button>
                     </form>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ReviewModal({ isOpen, onClose, userName, listingId }) {
+    const [ratings, setRatings] = useState({
+        knowledge: 1,
+        results: 1,
+        communication: 1,
+        punctuality: 1,
+        workoutQuality: 1,
+    });
+    const [message, setMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showError, setShowError] = useState(false);
+
+    const categories = [
+        { id: 'Knowledge', key: 'knowledge' },
+        { id: 'Results', key: 'results' },
+        { id: 'Communication', key: 'communication' },
+        { id: 'Punctuality', key: 'punctuality' },
+        { id: 'Work Quality', key: 'workoutQuality' },
+    ];
+
+    if (!isOpen) return null;
+
+    const handleSubmit = async () => {
+        if (!message.trim()) {
+            setShowError(true);
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            const payload = {
+                listingId: listingId,
+                text: message,
+                ratings: ratings
+            };
+            const response = await fetchAPI('/experts/review/create', payload, 'POST');
+            if (response) {
+                toast.success('Review added successfully');
+                onClose();
+            }
+        } catch (error) {
+            console.error('Failed to add review:', error);
+            toast.error(error.message || 'Failed to add review');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose}></div>
+            <div className="relative bg-white w-full max-w-lg rounded-[2rem] p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto scrollbar-hide">
+                <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Write a Review</h2>
+                    <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-full transition-colors">
+                        <X className="w-5 h-5 text-gray-900" />
+                    </button>
+                </div>
+
+                <div className="space-y-5">
+                    {/* User Info */}
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <span className="text-lg font-bold text-gray-900">{userName || 'User'}</span>
+                    </div>
+
+                    {/* Detailed Ratings */}
+                    <div className="space-y-3 bg-gray-50/50 p-5 rounded-[1.5rem] shadow-inner">
+                        {categories.map((cat) => (
+                            <div key={cat.id} className="flex items-center justify-between gap-4">
+                                <span className="text-xs sm:text-sm font-bold text-gray-700">{cat.id}</span>
+                                <div className="flex gap-1 shrink-0">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star
+                                            key={s}
+                                            onClick={() => setRatings(prev => ({ ...prev, [cat.key]: s }))}
+                                            className={`w-4 h-4 sm:w-5 sm:h-5 cursor-pointer transition-all ${s <= ratings[cat.key] ? 'fill-[#84cc16] text-[#84cc16]' : 'text-gray-300'}`}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Textarea */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center px-1">
+                            <label className="text-sm font-bold text-gray-700">Your Experience</label>
+                            {showError && <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider">(required)</span>}
+                        </div>
+                        <textarea
+                            value={message}
+                            onChange={(e) => {
+                                setMessage(e.target.value);
+                                if (e.target.value.trim()) setShowError(false);
+                            }}
+                            placeholder="Write your review experience here..."
+                            className={`w-full h-28 sm:h-32 bg-gray-50/50 rounded-[1.5rem] p-5 sm:p-6 text-gray-700 outline-none resize-none placeholder-gray-400 text-sm italic leading-relaxed shadow-inner transition-all border ${showError ? 'border-red-500 bg-red-50/10' : 'border-transparent'}`}
+                        ></textarea>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="w-full bg-[#71b111] hover:bg-[#639b0f] disabled:opacity-50 text-white py-3.5 sm:py-4 rounded-[1.2rem] font-bold text-sm sm:text-base transition-all shadow-xl shadow-lime-900/10 active:scale-95 flex items-center justify-center"
+                    >
+                        {isSubmitting ? 'Adding...' : 'Add Review'}
+                    </button>
                 </div>
             </div>
         </div>
@@ -166,6 +275,11 @@ export default function CoachProfilePage({ params }) {
     const [locationQuery, setLocationQuery] = useState('');
     const [showLocationDropdown, setShowLocationDropdown] = useState(false);
     const [showSpecialityDropdown, setShowSpecialityDropdown] = useState(false);
+    const [coachData, setCoachData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const { user, isAuthenticated, openLoginModal } = useAuth();
+    const [reviews, setReviews] = useState([]);
 
     const addSpeciality = (spec) => {
         if (!selectedSpecialities.includes(spec)) {
@@ -179,7 +293,6 @@ export default function CoachProfilePage({ params }) {
     };
 
     const handleSearch = () => {
-        // Implement search logic if needed, or redirect to experts page with queries
         const queryParams = new URLSearchParams();
         if (selectedSpecialities.length > 0) {
             queryParams.set('speciality', selectedSpecialities.join(','));
@@ -189,33 +302,64 @@ export default function CoachProfilePage({ params }) {
         }
         window.location.href = `/experts?${queryParams.toString()}`;
     };
-    const specializations = ['Orthodontist', 'Cosmetic/Aesthetic Dentist', 'Dentofacial Orthopedist', 'Implantologist', 'Dentist'];
-    const awards = ['Recognized by Dental Council of India as an Inspector for inspect dental college - 2012'];
-    const education = ['BDS - MSS Ambedkar Dental College and Hospital, 1993', 'MDS - Orthodontics - Bangalore University, 1998'];
-    const memberships = ['Indian Dental Association', 'Indian Orthodontic Society'];
 
     useEffect(() => {
         const getCoachDetails = async () => {
             try {
-                const data = await fetchAPI(`/experts/listing/details/${listingId}`, null, 'GET');
-                console.log('Coach details:', data)
+                setIsLoading(true);
+                const data = await fetchAPI(`/experts/listing/public/details`, {
+                    listingId: listingId
+                });
+                console.log("Coach details:", data);
+                setCoachData(data);
             } catch (err) {
                 console.error("Failed to fetch coach details:", err);
+            } finally {
+                setIsLoading(false);
             }
         };
+
         if (listingId) {
             getCoachDetails();
+            const getReviews = async () => {
+                try {
+                    const reviewsData = await fetchAPI(`/experts/review/listing/${listingId}`, null, 'GET');
+                    console.log("Reviews response:", reviewsData.reviews);
+                    setReviews(reviewsData.reviews);
+                } catch (err) {
+                    console.error("Failed to fetch reviews:", err);
+                }
+            };
+            getReviews();
         }
     }, [listingId]);
+
+    const coachInfo = coachData?.coach;
+    const details = coachData?.expertDetails;
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-500"></div>
+            </div>
+        );
+    }
+
+    if (!coachData) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-gray-500 font-bold">Coach not found.</p>
+            </div>
+        );
+    }
+
     return (
         <main className="min-h-screen bg-white font-sans mb-30">
-            {/* Navbar is already global via layout.js, but let's ensure it's here if layout doesn't cover dynamic routes or needs specific props */}
-            {/* Actually layout.js has it, but I'll add a spacer for fixed navbar if needed */}
             <div className="h-[72px]"></div>
 
             {/* Breadcrumb & Search Section */}
             <section className="bg-white px-4 sm:px-6 py-4 max-w-7xl mx-auto">
-                <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6">
+                <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">
                     <Search className="w-3 h-3" />
                     <span>Search / </span>
                     <span className="text-[#84cc16] font-medium font-bold">Coach Profile</span>
@@ -255,8 +399,8 @@ export default function CoachProfilePage({ params }) {
                             />
                         )}
                     </div>
-                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-3 sm:px-4 py-2.5 border border-gray-100 relative min-w-0">
-                        <MapPin className="w-5 h-5 text-gray-300 shrink-0" />
+                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-3 sm:px-4 py-2.5 border border-gray-200 relative min-w-0">
+                        <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
                         <input
                             type="text"
                             placeholder="Set your location"
@@ -264,7 +408,7 @@ export default function CoachProfilePage({ params }) {
                             onChange={(e) => setLocationQuery(e.target.value)}
                             onFocus={() => setShowLocationDropdown(true)}
                             onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
-                            className="bg-transparent w-full outline-none text-gray-700 text-sm min-w-0"
+                            className="bg-transparent w-full outline-none text-gray-800 text-sm min-w-0 placeholder-gray-400"
                         />
                         {showLocationDropdown && (
                             <LocationSelectorDropdown setLocationQuery={setLocationQuery} setShowLocationDropdown={setShowLocationDropdown} />
@@ -275,21 +419,6 @@ export default function CoachProfilePage({ params }) {
                         Search
                     </button>
                 </div>
-
-                {/* <div className="flex items-center gap-6 text-xs font-medium text-gray-500 border-b border-gray-50 pb-6">
-                    <div className="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                        Availability <ChevronDown className="w-4 h-4 text-[#84cc16]" />
-                    </div>
-                    <div className="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                        Filter <ChevronDown className="w-4 h-4 text-[#84cc16]" />
-                    </div>
-                    <div className="flex items-center gap-2 ml-auto">
-                        Sort By
-                        <div className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-md">
-                            Relevance <ChevronDown className="w-4 h-4 text-[#84cc16]" />
-                        </div>
-                    </div>
-                </div> */}
             </section>
 
             {/* Main Content Area */}
@@ -302,180 +431,205 @@ export default function CoachProfilePage({ params }) {
                             <div className="flex flex-col md:flex-row gap-8">
                                 <div className="relative w-32 h-32 sm:w-40 sm:h-40 shrink-0 mx-auto md:mx-0">
                                     <div className="w-full h-full rounded-full border-[3px] border-[#84cc16] overflow-hidden p-1">
-                                        <div className="w-full h-full rounded-full overflow-hidden">
-                                            <img src="/images/coach.png" alt="Dr. Shantanu Jambhekar" className="w-full h-full object-cover" />
+                                        <div className="w-full h-full rounded-full overflow-hidden bg-gray-50">
+                                            <img
+                                                src={coachInfo?.profilePhoto || details?.profilePhoto || "/images/coach.png"}
+                                                alt={coachInfo?.name}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => e.target.src = "/images/coach.png"}
+                                            />
                                         </div>
                                     </div>
-                                    <div className="absolute right-2 bottom-4 bg-white rounded-full p-0.5 shadow-sm">
-                                        <CheckCircle2 className="w-7 h-7 text-[#84cc16] fill-white" />
-                                    </div>
+                                    {details?.isVerified && (
+                                        <div className="absolute right-2 bottom-4 bg-white rounded-full p-0.5 shadow-sm">
+                                            <CheckCircle2 className="w-7 h-7 text-[#84cc16] fill-white" />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex-1 space-y-2 text-center md:text-left">
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dr. Shantanu Jambhekar</h1>
-                                    <p className="text-gray-400 text-sm font-bold uppercase tracking-wider">Dentist</p>
-                                    <p className="text-gray-500 text-base font-medium">15 years experience overall</p>
-                                    <div className="flex items-center gap-1.5 text-gray-900 text-base font-bold pt-1">
-                                        <span>Peru, Mumbai</span>
-                                    </div>
-                                    <p className="text-gray-500 text-sm leading-relaxed max-w-md">
-                                        Smilessence Center for Advanced Dentistry + 1 more
-                                    </p>
-                                    <div className="flex items-center gap-2 pt-1 font-bold">
-                                        <span className="text-[#84cc16] text-xs">FREE</span>
-                                        <span className="text-gray-400 text-xs">Video Consultation fee at clinic</span>
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{coachInfo?.name}</h1>
+                                    <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                                        {details?.specializations?.map((spec, i) => (
+                                            <p key={i} className="text-gray-500 text-[10px] sm:text-xs font-black uppercase tracking-widest border border-gray-200 rounded-full px-3 py-1 bg-gray-50/50">
+                                                {spec}
+                                            </p>
+                                        ))}
                                     </div>
 
-                                    <div className="flex items-center gap-4 pt-4">
-                                        <div className="flex items-center gap-1.5 bg-[#84cc16] text-white px-3 py-1.5 rounded text-sm font-bold">
-                                            <ThumbsUp className="w-4 h-4 fill-current" />
-                                            <span>99%</span>
+                                    {details?.yearsExperience && (
+                                        <p className="text-gray-600 text-sm font-medium">{details.yearsExperience} years experience overall</p>
+                                    )}
+
+                                    <div className="flex items-center justify-center md:justify-start gap-1.5 text-gray-900 text-sm font-bold pt-1">
+                                        <MapPin className="w-4 h-4 text-[#84cc16]" />
+                                        <span>{[details?.city, details?.state, details?.country].filter(Boolean).join(', ')}</span>
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-3">
+                                        {(details?.offersOnline || details?.offersInPerson) && (
+                                            <div className="flex items-center gap-2 font-bold">
+                                                <span className="text-[#84cc16] text-xs">AVAILABLE for</span>
+                                                <span className="text-gray-500 text-[10px] uppercase tracking-wider">
+                                                    {[details.offersOnline && 'Online', details.offersInPerson && 'In-Person'].filter(Boolean).join(' / ')}
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {details?.clientsTrained > 0 && (
+                                            <div className="flex items-center gap-1.5 text-gray-500 text-xs font-bold">
+                                                <Users className="w-3.5 h-3.5 text-lime-500" />
+                                                <span>{details.clientsTrained}+ Clients Trained</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center justify-center md:justify-start gap-4 pt-4">
+                                        <div className="flex items-center gap-1.5 bg-[#84cc16] text-white px-3 py-1.5 rounded text-sm font-bold shadow-lg shadow-lime-500/20">
+                                            <Star className="w-4 h-4 fill-current" />
+                                            <span>{details?.ratingAgg?.overall?.avg?.toFixed(1) || "5.0"}</span>
                                         </div>
-                                        <span className="text-gray-400 text-sm font-medium border-b border-gray-300 pb-0.5">93 Patient Stories</span>
+                                        <span className="text-gray-400 text-sm font-medium border-b border-gray-100 pb-0.5">
+                                            {details?.reviewAgg?.totalReviews || 0} Patient Stories
+                                        </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <p className="text-gray-500 text-sm leading-[1.8] font-medium text-justify">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                            </p>
+                            {details?.bio && (
+                                <p className="text-gray-600 text-sm leading-[1.8] font-medium text-justify italic">
+                                    "{details.bio}"
+                                </p>
+                            )}
                         </div>
 
                         {/* Tabs Container */}
                         <div>
                             <div className="flex items-center gap-2 sm:gap-8 border-b border-gray-100 pb-px mb-8 overflow-x-auto scrollbar-hide -mx-1 px-1">
-                                {['Info', 'Stories', 'Services', "FAQ's"].map((tab, i) => (
+                                {['Info', 'Stories', 'Services'].map((tab, i) => (
                                     <button
                                         key={tab}
-                                        className={`shrink-0 pb-4 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors whitespace-nowrap ${i === 0 ? 'text-white bg-[#84cc16] px-6 sm:px-10 py-3 rounded-t-lg' : 'text-gray-400 px-4 sm:px-6'}`}
+                                        className={`shrink-0 pb-4 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors whitespace-nowrap ${i === 0 ? 'text-white bg-[#84cc16] px-6 sm:px-10 py-3 rounded-t-lg' : 'text-gray-500 px-4 sm:px-6 hover:text-gray-700'}`}
                                     >
                                         {tab}
                                     </button>
                                 ))}
                             </div>
 
-                            {/* Info Tab Content */}
+                            {/* Services & Details Section */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 gap-x-12">
-                                <div className="space-y-4">
-                                    <h3 className="text-xl font-bold text-gray-900">All Care Dental Centre</h3>
-                                    <p className="text-gray-500 text-sm leading-relaxed">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                    </p>
-
-                                    <div className="pt-6 space-y-4">
-                                        <h3 className="text-lg font-bold text-gray-900">Address</h3>
-                                        <p className="text-gray-500 text-[11px] leading-relaxed">
-                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam
-                                        </p>
-                                        <div className="flex gap-4">
-                                            <div className="w-12 h-12 bg-gray-100 rounded-lg"></div>
-                                            <div className="w-12 h-12 bg-gray-100 rounded-lg"></div>
-                                            <div className="w-12 h-12 bg-gray-100 rounded-lg"></div>
-                                            <div className="w-12 h-12 bg-gray-100 rounded-lg"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
+                                {/* Specializations & Languages */}
                                 <div className="space-y-10">
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-[#84cc16] text-xl font-bold">4.5</span>
-                                        <div className="flex items-center gap-1">
-                                            {[...Array(4)].map((_, i) => (
-                                                <Star key={i} className="w-5 h-5 text-[#84cc16] fill-current" />
-                                            ))}
-                                            <Star className="w-5 h-5 text-gray-200 fill-current" />
+                                    {details?.specializations?.length > 0 && (
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-lime-50 flex items-center justify-center">
+                                                    <Trophy className="w-4 h-4 text-[#84cc16]" />
+                                                </div>
+                                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Specializations</h3>
+                                            </div>
+                                            <ul className="space-y-3 pl-11">
+                                                {details.specializations.map((spec, i) => (
+                                                    <li key={i} className="text-gray-600 text-sm flex items-center gap-2 font-medium">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16]"></span>
+                                                        {spec}
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         </div>
-                                    </div>
+                                    )}
 
-                                    <div className="space-y-2">
-                                        <h3 className="text-lg font-bold text-gray-900">Timings</h3>
-                                        <p className="text-gray-500 text-sm font-medium">9:00 AM - 5:00 PM</p>
-                                    </div>
+                                    {details?.languages?.length > 0 && (
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                                    <Globe className="w-4 h-4 text-blue-500" />
+                                                </div>
+                                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Languages</h3>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2 pl-11">
+                                                {details.languages.map((lang, i) => (
+                                                    <span key={i} className="text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 uppercase tracking-wider">
+                                                        {lang}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
-                                    <div className="space-y-2 text-right md:text-left">
-                                        <h3 className="text-lg font-bold text-gray-900">Consultation Fee</h3>
-                                        <p className="text-gray-500 text-sm font-medium">₹500 per consultation</p>
-                                    </div>
+                                {/* Certifications */}
+                                <div className="space-y-10">
+                                    {details?.certifications?.names?.length > 0 && (
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                                                    <GraduationCap className="w-4 h-4 text-orange-500" />
+                                                </div>
+                                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Certifications</h3>
+                                            </div>
+                                            <ul className="space-y-4 pl-11">
+                                                {details.certifications.names.map((cert, i) => (
+                                                    <li key={i} className="text-gray-500 text-sm leading-relaxed flex items-start gap-2 font-medium">
+                                                        <CheckCircle2 className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+                                                        {cert}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {details?.institute && (
+                                        <div className="space-y-2 pl-11">
+                                            <h4 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Educated at</h4>
+                                            <p className="text-gray-800 font-bold">{details.institute}</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Services section */}
-                            <div className="mt-20 space-y-12">
-                                <h3 className="text-xl font-bold text-gray-900">Services</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                    <div className="space-y-4">
-                                        <h4 className="text-base font-bold text-gray-900">Specialization</h4>
-                                        <ul className="space-y-2">
-                                            {specializations.map((item, i) => (
-                                                <li key={i} className="text-gray-400 text-sm flex items-center gap-2">
-                                                    <span className="text-[#84cc16] text-xs">•</span> {item}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <h4 className="text-base font-bold text-gray-900">Awards and Recognitions</h4>
-                                        <ul className="space-y-2">
-                                            {awards.map((item, i) => (
-                                                <li key={i} className="text-gray-400 text-xs flex items-start gap-2">
-                                                    <span className="text-[#84cc16] text-xs shrink-0">•</span>
-                                                    <span className="leading-relaxed">{item}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                    <div className="space-y-4">
-                                        <h4 className="text-base font-bold text-gray-900">Education</h4>
-                                        <ul className="space-y-2">
-                                            {education.map((item, i) => (
-                                                <li key={i} className="text-gray-400 text-sm flex items-center gap-2">
-                                                    <span className="text-[#84cc16] text-xs">•</span> {item}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <h4 className="text-base font-bold text-gray-900">Memberships</h4>
-                                        <ul className="space-y-2">
-                                            {memberships.map((item, i) => (
-                                                <li key={i} className="text-gray-400 text-sm flex items-center gap-2">
-                                                    <span className="text-[#84cc16] text-xs">•</span> {item}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
+                        {/* Reviews Section */}
+                        <div className="bg-white border border-gray-100 rounded-[2rem] p-6 sm:p-10 shadow-sm space-y-8 mt-12">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Reviews</h3>
+                                <button
+                                    onClick={() => {
+                                        if (isAuthenticated) {
+                                            setIsReviewModalOpen(true);
+                                        } else {
+                                            openLoginModal();
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 bg-[#84cc16] hover:bg-[#76b813] text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg shadow-lime-500/20 active:scale-95"
+                                >
+                                    <X className="w-4 h-4 rotate-45" />
+                                    Write a Review
+                                </button>
                             </div>
 
-                            {/* Awards & Recognitions again? (repeating as per user request to be exact) */}
-                            <div className="mt-20 space-y-12 border-t border-gray-100 pt-12">
-                                <h3 className="text-xl font-bold text-gray-900">Awards & Recognitions</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                    <div className="space-y-4">
-                                        <h4 className="text-base font-bold text-gray-900">Specialization</h4>
-                                        <ul className="space-y-2">
-                                            {specializations.map((item, i) => (
-                                                <li key={i} className="text-gray-400 text-sm flex items-center gap-2">
-                                                    <span className="text-[#84cc16] text-xs">•</span> {item}
-                                                </li>
-                                            ))}
-                                        </ul>
+                            <div className="space-y-8">
+                                {reviews.map((review, i) => (
+                                    <div key={i} className="space-y-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-2xl flex items-center justify-center">
+                                                <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
+                                            </div>
+                                            <span className="text-sm sm:text-base font-bold text-gray-900">{review.clientName}</span>
+                                        </div>
+                                        <p className="text-gray-600 text-sm leading-relaxed max-w-3xl">
+                                            {review.text}
+                                        </p>
+                                        <div className="border-b border-gray-50 pt-4"></div>
                                     </div>
-                                    <div className="space-y-4">
-                                        <h4 className="text-base font-bold text-gray-900">Awards and Recognitions</h4>
-                                        <ul className="space-y-2">
-                                            {awards.map((item, i) => (
-                                                <li key={i} className="text-gray-400 text-xs flex items-start gap-2">
-                                                    <span className="text-[#84cc16] text-xs shrink-0">•</span>
-                                                    <span className="leading-relaxed">{item}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
+                                ))}
+                            </div>
+
+                            <div className="text-center pt-4">
+                                <button className="text-[#84cc16] hover:text-[#76b813] font-bold text-sm sm:text-base transition-colors flex items-center justify-center gap-2 mx-auto">
+                                    See All
+                                    <span className="text-lg">»»»</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -484,6 +638,13 @@ export default function CoachProfilePage({ params }) {
 
                 </div>
             </section>
+
+            <ReviewModal
+                isOpen={isReviewModalOpen}
+                onClose={() => setIsReviewModalOpen(false)}
+                userName={user?.name}
+                listingId={listingId}
+            />
         </main>
     );
 }

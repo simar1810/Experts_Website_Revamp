@@ -25,7 +25,6 @@ function ExpertCard({ expert }) {
     }
 
     const handleCardClick = (e) => {
-        e.preventDefault();
         const id = expert._id || expert.coach?._id || expert.id;
         if (!id) return;
 
@@ -70,7 +69,7 @@ function ExpertCard({ expert }) {
                         <div className="flex items-center justify-center md:justify-start gap-6">
                             <div className="flex items-center gap-2 bg-[#84cc16] text-white px-3 py-1.5 rounded-xl text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
                                 <ThumbsUp className="w-3 h-3 fill-current" />
-                                <span>{((expert.recommendedScoreFinal / 0.5) * 100).toPrecision(2)}%</span>
+                                <span>{((expert.recommendedScoreFinal) * 100).toPrecision(2)}%</span>
                             </div>
                             <div className="flex items-center gap-1.5 group/stories cursor-pointer">
                                 <MessageSquare className="w-4 h-4 text-gray-300" />
@@ -79,7 +78,7 @@ function ExpertCard({ expert }) {
                         </div>
                         <div className="flex flex-col items-center md:items-end gap-2 text-right">
                             <p className="text-[#84cc16] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] leading-none">{expert.responseTime}</p>
-                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* Logic for messaging */ }} className="bg-gray-900 hover:bg-black text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all shadow-xl active:scale-95 uppercase tracking-widest mt-2">
+                            <button onClick={handleCardClick} className="bg-gray-900 hover:bg-black text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all shadow-xl active:scale-95 uppercase tracking-widest mt-2">
                                 Message Coach
                             </button>
                         </div>
@@ -308,71 +307,71 @@ function ExpertsPage2Content() {
 
     useEffect(() => {
         async function loadInitialExperts() {
-
             try {
-                // const data = await fetchAPI(`/experts/listing/search`,
-                //     {
-                //         "clientLocation": {
-                //             "coordinates": [coordinateLocation.longitude, coordinateLocation.latitude]
-                //         },
-                //         "radiusKm": 80000,
-                //         "consultationMode": "in_person"
-                //     }
-                // )
-                const data = await fetchAPI('/experts/listing/top-coaches-block',
-                    {
-                    consultationMode:consultationType || null,
-                    expertiseTags:[],
-                    languages:[],
-                    clientLocation:coordinateLocation || null,
-                    radiusKm:distanceRange || null,
-                    limit:10});
+                const mode = consultationType === 'offline' ? 'in_person' : (consultationType === 'both' ? 'both' : consultationType);
+
+                const data = await fetchAPI('/experts/listing/top-coaches-block', {
+                    consultationMode: mode || null,
+                    expertiseTags: selectedSpecialities || [],
+                    languages: [],
+                    clientLocation: coordinateLocation || null,
+                    radiusKm: distanceRange || null,
+                    sortBy: sortBy || 'name-asc',
+                    limit: 10
+                });
+
                 console.log('topRatedExperts', data);
                 setFilteredExperts(Array.isArray(data?.items) ? data.items.slice(0, 10) : []);
             } catch (err) {
                 console.error("Failed to fetch initial experts:", err);
                 setFilteredExperts([]);
-                }
-
+            }
         }
         loadInitialExperts();
-    }, [coordinateLocation, consultationType,distanceRange]);
+    }, [coordinateLocation, consultationType, distanceRange, sortBy]);
 
 
     const handleSearch = async () => {
+        console.log(selectedSpecialities, locationQuery)
+        if (selectedSpecialities.length > 0 || locationQuery.length > 0) {
+            setPage(1);
+            try {
+                const mode = consultationType === 'offline' ? 'in_person' : (consultationType === 'both' ? 'both' : consultationType);
 
-
-        if (selectedSpecialities.length > 0 && locationQuery.length > 0) {
-            setPage(1)
-            const experts = await fetchAPI(`/experts/listing/search`,
-                {
-                    "city": locationQuery,
-                    "consultationMode": "in_person",
+                const payload = {
+                    "city": locationQuery || null,
                     "expertiseTags": selectedSpecialities,
-                    "languages": ["Hindi"],
-                    "page": page,
-                },
-                "POST"
-            )
-            setFilteredExperts([...(experts.free || []), ...(experts.paid || [])]);
-            console.log('filtered', experts)
-            setShowPopularExperts(false)
+                    "page": 1,
+                };
+
+                const experts = await fetchAPI(`/experts/listing/search`, payload, "POST");
+                // Handle different response formats
+                const items = Array.isArray(experts?.items) ? experts.items : [...(experts.free || []), ...(experts.paid || [])];
+                setFilteredExperts(items);
+
+                console.log('filtered', experts);
+                setShowPopularExperts(false);
+            } catch (err) {
+                console.error("Search failed:", err);
+            }
         }
     }
 
     const searchParams = useSearchParams();
 
     useEffect(() => {
-        const speciality = searchParams.get('speciality');
-        const location = searchParams.get('location');
-
-        if (speciality) {
-            setSelectedSpecialities(speciality.split(','));
+        async function loadInitialExperts() {
+            const speciality = searchParams.get('speciality');
+            const location = searchParams.get('location');
+            if (speciality || location) {
+                setSelectedSpecialities([speciality]);
+                setLocationQuery(location);
+                console.log(speciality, location)
+            }
         }
-        if (location) {
-            setLocationQuery(location);
-        }
+        loadInitialExperts();
         handleSearch();
+
     }, [searchParams]);
 
     const addSpeciality = (spec) => {
@@ -493,7 +492,7 @@ function ExpertsPage2Content() {
             }
 
             {/* Filters Section */}
-            <section className="max-w-7xl mx-auto px-6 py-4 mb-4 border-b border-gray-50">
+            <section className="max-w-7xl mx-auto px-6 py-4 mb-4 mt-6 sm:mt-10 border-b border-gray-50">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
                     {/* Left: Consultation Type & Sort By */}
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-10">
