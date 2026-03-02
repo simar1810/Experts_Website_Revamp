@@ -24,7 +24,16 @@ export default function Navbar({ userName = "Simarpreet Singh" }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
-    const isActive = (path) => pathname === path ? "text-[#84cc16] border-b-2 border-[#84cc16] md:pb-1 font-bold" : "text-gray-500 hover:text-gray-900 font-medium";
+    const isTabActive = (path) => {
+        if (path === '/') return pathname === '/' || pathname === '/home';
+        return pathname === path || pathname?.startsWith(path + '/');
+    };
+
+    const isActive = (path) => {
+        return isTabActive(path)
+            ? "text-[#84cc16] border-b-2 border-[#84cc16] pb-1 font-bold"
+            : "text-gray-500 hover:text-gray-900 font-medium border-b-2 border-transparent pb-1";
+    };
 
     const navLinks = [
         { name: 'Home', href: '/' },
@@ -39,7 +48,7 @@ export default function Navbar({ userName = "Simarpreet Singh" }) {
 
     return (
         <>
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+            <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
                 <nav className="flex md:grid md:grid-cols-3 items-center justify-between px-4 sm:px-6 lg:px-8 py-3 md:py-4 max-w-7xl mx-auto gap-2">
                     {/* Left Section - Logo */}
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -135,7 +144,7 @@ export default function Navbar({ userName = "Simarpreet Singh" }) {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`px-4 py-3 rounded-lg text-sm transition-colors ${pathname === link.href ? 'bg-lime-50 text-lime-600 font-bold' : 'text-gray-600 hover:bg-gray-50'}`}
+                                    className={`px-4 py-3 rounded-lg text-sm transition-colors ${isTabActive(link.href) ? 'bg-lime-50 text-lime-600 font-bold' : 'text-gray-600 hover:bg-gray-50'}`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {link.name}

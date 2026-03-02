@@ -1,9 +1,11 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+    const router = useRouter();
     const [token, setToken] = useState(null);
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,10 +31,12 @@ export function AuthProvider({ children }) {
 
         const handleUnauthorized = () => {
             logout();
+            router.push("/");
+            setIsLoginModalOpen(true);
         };
         window.addEventListener('auth_unauthorized', handleUnauthorized);
         return () => window.removeEventListener('auth_unauthorized', handleUnauthorized);
-    }, []);
+    }, [router]);
 
     const login = (jwtToken, userData) => {
         localStorage.setItem("client_token", jwtToken);
@@ -45,10 +49,9 @@ export function AuthProvider({ children }) {
     };
 
     const logout = () => {
-        localStorage.removeItem("client_token");
-        localStorage.removeItem("client_data");
+        localStorage.clear();
         setToken(null);
-        setUser(null); 
+        setUser(null);
         setIsAuthenticated(false);
     };
 

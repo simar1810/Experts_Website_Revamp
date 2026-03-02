@@ -151,7 +151,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
             {/* Backdrop - fixed and filling viewport */}
             <div
-                className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity animate-in fade-in duration-300"
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
                 onClick={onClose}
             ></div>
 
