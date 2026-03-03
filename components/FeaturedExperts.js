@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { fetchAPI } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { Star, ChevronRight } from "lucide-react";
 
 export default function FeaturedExperts() {
     const [experts, setExperts] = useState([]);
@@ -11,7 +12,7 @@ export default function FeaturedExperts() {
     const router = useRouter();
 
     const handleExpertClick = (expert) => {
-        const id = expert._id || expert.coach?._id || expert.id;
+        const id = expert._id;
         if (!id) return;
 
         if (!isAuthenticated) {
@@ -20,6 +21,7 @@ export default function FeaturedExperts() {
             router.push(`/experts/${id}`);
         }
     };
+
     useEffect(() => {
         async function fetchTopRatedExperts() {
             try {
@@ -35,31 +37,50 @@ export default function FeaturedExperts() {
     }, []);
 
     return (
-        <section className="bg-white py-16">
+        <section className="bg-white py-16 sm:py-24">
             <div className="max-w-7xl mx-auto px-6">
-                <h2 className="text-2xl sm:text-3xl font-black mb-2 text-gray-900 tracking-tight">Top Rated Experts</h2>
-                <p className="text-gray-500 mb-10 text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-                    Browse through our extensive list of experts
-                </p>
+                <div className="mb-12">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                        Top Rated Experts
+                    </h2>
+                    <p className="text-gray-500 text-sm sm:text-base max-w-2xl leading-relaxed">
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                    </p>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-10">
                     {experts?.map((expert, index) => (
-                        <div key={index} onClick={() => handleExpertClick(expert)} className="text-center group cursor-pointer">
-                            <div className="aspect-[4/5] bg-gray-100 rounded-2xl mb-3 overflow-hidden relative shadow-sm group-hover:shadow-md transition-all duration-500">
+                        <div
+                            key={index}
+                            onClick={() => handleExpertClick(expert)}
+                            className="group cursor-pointer flex flex-col"
+                        >
+                            <div className="w-full aspect-[1/1.1] rounded-lg mb-4 overflow-hidden bg-gray-100">
                                 <img
-                                    src={expert?.profilePhoto}
+                                    src={expert?.profilePhoto || "/images/coach.png"}
                                     alt={expert?.coach?.name}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    onError={(e) => { e.target.src = "/images/coach.png" }}
                                 />
                             </div>
-                            <h3 className="font-black text-sm sm:text-base text-gray-900 leading-tight mb-1">{expert?.coach?.name}</h3>
-                            <p className="text-gray-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">{expert?.coach?.title}</p>
+
+                            <div className="space-y-1">
+                                <h3 className="font-bold text-lg text-gray-900 leading-tight">
+                                    {expert?.coach?.name}
+                                </h3>
+                                <p className="text-gray-500 text-sm font-medium capitalize">
+                                    {expert?.expertDetails?.title || expert?.specializations?.[0] || "Health Coach"}
+                                </p>
+                            </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-12 text-center">
-                    <button className="bg-gray-50 text-[#84CC16] px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-[#84CC16] hover:text-white transition-all shadow-sm active:scale-95 border border-gray-100">
+                <div className="mt-16 flex justify-center">
+                    <button
+                        onClick={() => router.push('/experts')}
+                        className="w-full sm:w-auto min-w-[300px] bg-[#f0f0f0] hover:bg-[#e8e8e8] text-[#84cc16] px-12 py-4 rounded-lg font-bold text-base transition-colors"
+                    >
                         View all Experts
                     </button>
                 </div>
@@ -67,3 +88,4 @@ export default function FeaturedExperts() {
         </section>
     );
 }
+

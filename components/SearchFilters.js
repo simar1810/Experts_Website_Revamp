@@ -18,63 +18,76 @@ async function findCityFromCoordinates({ coordinates }) {
     }
 }
 
-function LocationSelectorDropdown({ coordinateLocation, setLocationQuery, setShowLocationDropdown, theme = 'light' }) {
+function LocationSelectorDropdown({ coordinateLocation, locationQuery, setLocationQuery, setShowLocationDropdown, theme = 'light' }) {
     const isDark = theme === 'dark';
+
+    const filteredCities = availableCities.filter(city =>
+        city.toLowerCase().includes(locationQuery.toLowerCase())
+    );
 
     return (
         <div className={`absolute top-full left-0 right-0 mt-2 rounded-2xl shadow-xl p-4 z-[999] border ${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-100'
             }`}>
-            {/* Near me option */}
-            <button
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={async () => {
-                    if (coordinateLocation) {
-                        const city = await findCityFromCoordinates({ coordinates: coordinateLocation });
-                        if (city) setLocationQuery(city);
-                    } else {
-                        setLocationQuery('Near me');
-                    }
-                    setShowLocationDropdown(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors text-left group ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                    }`}
-            >
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isDark ? 'bg-gray-800 group-hover:bg-lime-500/20' : 'bg-gray-100 group-hover:bg-lime-100'
-                    }`}>
-                    <MapPin className={`w-4 h-4 ${isDark ? 'text-gray-400 group-hover:text-lime-500' : 'text-gray-600 group-hover:text-lime-600'
-                        }`} />
-                </div>
-                <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Near me</span>
-            </button>
+            {/* Near me option - Only show if no query or if it matches "Near me" */}
+            {(!locationQuery || "near me".includes(locationQuery.toLowerCase())) && (
+                <button
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={async () => {
+                        if (coordinateLocation) {
+                            const city = await findCityFromCoordinates({ coordinates: coordinateLocation });
+                            if (city) setLocationQuery(city);
+                        } else {
+                            setLocationQuery('Near me');
+                        }
+                        setShowLocationDropdown(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors text-left group ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
+                        }`}
+                >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isDark ? 'bg-gray-800 group-hover:bg-lime-500/20' : 'bg-gray-100 group-hover:bg-lime-100'
+                        }`}>
+                        <MapPin className={`w-4 h-4 ${isDark ? 'text-gray-400 group-hover:text-lime-500' : 'text-gray-600 group-hover:text-lime-600'
+                            }`} />
+                    </div>
+                    <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Near me</span>
+                </button>
+            )}
 
-            {/* Popular Cities Header */}
-            <div className="mt-3 mb-2 px-3">
-                <h4 className="text-xs font-medium text-gray-400">Popular Cities</h4>
-            </div>
+            {filteredCities.length > 0 && (
+                <>
+                    {/* Popular Cities Header */}
+                    <div className="mt-3 mb-2 px-3">
+                        <h4 className="text-xs font-medium text-gray-400">
+                            {locationQuery ? 'Matching Cities' : 'Popular Cities'}
+                        </h4>
+                    </div>
 
-            {/* Divider */}
-            <div className={`border-t mx-3 mb-1 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}></div>
+                    {/* Divider */}
+                    <div className={`border-t mx-3 mb-1 ${isDark ? 'border-gray-800' : 'border-gray-100'}`}></div>
 
-            {/* City List */}
-            <div className="space-y-0.5">
-                {availableCities.map((city) => (
-                    <button
-                        key={city}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                            setLocationQuery(city);
-                            setShowLocationDropdown(false);
-                        }}
-                        className={`w-full px-3 py-2.5 rounded-lg transition-colors text-left ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                            }`}
-                    >
-                        <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{city}</span>
-                    </button>
-                ))}
-            </div>
+                    {/* City List */}
+                    <div className="space-y-0.5">
+                        {filteredCities.map((city) => (
+                            <button
+                                key={city}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => {
+                                    setLocationQuery(city);
+                                    setShowLocationDropdown(false);
+                                }}
+                                className={`w-full px-3 py-2.5 rounded-lg transition-colors text-left ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
+                                    }`}
+                            >
+                                <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{city}</span>
+                            </button>
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
+
 
 function SpecialitySelectorDropdown({ specialityQuery, selectedSpecialities, onSelectTag, setShowSpecialityDropdown, theme = 'light' }) {
     const isDark = theme === 'dark';
@@ -203,11 +216,13 @@ export default function SearchFilters({
                 {showLocationDropdown && (
                     <LocationSelectorDropdown
                         coordinateLocation={coordinateLocation}
+                        locationQuery={locationQuery}
                         setLocationQuery={setLocationQuery}
                         setShowLocationDropdown={setShowLocationDropdown}
                         theme={theme}
                     />
                 )}
+
             </div>
 
             {/* Search Button */}

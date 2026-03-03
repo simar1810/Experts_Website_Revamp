@@ -1,6 +1,9 @@
 'use client';
 
-import { Search, MapPin, ThumbsUp, CheckCircle2, Star, User, X, Globe, Trophy, GraduationCap, Users } from 'lucide-react';
+import { Search, MapPin, ThumbsUp, CheckCircle2, Star, User, X, Globe, Trophy, GraduationCap, Users, Mail, ChevronRight, Video } from 'lucide-react';
+
+
+
 import Link from 'next/link';
 import Navbar from '../../../components/Navbar';
 import { fetchAPI, sendData } from '@/lib/api';
@@ -10,9 +13,10 @@ import { toast } from 'react-hot-toast';
 import SearchFilters from '@/components/SearchFilters';
 
 
-function EnquiryBox({ listingId }) {
+function EnquiryBox({ listingId, expert }) {
     const { isAuthenticated, openLoginModal } = useAuth();
     const [message, setMessage] = useState('');
+    const [consultationMode, setConsultationMode] = useState(expert?.expertDetails?.offersOnline ? 'online' : 'in_person');
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -23,16 +27,21 @@ function EnquiryBox({ listingId }) {
         }
 
         try {
-            const success = await fetchAPI('/experts/inquiry/create', {
+            const { inquiry } = await fetchAPI('/experts/inquiry/create', {
                 listingId: listingId,
                 message: message,
-                consultationMode: "online"
+                consultationMode: consultationMode
             });
-            console.log(success)
-            if (success) {
-                toast.success('Enquiry sent successfully');
-                setMessage('');
-            }
+
+            toast.success('Enquiry sent successfully');
+            setMessage('');
+
+            const chat_resp = await fetchAPI('/experts/chat/thread-client', {
+                inquiryId: inquiry._id,
+
+            });
+            console.log(chat_resp);
+            toast.success('Chat thread created successfully');
         } catch (error) {
             console.error(error);
             toast.error('Enquiry failed: ' + (error.message || 'Unknown error'));
@@ -49,11 +58,43 @@ function EnquiryBox({ listingId }) {
                             placeholder="Write your Message"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            className="w-full h-40 bg-[#fdfdfd] rounded-xl p-4 text-sm text-gray-700 outline-none resize-none border-none placeholder-gray-300 shadow-inner"
+                            className="w-full h-40 bg-[#fdfdfd] rounded-xl p-4 text-sm text-gray-900 outline-none resize-none border-none placeholder-gray-300 shadow-inner"
                         ></textarea>
-                        <button className="w-full bg-[#84cc16] hover:bg-[#76b813] text-white py-4 rounded-xl font-bold text-sm mt-8 transition-colors shadow-lg shadow-lime-500/20">
+                        <div className="space-y-4 mt-6">
+                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Consultation Mode</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {expert?.expertDetails?.offersOnline && (
+                                <button
+                                    type="button"
+                                    onClick={() => setConsultationMode('online')}
+                                    className={`flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 transition-all font-bold text-sm ${consultationMode === 'online'
+                                        ? 'border-[#84cc16] bg-lime-50 text-[#84cc16] shadow-sm'
+                                        : 'border-gray-50 bg-gray-50/50 text-gray-400 hover:border-gray-100 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {/* <Video className="w-4 h-4" /> */}
+                                    Online
+                                </button>
+                                )}
+                                {expert?.expertDetails?.offersInPerson && (
+                                <button
+                                    type="button"
+                                    onClick={() => setConsultationMode('in_person')}
+                                    className={`flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 transition-all font-bold text-sm ${consultationMode === 'in_person'
+                                        ? 'border-[#84cc16] bg-lime-50 text-[#84cc16] shadow-sm'
+                                        : 'border-gray-50 bg-gray-50/50 text-gray-400 hover:border-gray-100 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {/* <MapPin className="w-4 h-4" /> */}
+                                    In Person
+                                </button>
+                                )}
+                            </div>
+                        </div>
+                        <button className="w-full bg-[#84cc16] hover:bg-[#76b813] text-white py-4 rounded-xl font-bold text-sm mt-8 transition-all shadow-lg shadow-lime-500/20 active:scale-95">
                             Send Enquiry
                         </button>
+
                     </form>
                 </div>
             </div>
@@ -310,10 +351,21 @@ export default function CoachProfilePage({ params }) {
                                         <p className="text-gray-600 text-sm font-medium">{details.yearsExperience} years experience overall</p>
                                     )}
 
-                                    <div className="flex items-center justify-center md:justify-start gap-1.5 text-gray-900 text-sm font-bold pt-1">
-                                        <MapPin className="w-4 h-4 text-[#84cc16]" />
-                                        <span>{[details?.city, details?.state, details?.country].filter(Boolean).join(', ')}</span>
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-center md:justify-start gap-3 sm:gap-6 pt-1">
+                                        <div className="flex items-center gap-1.5 text-gray-900 text-sm font-bold">
+                                            <MapPin className="w-4 h-4 text-[#84cc16]" />
+                                            <span>{[details?.city, details?.state, details?.country].filter(Boolean).join(', ')}</span>
+                                        </div>
+                                        {coachInfo?.email && (
+                                            <div className="flex items-center gap-1.5 text-gray-600 text-sm font-medium">
+                                                <Mail className="w-4 h-4 text-blue-500" />
+                                                <a href={`mailto:${coachInfo.email}`} className="hover:text-blue-600 transition-colors">
+                                                    {coachInfo.email}
+                                                </a>
+                                            </div>
+                                        )}
                                     </div>
+
 
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-3">
                                         {(details?.offersOnline || details?.offersInPerson) && (
@@ -339,23 +391,23 @@ export default function CoachProfilePage({ params }) {
                                             <span>{details?.ratingAgg?.overall?.avg?.toFixed(1) || "5.0"}</span>
                                         </div>
                                         <span className="text-gray-400 text-sm font-medium border-b border-gray-100 pb-0.5">
-                                            {details?.reviewAgg?.totalReviews || 0} Patient Stories
+                                            {details?.reviewAgg?.totalReviews || 0} Reviews
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            {details?.bio && (
+                            {/* {details?.bio && (
                                 <p className="text-gray-600 text-sm leading-[1.8] font-medium text-justify italic">
                                     "{details.bio}"
                                 </p>
-                            )}
+                            )} */}
                         </div>
 
                         {/* Tabs Container */}
                         <div>
                             <div className="flex items-center gap-2 sm:gap-8 border-b border-gray-100 pb-px mb-8 overflow-x-auto scrollbar-hide -mx-1 px-1">
-                                {['Info', 'Stories', 'Services'].map((tab, i) => (
+                                {['Info'].map((tab, i) => (
                                     <button
                                         key={tab}
                                         className={`shrink-0 pb-4 text-xs sm:text-sm font-bold uppercase tracking-widest transition-colors whitespace-nowrap ${i === 0 ? 'text-white bg-[#84cc16] px-6 sm:px-10 py-3 rounded-t-lg' : 'text-gray-500 px-4 sm:px-6 hover:text-gray-700'}`}
@@ -365,22 +417,19 @@ export default function CoachProfilePage({ params }) {
                                 ))}
                             </div>
 
-                            {/* Services & Details Section */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 gap-x-12">
-                                {/* Specializations & Languages */}
-                                <div className="space-y-10">
+                            <div className="space-y-12 mt-12 pt-8">
+                                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-8">Services</h2>
+
+                                {/* Services & Details Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
+                                    {/* Specializations Column */}
                                     {details?.specializations?.length > 0 && (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-lime-50 flex items-center justify-center">
-                                                    <Trophy className="w-4 h-4 text-[#84cc16]" />
-                                                </div>
-                                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Specializations</h3>
-                                            </div>
-                                            <ul className="space-y-3 pl-11">
+                                        <div className="space-y-6">
+                                            <h3 className="text-lg font-bold text-gray-900">Specialization</h3>
+                                            <ul className="space-y-3">
                                                 {details.specializations.map((spec, i) => (
-                                                    <li key={i} className="text-gray-600 text-sm flex items-center gap-2 font-medium">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-[#84cc16]"></span>
+                                                    <li key={i} className="text-gray-500 text-[13px] flex items-center gap-3 font-medium">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
                                                         {spec}
                                                     </li>
                                                 ))}
@@ -388,60 +437,60 @@ export default function CoachProfilePage({ params }) {
                                         </div>
                                     )}
 
-                                    {details?.languages?.length > 0 && (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                                    <Globe className="w-4 h-4 text-blue-500" />
-                                                </div>
-                                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Languages</h3>
-                                            </div>
-                                            <div className="flex flex-wrap gap-2 pl-11">
-                                                {details.languages.map((lang, i) => (
-                                                    <span key={i} className="text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 uppercase tracking-wider">
-                                                        {lang}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Certifications */}
-                                <div className="space-y-10">
+                                    {/* Certifications Column */}
                                     {details?.certifications?.names?.length > 0 && (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
-                                                    <GraduationCap className="w-4 h-4 text-orange-500" />
-                                                </div>
-                                                <h3 className="text-lg font-bold text-gray-900 tracking-tight">Certifications</h3>
-                                            </div>
-                                            <ul className="space-y-4 pl-11">
+                                        <div className="space-y-6">
+                                            <h3 className="text-lg font-bold text-gray-900">Certifications</h3>
+                                            <ul className="space-y-3">
                                                 {details.certifications.names.map((cert, i) => (
-                                                    <li key={i} className="text-gray-500 text-sm leading-relaxed flex items-start gap-2 font-medium">
-                                                        <CheckCircle2 className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+                                                    <li key={i} className="text-gray-500 text-[13px] flex items-start gap-3 font-medium">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-1.5 shrink-0"></span>
                                                         {cert}
                                                     </li>
                                                 ))}
                                             </ul>
                                         </div>
                                     )}
-
-                                    {details?.institute && (
-                                        <div className="space-y-2 pl-11">
-                                            <h4 className="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Educated at</h4>
-                                            <p className="text-gray-800 font-bold">{details.institute}</p>
-                                        </div>
-                                    )}
                                 </div>
+
+                                {/* Supplementary Info (Languages/Education) - Styled to match themed design */}
+                                {(details?.languages?.length > 0 || details?.institute) && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12 border-t border-gray-50 pt-10">
+                                        {details?.languages?.length > 0 && (
+                                            <div className="space-y-6">
+                                                <h3 className="text-lg font-bold text-gray-900">Languages</h3>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {details.languages.map((lang, i) => (
+                                                        <span key={i} className="text-[11px] font-bold text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-100 uppercase tracking-wider">
+                                                            {lang}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {details?.institute && (
+                                            <div className="space-y-2">
+                                                <h4 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Educated at</h4>
+                                                <p className="text-gray-800 font-bold">{details.institute}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
+
                         </div>
 
                         {/* Reviews Section */}
-                        <div className="bg-white border border-gray-100 rounded-[2rem] p-6 sm:p-10 shadow-sm space-y-8 mt-12">
-                            <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Reviews</h3>
+
+                        <div className="space-y-10 mt-16 pt-16 border-t border-gray-100">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-lime-50 flex items-center justify-center">
+                                        <Star className="w-4 h-4 text-[#84cc16] fill-[#84cc16]" />
+                                    </div>
+                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Reviews</h3>
+                                </div>
                                 <button
                                     onClick={() => {
                                         if (isAuthenticated) {
@@ -450,40 +499,62 @@ export default function CoachProfilePage({ params }) {
                                             openLoginModal();
                                         }
                                     }}
-                                    className="flex items-center gap-2 bg-[#84cc16] hover:bg-[#76b813] text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg shadow-lime-500/20 active:scale-95"
+                                    className="flex items-center gap-2 bg-[#84cc16] hover:bg-[#76b813] text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg shadow-lime-500/10 active:scale-95 translate-y-[-2px]"
                                 >
                                     <X className="w-4 h-4 rotate-45" />
                                     Write a Review
                                 </button>
                             </div>
 
-                            <div className="space-y-8">
-                                {reviews.map((review, i) => (
-                                    <div key={i} className="space-y-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-2xl flex items-center justify-center">
-                                                <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
+                            <div className="space-y-12">
+                                {reviews.length > 0 ? (
+                                    reviews.map((review, i) => (
+                                        <div key={i} className="group flex items-start gap-3 sm:gap-6">
+                                            {/* Profile Icon Column - sized to match upper sections icon width */}
+                                            <div className="shrink-0 flex flex-col items-center">
+                                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-50 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:bg-lime-50 transition-colors">
+                                                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 group-hover:text-lime-500" />
+                                                </div>
+                                                <div className="w-px flex-1 bg-gray-50 group-last:bg-transparent mt-4"></div>
                                             </div>
-                                            <span className="text-sm sm:text-base font-bold text-gray-900">{review.clientName}</span>
+
+                                            {/* Review Content */}
+                                            <div className="flex-1 space-y-2.5 pt-1 sm:pt-1.5">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                                                    <span className="text-sm sm:text-base font-bold text-gray-900 leading-tight">{review.clientName}</span>
+                                                    <div className="flex items-center gap-0.5">
+                                                        {[1, 2, 3, 4, 5].map((s) => (
+                                                            <Star key={s} className="w-3 h-3 fill-[#84cc16] text-[#84cc16]" />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <p className="text-gray-600 text-sm leading-relaxed max-w-2xl font-medium italic">
+                                                    "{review.text}"
+                                                </p>
+                                            </div>
                                         </div>
-                                        <p className="text-gray-600 text-sm leading-relaxed max-w-3xl">
-                                            {review.text}
-                                        </p>
-                                        <div className="border-b border-gray-50 pt-4"></div>
+                                    ))
+                                ) : (
+                                    <div className="pl-11">
+                                        <p className="text-gray-400 text-sm font-medium italic">No reviews yet. Be the first to share your experience!</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
 
-                            <div className="text-center pt-4">
-                                <button className="text-[#84cc16] hover:text-[#76b813] font-bold text-sm sm:text-base transition-colors flex items-center justify-center gap-2 mx-auto">
-                                    See All
-                                    <span className="text-lg">»»»</span>
-                                </button>
-                            </div>
+                            {reviews.length > 5 && (
+                                <div className="text-center pt-8">
+                                    <button className="text-[#84cc16] hover:text-[#76b813] font-bold text-sm sm:text-base transition-colors flex items-center justify-center gap-2 mx-auto">
+                                        See All Reviews
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
+
+
                     </div>
 
-                    <EnquiryBox listingId={listingId} />
+                    <EnquiryBox listingId={listingId} expert={coachData} />
 
                 </div>
             </section>

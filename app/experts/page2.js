@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react';
-import { MapPin, CheckCircle2, MessageSquare, ThumbsUp } from 'lucide-react';
+import { MapPin, CheckCircle2, MessageSquare, ThumbsUp, ChevronDown } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { availableCategories } from '@/lib/data/categories';
 import SearchFilters from '@/components/SearchFilters';
+
 
 
 function ExpertCard({ expert }) {
@@ -52,7 +53,7 @@ function ExpertCard({ expert }) {
 
                 <div className="flex-1 space-y-2 text-center md:text-left relative z-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                        <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight group-hover:text-[#84cc16] transition-colors">{expert.name}</h3>
+                        <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight group-hover:text-[#84cc16] transition-colors">{expert.coach.name}</h3>
                     </div>
                     <p className="text-[#84cc16] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">{specializations_string}</p>
                     <p className="text-gray-500 text-xs  font-medium opacity-80">{expert.yearsExperience} years experience overall</p>
@@ -199,17 +200,13 @@ function ExpertsPage2Content() {
         if (showPopularExperts) {
             GetPopularCoaches();
         }
-    }, [coordinateLocation, consultationType, debouncedDistanceRange, sortBy]);
-
-    useEffect(() => {
-        if (!showPopularExperts) {
+        else {
             handleSearch();
         }
-    }, [consultationType, debouncedDistanceRange, sortBy]);
+    }, [coordinateLocation, consultationType, debouncedDistanceRange, sortBy, page]);
 
 
     const handleSearch = async () => {
-        console.log(selectedSpecialities, locationQuery)
         if (selectedSpecialities.length > 0 || locationQuery.length > 0) {
             try {
                 const payload = {
@@ -217,11 +214,9 @@ function ExpertsPage2Content() {
                     "expertiseTags": selectedSpecialities,
                     "consultationMode": consultationType,
                     "radiusKm": debouncedDistanceRange,
-                    "page": 1,
+                    "page": page,
                 };
-
                 const experts = await fetchAPI(`/experts/listing/search`, payload, "POST");
-                console.log('searched : ', experts)
                 setFilteredExperts([...(experts?.free || []), ...(experts?.paid || [])]);
                 setShowPopularExperts(false);
             } catch (err) {
@@ -232,17 +227,25 @@ function ExpertsPage2Content() {
 
     const GetPopularCoaches = async () => {
         try {
-            const data = await fetchAPI('/experts/listing/top-coaches-block', {
+            const payload = {
                 city: '',
-                consultationMode: consultationType,
+                consultationMode: 'both',
                 expertiseTags: [],
                 languages: [],
-                clientLocation: { "type": "Point", "coordinates": [coordinateLocation?.latitude, coordinateLocation?.longitude] },
-                radiusKm: debouncedDistanceRange || null,
+                radiusKm: '',
                 limit: 10
-            });
+            };
 
-            console.log('Popular coaches : ', data);
+            // if (coordinateLocation?.latitude && coordinateLocation?.longitude) {
+            //     payload.clientLocation = {
+            //         type: "Point",
+            //         coordinates: [coordinateLocation.longitude, coordinateLocation.latitude]
+            //     };
+            // }
+
+            const data = await fetchAPI('/experts/listing/top-coaches-block', payload);
+            console.log('popular coaches : ', data);
+
             setFilteredExperts(Array.isArray(data?.items) ? data.items : []);
         } catch (err) {
             console.error("Failed to fetch Popular coaches:", err);
@@ -250,15 +253,16 @@ function ExpertsPage2Content() {
         }
     }
 
+
+
     const searchParams = useSearchParams();
 
     useEffect(() => {
         async function loadQueryExperts() {
             const speciality = searchParams.get('speciality');
             const location = searchParams.get('location');
-            console.log('in ', speciality, location)
             if (speciality && location) {
-                console.log('speciality and location')
+                console.log('querysearch')
                 setSelectedSpecialities(speciality.split(','));
                 setLocationQuery(location);
                 setShowPopularExperts(false);
