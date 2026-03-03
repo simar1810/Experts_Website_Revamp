@@ -1,14 +1,14 @@
 'use client';
 
-import { Search, MapPin, ThumbsUp, CheckCircle2, Star, ChevronDown, Bell, User, X, Globe, Trophy, GraduationCap, Users } from 'lucide-react';
+import { Search, MapPin, ThumbsUp, CheckCircle2, Star, User, X, Globe, Trophy, GraduationCap, Users } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '../../../components/Navbar';
 import { fetchAPI, sendData } from '@/lib/api';
 import { useState, use, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { availableSpecialities } from '@/lib/data/specialities';
-import { availableCities } from '@/lib/data/locations';
+import SearchFilters from '@/components/SearchFilters';
+
 
 function EnquiryBox({ listingId }) {
     const { isAuthenticated, openLoginModal } = useAuth();
@@ -177,109 +177,17 @@ function ReviewModal({ isOpen, onClose, userName, listingId }) {
     );
 }
 
-function LocationSelectorDropdown({ setLocationQuery, setShowLocationDropdown }) {
-    return (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-[999]">
-            {/* Near me option */}
-            <button
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {
-                    setLocationQuery('Near me');
-                    setShowLocationDropdown(false);
-                }}
-                className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 rounded-lg transition-colors text-left group"
-            >
-                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-lime-100 transition-colors">
-                    <MapPin className="w-4 h-4 text-gray-600 group-hover:text-lime-600" />
-                </div>
-                <span className="text-sm font-semibold text-gray-900">Near me</span>
-            </button>
-
-            {/* Popular Cities Header */}
-            <div className="mt-3 mb-2 px-3">
-                <h4 className="text-xs font-medium text-gray-400">Popular Cities</h4>
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-100 mx-3 mb-1"></div>
-
-            {/* City List */}
-            <div className="space-y-0.5">
-                {['Delhi', 'Bengaluru', 'Mumbai'].map((city) => (
-                    <button
-                        key={city}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                            setLocationQuery(city);
-                            setShowLocationDropdown(false);
-                        }}
-                        className="w-full px-3 py-2.5 hover:bg-gray-50 rounded-lg transition-colors text-left"
-                    >
-                        <span className="text-sm font-medium text-gray-700">{city}</span>
-                    </button>
-                ))}
-            </div>
-        </div>
-    )
-}
-
-function SpecialitySelectorDropdown({ specialityQuery, availableSpecialities, selectedSpecialities, onSelectTag, setShowSpecialityDropdown }) {
-    const filtered = availableSpecialities.filter(spec =>
-        spec.toLowerCase().includes(specialityQuery.toLowerCase()) &&
-        !selectedSpecialities.includes(spec)
-    );
-
-    if (filtered.length === 0) return null;
-
-    return (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-[999]">
-            <div className="mb-2 px-3">
-                <h4 className="text-xs font-medium text-gray-400">Available Specialities</h4>
-            </div>
-            <div className="space-y-0.5 max-h-48 overflow-y-auto">
-                {filtered.map((spec) => (
-                    <button
-                        key={spec}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                            onSelectTag(spec);
-                            setShowSpecialityDropdown(false);
-                        }}
-                        className="w-full px-3 py-2.5 hover:bg-gray-50 rounded-lg transition-colors text-left group flex items-center justify-between"
-                    >
-                        <span className="text-sm font-medium text-gray-700 group-hover:text-[#84cc16]">{spec}</span>
-                        <ChevronDown className="w-3 h-3 text-gray-300 group-hover:text-[#84cc16] -rotate-90" />
-                    </button>
-                ))}
-            </div>
-        </div>
-    )
-}
 
 
 export default function CoachProfilePage({ params }) {
     const { listingId } = use(params)
-    const [specialityQuery, setSpecialityQuery] = useState('');
     const [selectedSpecialities, setSelectedSpecialities] = useState([]);
     const [locationQuery, setLocationQuery] = useState('');
-    const [showLocationDropdown, setShowLocationDropdown] = useState(false);
-    const [showSpecialityDropdown, setShowSpecialityDropdown] = useState(false);
     const [coachData, setCoachData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const { user, isAuthenticated, openLoginModal } = useAuth();
     const [reviews, setReviews] = useState([]);
-
-    const addSpeciality = (spec) => {
-        if (!selectedSpecialities.includes(spec)) {
-            setSelectedSpecialities([...selectedSpecialities, spec]);
-        }
-        setSpecialityQuery('');
-    };
-
-    const removeSpeciality = (spec) => {
-        setSelectedSpecialities(selectedSpecialities.filter(s => s !== spec));
-    };
 
     const handleSearch = () => {
         const queryParams = new URLSearchParams();
@@ -291,6 +199,7 @@ export default function CoachProfilePage({ params }) {
         }
         window.location.href = `/experts?${queryParams.toString()}`;
     };
+
 
     useEffect(() => {
         const getCoachDetails = async () => {
@@ -342,60 +251,23 @@ export default function CoachProfilePage({ params }) {
                     <span className="text-[#84cc16] font-medium font-bold">Coach Profile</span>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-3 sm:px-4 py-2.5 border border-gray-100 relative min-w-0">
-                        <Search className="w-5 h-5 text-blue-500 shrink-0" />
-                        <div className="flex flex-wrap gap-1.5 flex-1 items-center">
-                            {selectedSpecialities.map(spec => (
-                                <span key={spec} className="bg-lime-100 text-[#84cc16] text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 group/tag">
-                                    {spec}
-                                    <X className="w-2.5 h-2.5 cursor-pointer hover:text-red-500 transition-colors" onClick={() => removeSpeciality(spec)} />
-                                </span>
-                            ))}
-                            <input
-                                type="text"
-                                placeholder={selectedSpecialities.length === 0 ? "Ex. Doctor, Hospital" : ""}
-                                value={specialityQuery}
-                                onChange={(e) => {
-                                    setSpecialityQuery(e.target.value);
-                                    setShowSpecialityDropdown(true);
-                                }}
-                                onFocus={() => setShowSpecialityDropdown(true)}
-                                onClick={() => setShowSpecialityDropdown(true)}
-                                onBlur={() => setTimeout(() => setShowSpecialityDropdown(false), 200)}
-                                className="bg-transparent outline-none text-gray-700 text-sm flex-1 min-w-[100px]"
-                            />
-                        </div>
-                        {showSpecialityDropdown && (
-                            <SpecialitySelectorDropdown
-                                specialityQuery={specialityQuery}
-                                availableSpecialities={availableSpecialities}
-                                selectedSpecialities={selectedSpecialities}
-                                onSelectTag={addSpeciality}
-                                setShowSpecialityDropdown={setShowSpecialityDropdown}
-                            />
-                        )}
-                    </div>
-                    <div className="flex-1 flex items-center gap-3 bg-[#f8f9fa] rounded-lg px-3 sm:px-4 py-2.5 border border-gray-200 relative min-w-0">
-                        <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
-                        <input
-                            type="text"
-                            placeholder="Set your location"
-                            value={locationQuery}
-                            onChange={(e) => setLocationQuery(e.target.value)}
-                            onFocus={() => setShowLocationDropdown(true)}
-                            onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
-                            className="bg-transparent w-full outline-none text-gray-800 text-sm min-w-0 placeholder-gray-400"
-                        />
-                        {showLocationDropdown && (
-                            <LocationSelectorDropdown setLocationQuery={setLocationQuery} setShowLocationDropdown={setShowLocationDropdown} />
-                        )}
-                    </div>
-                    <button onClick={handleSearch} className="w-full md:w-auto bg-[#84cc16] hover:bg-[#76b813] text-white px-10 py-3 sm:py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-lime-500/20">
-                        <Search className="w-4 h-4" />
-                        Search
-                    </button>
-                </div>
+                <SearchFilters
+                    selectedSpecialities={selectedSpecialities}
+                    setSelectedSpecialities={setSelectedSpecialities}
+                    locationQuery={locationQuery}
+                    setLocationQuery={setLocationQuery}
+                    onSearch={handleSearch}
+                    theme="light"
+                    containerClassName="mb-6 sm:mb-8"
+                    inputWrapperClassName="bg-[#f8f9fa] rounded-xl px-3 sm:px-4 py-2.5 border border-gray-100"
+                    buttonClassName="w-full lg:w-auto bg-[#84cc16] hover:bg-[#76b813] text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-lime-500/20"
+                    buttonText="Search"
+                    specialityIconColor="text-blue-500"
+                    locationIconColor="text-gray-400"
+                    placeholderSpeciality="Ex. Doctor, Hospital"
+                    placeholderLocation="Set your location"
+                />
+
             </section>
 
             {/* Main Content Area */}
