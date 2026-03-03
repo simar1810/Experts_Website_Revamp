@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Search, MapPin, Bell, User, ChevronDown, CheckCircle2, MessageSquare, ThumbsUp, X } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
-import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { availableSpecialities } from '@/lib/data/specialities';
+import { availableCategories } from '@/lib/data/categories';
 
 function ExpertCard({ expert }) {
     const { isAuthenticated, openLoginModal } = useAuth();
@@ -29,7 +30,6 @@ function ExpertCard({ expert }) {
         if (!id) return;
 
         if (!isAuthenticated) {
-            localStorage.setItem('redirect_after_login', id);
             openLoginModal();
         } else {
             router.push(`/experts/${id}`);
@@ -247,23 +247,6 @@ export default function ExpertsPage2() {
 
 function ExpertsPage2Content() {
 
-
-
-    const categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6'];
-
-    const availableSpecialities = [
-        'Fat Loss',
-        'Sports Nutrition',
-        'Muscle Gain',
-        'Yoga',
-        'Dietician',
-        'Physiotherapy',
-        'Mental Health',
-        'Functional Training',
-        'CrossFit',
-        'Pilates'
-    ];
-
     const [specialityQuery, setSpecialityQuery] = useState('');
     const [selectedSpecialities, setSelectedSpecialities] = useState([]);
     const [locationQuery, setLocationQuery] = useState('');
@@ -276,14 +259,22 @@ function ExpertsPage2Content() {
     const [consultationType, setConsultationType] = useState('offline');
     const [sortBy, setSortBy] = useState('name-asc');
     const [distanceRange, setDistanceRange] = useState(12); // Default range in KM
+    const [debouncedDistanceRange, setDebouncedDistanceRange] = useState(12);
 
     const [coordinateLocation, setCoordinateLocation] = useState(null);
 
     const [page, setPage] = useState(1);
     const [showPopularExperts, setShowPopularExperts] = useState(true);
 
-    // for automatic location fetching 
-    const [error, setError] = useState(null);
+    // Debounce distanceRange
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedDistanceRange(distanceRange);
+        }, 500);
+
+        return () => clearTimeout(handler);
+    }, [distanceRange]);
+
 
     useEffect(() => {
         async function getLocation() {
@@ -294,11 +285,10 @@ function ExpertsPage2Content() {
                         setCoordinateLocation({ latitude, longitude });
                     },
                     (err) => {
-                        setError(err.message);
+                        console.log('failed to fetch location', err)
                     }
                 );
             } else {
-                setError('Geolocation is not supported by this browser.');
                 console.log('failed to fetch location')
             }
         }
@@ -306,50 +296,33 @@ function ExpertsPage2Content() {
     }, []);
 
     useEffect(() => {
-        async function loadInitialExperts() {
-            try {
-                const mode = consultationType === 'offline' ? 'in_person' : (consultationType === 'both' ? 'both' : consultationType);
-
-                const data = await fetchAPI('/experts/listing/top-coaches-block', {
-                    consultationMode: mode || null,
-                    expertiseTags: selectedSpecialities || [],
-                    languages: [],
-                    clientLocation: coordinateLocation || null,
-                    radiusKm: distanceRange || null,
-                    sortBy: sortBy || 'name-asc',
-                    limit: 10
-                });
-
-                console.log('topRatedExperts', data);
-                setFilteredExperts(Array.isArray(data?.items) ? data.items.slice(0, 10) : []);
-            } catch (err) {
-                console.error("Failed to fetch initial experts:", err);
-                setFilteredExperts([]);
-            }
+        if (showPopularExperts) {
+            GetPopularCoaches();
         }
-        loadInitialExperts();
-    }, [coordinateLocation, consultationType, distanceRange, sortBy]);
+    }, [coordinateLocation, consultationType, debouncedDistanceRange, sortBy]);
+
+    useEffect(() => {
+        if (!showPopularExperts) {
+            handleSearch();
+        }
+    }, [consultationType, debouncedDistanceRange, sortBy]);
 
 
     const handleSearch = async () => {
         console.log(selectedSpecialities, locationQuery)
         if (selectedSpecialities.length > 0 || locationQuery.length > 0) {
-            setPage(1);
             try {
-                const mode = consultationType === 'offline' ? 'in_person' : (consultationType === 'both' ? 'both' : consultationType);
-
                 const payload = {
-                    "city": locationQuery || null,
+                    "city": locationQuery,
                     "expertiseTags": selectedSpecialities,
+                    "consultationMode": consultationType,
+                    "radiusKm": debouncedDistanceRange,
                     "page": 1,
                 };
 
                 const experts = await fetchAPI(`/experts/listing/search`, payload, "POST");
-                // Handle different response formats
-                const items = Array.isArray(experts?.items) ? experts.items : [...(experts.free || []), ...(experts.paid || [])];
-                setFilteredExperts(items);
-
-                console.log('filtered', experts);
+                console.log('searched : ', experts)
+                setFilteredExperts([...(experts?.free || []), ...(experts?.paid || [])]);
                 setShowPopularExperts(false);
             } catch (err) {
                 console.error("Search failed:", err);
@@ -357,21 +330,43 @@ function ExpertsPage2Content() {
         }
     }
 
+    const GetPopularCoaches = async () => {
+        try {
+            const data = await fetchAPI('/experts/listing/top-coaches-block', {
+                city: '',
+                consultationMode: consultationType,
+                expertiseTags: [],
+                languages: [],
+                clientLocation: { "type": "Point", "coordinates": [coordinateLocation?.latitude, coordinateLocation?.longitude] },
+                radiusKm: debouncedDistanceRange || null,
+                limit: 10
+            });
+
+            console.log('Popular coaches : ', data);
+            setFilteredExperts(Array.isArray(data?.items) ? data.items : []);
+        } catch (err) {
+            console.error("Failed to fetch Popular coaches:", err);
+            setFilteredExperts([]);
+        }
+    }
+
     const searchParams = useSearchParams();
 
     useEffect(() => {
-        async function loadInitialExperts() {
+        async function loadQueryExperts() {
             const speciality = searchParams.get('speciality');
             const location = searchParams.get('location');
-            if (speciality || location) {
-                setSelectedSpecialities([speciality]);
+            console.log('in ', speciality, location)
+            if (speciality && location) {
+                console.log('speciality and location')
+                setSelectedSpecialities(speciality.split(','));
                 setLocationQuery(location);
-                console.log(speciality, location)
+                setShowPopularExperts(false);
+                setConsultationType('both');
+                setDistanceRange(10)
             }
         }
-        loadInitialExperts();
-        handleSearch();
-
+        loadQueryExperts();
     }, [searchParams]);
 
     const addSpeciality = (spec) => {
@@ -479,7 +474,7 @@ function ExpertsPage2Content() {
                     </div>
 
                     <div className="flex flex-wrap justify-center sm:justify-start gap-2.5 sm:gap-3">
-                        {categories.map((cat, i) => (
+                        {availableCategories.map((cat, i) => (
                             <button
                                 key={i}
                                 className={`px-4 sm:px-7 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border transition-all ${i === 0 ? 'bg-[#84cc16] text-white border-[#84cc16] shadow-lg shadow-lime-500/20' : 'bg-white text-gray-500 border-gray-100 hover:border-[#84cc16] hover:text-[#84cc16] hover:shadow-md'}`}
@@ -540,18 +535,18 @@ function ExpertsPage2Content() {
                                 {/* Controlled green bar */}
                                 <div
                                     className="absolute left-0 top-0 h-full bg-[#84cc16] rounded-full transition-all duration-300"
-                                    style={{ width: `${((distanceRange - 5) / 15) * 100}%` }}
+                                    style={{ width: `${distanceRange}%` }}
                                 ></div>
                                 <div
                                     className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-[#84cc16] border-4 border-white rounded-full shadow-lg shadow-lime-500/30 cursor-pointer hover:scale-110 transition-all z-10"
-                                    style={{ left: `${((distanceRange - 5) / 15) * 100}%` }}
+                                    style={{ left: `${distanceRange}%` }}
                                 ></div>
 
                                 {/* Hidden native slider for touch/mouse interaction */}
                                 <input
                                     type="range"
-                                    min="5"
-                                    max="20"
+                                    min="0"
+                                    max="100"
                                     step="1"
                                     value={distanceRange}
                                     onChange={(e) => setDistanceRange(parseInt(e.target.value))}
@@ -560,10 +555,11 @@ function ExpertsPage2Content() {
                             </div>
                             {/* Labels */}
                             <div className="flex justify-between mt-4">
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 5 ? 'text-[#84cc16]' : 'text-gray-300'}`}>5 KM</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 10 ? 'text-[#84cc16]' : 'text-gray-300'}`}>10 KM</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 15 ? 'text-[#84cc16]' : 'text-gray-300'}`}>15 KM</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 20 ? 'text-[#84cc16]' : 'text-gray-300'}`}>20 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 0 ? 'text-[#84cc16]' : 'text-gray-300'}`}>0 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 25 ? 'text-[#84cc16]' : 'text-gray-300'}`}>25 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 50 ? 'text-[#84cc16]' : 'text-gray-300'}`}>50 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 75 ? 'text-[#84cc16]' : 'text-gray-300'}`}>75 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 100 ? 'text-[#84cc16]' : 'text-gray-300'}`}>100 KM</span>
                             </div>
                         </div>
                     </div>

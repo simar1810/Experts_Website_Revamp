@@ -3,19 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Star, X, ChevronDown } from 'lucide-react';
-
-const availableSpecialities = [
-    'Fat Loss',
-    'Sports Nutrition',
-    'Muscle Gain',
-    'Yoga',
-    'Dietician',
-    'Physiotherapy',
-    'Mental Health',
-    'Functional Training',
-    'CrossFit',
-    'Pilates'
-];
+import { availableSpecialities } from '@/lib/data/specialities';
+import { availableCities } from '@/lib/data/locations';
+import { toast } from 'react-hot-toast';
 
 async function findCityFromCoordinates({ coordinates }) {
     if (!coordinates || !coordinates.latitude || !coordinates.longitude) {
@@ -54,7 +44,7 @@ function LocationSelectorDropdown({ coordinateLocation, setLocationQuery, setSho
             </div>
             <div className="border-t border-gray-800 mx-3 mb-1"></div>
             <div className="space-y-0.5">
-                {['Delhi', 'Bengaluru', 'Mumbai'].map((city) => (
+                {availableCities.map((city) => (
                     <button
                         key={city}
                         onMouseDown={(e) => e.preventDefault()}
@@ -136,13 +126,19 @@ export default function Hero() {
 
     const handleSearch = () => {
         const params = new URLSearchParams();
-        if (selectedSpecialities.length > 0) {
+        if (selectedSpecialities.length > 0 && locationQuery.length > 0) {
             params.set('speciality', selectedSpecialities.join(','));
-        }
-        if (locationQuery) {
             params.set('location', locationQuery);
+            router.push(`/experts?${params.toString()}`);
         }
-        router.push(`/experts?${params.toString()}`);
+        else {
+            if (selectedSpecialities.length === 0) {
+                toast.error("Please select at least one speciality");
+            }
+            if (locationQuery.length === 0) {
+                toast.error("Please enter a location");
+            }
+        }
     };
 
     return (

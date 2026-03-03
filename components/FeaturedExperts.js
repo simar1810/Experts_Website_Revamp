@@ -15,7 +15,6 @@ export default function FeaturedExperts() {
         if (!id) return;
 
         if (!isAuthenticated) {
-            localStorage.setItem('redirect_after_login', id);
             openLoginModal();
         } else {
             router.push(`/experts/${id}`);

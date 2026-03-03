@@ -7,6 +7,8 @@ import { fetchAPI, sendData } from '@/lib/api';
 import { useState, use, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { availableSpecialities } from '@/lib/data/specialities';
+import { availableCities } from '@/lib/data/locations';
 
 function EnquiryBox({ listingId }) {
     const { isAuthenticated, openLoginModal } = useAuth();
@@ -257,19 +259,6 @@ function SpecialitySelectorDropdown({ specialityQuery, availableSpecialities, se
 
 export default function CoachProfilePage({ params }) {
     const { listingId } = use(params)
-    const availableSpecialities = [
-        'Fat Loss',
-        'Sports Nutrition',
-        'Muscle Gain',
-        'Yoga',
-        'Dietician',
-        'Physiotherapy',
-        'Mental Health',
-        'Functional Training',
-        'CrossFit',
-        'Pilates'
-    ];
-
     const [specialityQuery, setSpecialityQuery] = useState('');
     const [selectedSpecialities, setSelectedSpecialities] = useState([]);
     const [locationQuery, setLocationQuery] = useState('');
@@ -312,27 +301,15 @@ export default function CoachProfilePage({ params }) {
                 });
                 console.log("Coach details:", data);
                 setCoachData(data);
+                setReviews(data.reviews);
             } catch (err) {
                 console.error("Failed to fetch coach details:", err);
             } finally {
                 setIsLoading(false);
             }
         };
-
-        if (listingId) {
-            getCoachDetails();
-            const getReviews = async () => {
-                try {
-                    const reviewsData = await fetchAPI(`/experts/review/listing/${listingId}`, null, 'GET');
-                    console.log("Reviews response:", reviewsData.reviews);
-                    setReviews(reviewsData.reviews);
-                } catch (err) {
-                    console.error("Failed to fetch reviews:", err);
-                }
-            };
-            getReviews();
-        }
-    }, [listingId]);
+        getCoachDetails();
+    }, []);
 
     const coachInfo = coachData?.coach;
     const details = coachData?.expertDetails;

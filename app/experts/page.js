@@ -7,5 +7,4 @@ export default function ExpertsPage() {
     return (
             <ExpertsPage2 />
     )
-
 }

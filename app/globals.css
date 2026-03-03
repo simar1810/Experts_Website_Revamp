@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 /* Prevent horizontal overflow on small screens */
-html, body {
+html,
+body {
     overflow-x: hidden;
 }
 

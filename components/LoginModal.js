@@ -95,13 +95,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                 login(token, response.client_snapshot);
             }
             onClose();
-
-            // Redirect if needed
-            const redirectCoachId = localStorage.getItem('redirect_after_login');
-            if (redirectCoachId) {
-                localStorage.removeItem('redirect_after_login');
-                router.push(`/experts/${redirectCoachId}`);
-            }
+            router.push('/');
         } catch (error) {
             console.error('Login verification failed:', error);
         }
@@ -197,6 +191,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                                             value={val}
                                             onChange={(e) => handleOtpChange(idx, e.target.value)}
                                             inputMode="numeric"
+                                            autoComplete="off"
                                             className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-gray-100 rounded-2xl text-center text-xl font-bold text-gray-900 focus:outline-none focus:border-lime-500 transition-all bg-gray-50 focus:bg-white"
                                         />
                                     ))}
