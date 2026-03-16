@@ -94,8 +94,8 @@ export default function Hero() {
                                 <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Simarpreet Singh" className="w-full h-full object-cover" />
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="font-bold text-white text-[12px] md:text-base leading-tight">Simarpreet Singh</h4>
-                                <span className="text-gray-400 text-[9px] md:text-xs">Wellness Coach</span>
+                                <h4 className="font-bold text-white text-[12px] md:text-base leading-tight">Dhruv Rathi</h4>
+                                <span className="text-gray-400 text-[9px] md:text-xs"></span>
                             </div>
                             <div className="ml-auto flex gap-0.5">
                                 {[...Array(5)].map((_, i) => (
@@ -104,9 +104,9 @@ export default function Hero() {
                             </div>
                         </div>
                         <div className="space-y-1 md:space-y-2">
-                            <h5 className="font-bold text-white text-[11px] md:text-lg leading-tight">Great platform for experts</h5>
+                            <h5 className="font-bold text-white text-[11px] md:text-lg leading-tight">Affordable options too!!</h5>
                             <p className="text-[9px] md:text-xs text-gray-300 leading-relaxed opacity-80">
-                                This platform helped me reach more clients than ever before. Highly recommended!
+                                I was struggling to find a fitness coach of my budget and got one here who really is good and affordable
                             </p>
                         </div>
                     </div>

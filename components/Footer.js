@@ -1,12 +1,7 @@
 import { Instagram } from 'lucide-react';
 
 export default function Footer() {
-    const locations = [
-        ['Atlanta', 'Auckland', 'Austin', 'Boston', 'Brisbane', 'Calgary'],
-        ['Chicago', 'Dallas', 'Denver', 'Dublin', 'Houston', 'Las Vegas'],
-        ['London', 'Los Angeles', 'Manchester', 'Miami', 'New York', 'Orlando'],
-        ['San Francisco', 'Seattle', 'Sydney', 'Toronto', 'Vancouver', 'Washington DC']
-    ];
+
 
     const legalLinks = [
         'User Terms', 'Business Terms', 'Privacy Policy', 'Cookie Policy', 'Cookie Settings'
@@ -37,7 +32,7 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Locations Columns */}
+                    {/* Locations Columns
                     <div className="lg:col-span-6 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 text-left">
                         {locations.map((column, i) => (
                             <div key={i} className="space-y-3 sm:space-y-4">
@@ -52,10 +47,10 @@ export default function Footer() {
                                 ))}
                             </div>
                         ))}
-                    </div>
+                    </div> */}
 
                     {/* Get Listed Section */}
-                    <div className="lg:col-span-3 space-y-6 lg:text-right">
+                    <div className="lg:col-start-10 lg:col-span-3 space-y-6 lg:text-right">
                         <p className="text-white/80 text-sm leading-relaxed max-w-[240px] mx-auto lg:ml-auto">
                             Are you a trainer and want to get more exposure by listing here?
                         </p>

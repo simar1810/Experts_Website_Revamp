@@ -1,12 +1,12 @@
-import Navbar from '../../components/Navbar';
 import Hero from '../../components/Hero';
 import Stats from '../../components/Stats';
 import ExpertCategories from '../../components/ExpertCategories';
 import FeaturedExperts from '../../components/FeaturedExperts';
 import PromoSection from '../../components/PromoSection';
 import LatestArticles from '../../components/LatestArticles';
+import PaymentsSection from '../../components/PaymentsSection';
 import AsSeenIn from '../../components/AsSeenIn';
-import Footer from '../../components/Footer';
+
 
 export default function Home() {
     return (
@@ -17,7 +17,8 @@ export default function Home() {
             <FeaturedExperts />
             <PromoSection />
             <LatestArticles />
-            <AsSeenIn />
+            <PaymentsSection />
+            {/* <AsSeenIn /> */}
         </main>
     );
 }

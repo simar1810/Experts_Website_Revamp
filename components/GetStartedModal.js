@@ -291,11 +291,6 @@ export default function GetStartedModal({ isOpen, onClose }) {
                                     One Time Password (OTP) Verification
                                 </h2>
 
-                                {/* Subtitle */}
-                                <p className="text-xs sm:text-sm text-center text-gray-400 leading-relaxed font-medium">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                </p>
-
                                 {/* 4 OTP Boxes */}
                                 <div className="flex justify-center gap-3 sm:gap-4 py-2">
                                     {otp.map((val, idx) => (

@@ -1,6 +1,6 @@
 export default function PromoSection() {
     return (
-        <section className="relative py-16 px-6 overflow-hidden bg-white">
+        <section className="relative py-30 px-6 overflow-hidden bg-white">
             {/* Background Mesh/Distorted Grid Pattern */}
             <div className="absolute inset-0 z-0 opacity-[0.12]">
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -68,7 +68,7 @@ export default function PromoSection() {
 
                         <div className="space-y-4 sm:space-y-6 sm:mt-12">
                             {/* Card 3: Middle Right */}
-                            <div className="bg-[#1a340a]/70 backdrop-blur-2xl p-5 rounded-2xl border border-white/10 shadow-2xl transform lg:hover:rotate-3 transition-all duration-700">
+                            <div className="bg-green backdrop-blur-2xl p-5 rounded-2xl border border-white/10 shadow-2xl transform lg:hover:rotate-3 transition-all duration-700">
                                 <div className="w-10 h-10 bg-[#365314] rounded-lg mb-3"></div>
                                 <h4 className="text-white font-black text-lg mb-2 leading-tight">Global Reach</h4>
                                 <p className="text-white/80 text-[10px] leading-relaxed font-bold tracking-wide uppercase opacity-90">

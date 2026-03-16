@@ -287,11 +287,11 @@ function ExpertsPage2Content() {
 
                 <div className="relative z-10 max-w-5xl mx-auto space-y-3 sm:space-y-6 pt-6">
                     <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
-                        Find the <span className="text-[#84cc16]">Right Coach</span> for You
+                        Find the right <span className="text-[#84cc16]">Expert</span> for your Health
                     </h1>
                     <div className="max-w-4xl mx-auto">
                         <p className="text-white/80 text-[10px] sm:text-sm md:text-base leading-relaxed font-medium max-w-lg mx-auto line-clamp-2 sm:line-clamp-none">
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        "Search from 7,000+ verified wellness experts and connect with the right expert for your health goals."
                         </p>
                     </div>
 
@@ -319,9 +319,9 @@ function ExpertsPage2Content() {
             {/* Popular Categories Section */}
             {showPopularExperts &&
                 <section className="max-w-7xl mx-auto px-6 mt-15 mb-10">
-                    <div className="mb-6 sm:mb-10 text-center sm:text-left">
+                    <div className="mb-4 text-center sm:text-left">
                         <h2 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">Popular Categories</h2>
-                        <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold opacity-80">Choose from various specialities</p>
+                        <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold opacity-80">Popular specializations you can choose from</p>
                     </div>
 
                     <div className="flex flex-wrap justify-center sm:justify-start gap-2.5 sm:gap-3">
@@ -426,7 +426,7 @@ function ExpertsPage2Content() {
                     <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold opacity-80">Top rated wellness experts available for you</p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 mb-30">
                     {/* Coaches List */}
                     <div className="lg:col-span-8 space-y-6">
 
@@ -438,9 +438,8 @@ function ExpertsPage2Content() {
                     </div>
 
                     {/* Promo Card Column */}
-                    <div className="lg:col-span-4 mt-8 lg:mt-0">
+                    {/* <div className="lg:col-span-4 mt-8 lg:mt-0">
                         <div className="sticky top-28 bg-gradient-to-br from-[#84cc16] to-[#4d7c0f] rounded-[2.8rem] p-2 relative overflow-hidden h-fit shadow-2xl shadow-lime-900/10">
-                            {/* Decorative elements */}
                             <div className="absolute -top-12 -left-12 w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
                             <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-black/10 rounded-full blur-3xl"></div>
 
@@ -469,7 +468,7 @@ function ExpertsPage2Content() {
                                 </p>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </section>
         </main>

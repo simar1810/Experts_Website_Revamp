@@ -7,7 +7,7 @@ export default function PricingPage() {
             <PricingTable />
 
             {/* Custom Plans CTA */}
-            <section className="bg-gradient-to-r from-[#2B952B] via-[#4CAF50] to-[#2B952B]  py-16 px-6 text-center text-white relative overflow-hidden shadow-xl shadow-green-500/20">
+            {/* <section className="bg-gradient-to-r from-[#2B952B] via-[#4CAF50] to-[#2B952B]  py-16 px-6 text-center text-white relative overflow-hidden shadow-xl shadow-green-500/20">
                     <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">Need Custom Plans?</h2>
                     <p className="text-white/80 text-sm md:text-base max-w-2xl mx-auto mb-10 font-medium">
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
@@ -20,7 +20,7 @@ export default function PricingPage() {
                             CTA
                         </button>
                     </div>
-            </section>
+            </section> */}
         </main>
     );
 }
