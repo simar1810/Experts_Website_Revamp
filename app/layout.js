@@ -19,6 +19,7 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "react-hot-toast";
+import { ValuesProvider } from "@/context/valuesContext";
 
 export default function RootLayout({ children }) {
   return (
@@ -57,7 +58,9 @@ export default function RootLayout({ children }) {
             }}
           />
           <Navbar />
-          {children}
+          <ValuesProvider>
+            {children}
+          </ValuesProvider>
           <Footer />
         </AuthProvider>
       </body>

@@ -134,7 +134,6 @@ export default function SearchFilters({
     locationQuery,
     setLocationQuery,
     onSearch,
-    coordinateLocation = null,
     theme = 'light',
     containerClassName = '',
     inputWrapperClassName = '',
@@ -148,7 +147,7 @@ export default function SearchFilters({
     const [specialityQuery, setSpecialityQuery] = useState('');
     const [showLocationDropdown, setShowLocationDropdown] = useState(false);
     const [showSpecialityDropdown, setShowSpecialityDropdown] = useState(false);
-
+    const [coordinateLocation, setCoordinateLocation] = useState(null);
     const isDark = theme === 'dark';
 
     const addSpeciality = (spec) => {
@@ -161,6 +160,25 @@ export default function SearchFilters({
     const removeSpeciality = (spec) => {
         setSelectedSpecialities(selectedSpecialities.filter(s => s !== spec));
     };
+
+    useEffect(() => {
+        async function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setCoordinateLocation({ latitude, longitude });
+                    },
+                    (err) => {
+                        console.log('failed to fetch location', err)
+                    }
+                );
+            } else {
+                console.log('failed to fetch location')
+            }
+        }
+        getLocation();
+    }, []);
 
     return (
         <div className={`flex flex-col lg:flex-row items-stretch gap-1 ${containerClassName}`} style={{ position: 'relative', zIndex: 10 }}>

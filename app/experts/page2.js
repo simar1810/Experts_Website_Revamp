@@ -142,6 +142,50 @@ function Pagination({ totalPages, page, setPage }) {
     )
 }
 
+function CategoriesFilter({setFilteredExperts}) {
+    const [selectedCategory,setSelectedCategory] = useState('')
+    
+    const availableCategories = ['yoga','ayurveda','fitness','nutrition','mindfulness','meditation','yoga','ayurveda','fitness','nutrition','mindfulness','meditation'];
+    
+    return (
+        <section className="max-w-7xl mx-auto px-6 mt-15 mb-10">
+            <div className="mb-4 text-center sm:text-left">
+                <h2 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">Popular Categories</h2>
+                <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold opacity-80">Popular specializations you can choose from</p>
+            </div>
+
+            <div className="flex flex-wrap justify-center sm:justify-start gap-2.5 sm:gap-3">
+                {availableCategories.map((cat, i) => (
+                    <button
+                        key={i}
+                        className={`px-4 sm:px-7 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border transition-all ${cat === selectedCategory ? 'bg-[#84cc16] text-white border-[#84cc16] shadow-lg shadow-lime-500/20' : 'bg-white text-gray-500 border-gray-100 hover:border-[#84cc16] hover:text-[#84cc16] hover:shadow-md'}`}
+                        onClick={() => setSelectedCategory(cat)}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+        </section>
+    )
+}
+
+async function searchExperts(locationQuery,selectedSpecialities,consultationType,debouncedDistanceRange,page,setFilteredExperts,setShowPopularExperts){
+    try {
+        const payload = {
+            "city": locationQuery,
+            "expertiseTags": selectedSpecialities,
+            "consultationMode": consultationType,
+            "radiusKm": debouncedDistanceRange,
+            "page": page,
+        };
+        const experts = await fetchAPI(`/experts/listing/search`, payload, "POST");
+        setFilteredExperts([...(experts?.free || []), ...(experts?.paid || [])]);
+        setShowPopularExperts(false);
+    } catch (err) {
+        console.error("Search failed:", err);
+    }
+}
+
 export default function ExpertsPage2() {
     return (
         <Suspense fallback={<div>Loading experts...</div>}>
@@ -153,7 +197,6 @@ export default function ExpertsPage2() {
 function ExpertsPage2Content() {
     const [selectedSpecialities, setSelectedSpecialities] = useState([]);
     const [locationQuery, setLocationQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('All');
     const [filteredExperts, setFilteredExperts] = useState([]);
 
     // Filter states
@@ -161,11 +204,14 @@ function ExpertsPage2Content() {
     const [sortBy, setSortBy] = useState('name-asc');
     const [distanceRange, setDistanceRange] = useState(12); // Default range in KM
     const [debouncedDistanceRange, setDebouncedDistanceRange] = useState(12);
-
+    // location 
     const [coordinateLocation, setCoordinateLocation] = useState(null);
-
+    //page no
     const [page, setPage] = useState(1);
+
     const [showPopularExperts, setShowPopularExperts] = useState(true);
+
+    // const [availableCategories,setAvailableCategories] = useState(['yoga','ayurveda']);
 
     // Debounce distanceRange
     useEffect(() => {
@@ -176,25 +222,6 @@ function ExpertsPage2Content() {
         return () => clearTimeout(handler);
     }, [distanceRange]);
 
-
-    useEffect(() => {
-        async function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const { latitude, longitude } = position.coords;
-                        setCoordinateLocation({ latitude, longitude });
-                    },
-                    (err) => {
-                        console.log('failed to fetch location', err)
-                    }
-                );
-            } else {
-                console.log('failed to fetch location')
-            }
-        }
-        getLocation();
-    }, []);
 
     useEffect(() => {
         if (showPopularExperts) {
@@ -208,20 +235,7 @@ function ExpertsPage2Content() {
 
     const handleSearch = async () => {
         if (selectedSpecialities.length > 0 || locationQuery.length > 0) {
-            try {
-                const payload = {
-                    "city": locationQuery,
-                    "expertiseTags": selectedSpecialities,
-                    "consultationMode": consultationType,
-                    "radiusKm": debouncedDistanceRange,
-                    "page": page,
-                };
-                const experts = await fetchAPI(`/experts/listing/search`, payload, "POST");
-                setFilteredExperts([...(experts?.free || []), ...(experts?.paid || [])]);
-                setShowPopularExperts(false);
-            } catch (err) {
-                console.error("Search failed:", err);
-            }
+            searchExperts();
         }
     }
 
@@ -316,29 +330,15 @@ function ExpertsPage2Content() {
                 </div>
             </section>
 
-            {/* Popular Categories Section */}
-            {showPopularExperts &&
-                <section className="max-w-7xl mx-auto px-6 mt-15 mb-10">
-                    <div className="mb-4 text-center sm:text-left">
-                        <h2 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">Popular Categories</h2>
-                        <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold opacity-80">Popular specializations you can choose from</p>
-                    </div>
+            {/* categories */}
+            <CategoriesFilter setFilteredExperts/>
 
-                    <div className="flex flex-wrap justify-center sm:justify-start gap-2.5 sm:gap-3">
-                        {availableCategories.map((cat, i) => (
-                            <button
-                                key={i}
-                                className={`px-4 sm:px-7 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border transition-all ${i === 0 ? 'bg-[#84cc16] text-white border-[#84cc16] shadow-lg shadow-lime-500/20' : 'bg-white text-gray-500 border-gray-100 hover:border-[#84cc16] hover:text-[#84cc16] hover:shadow-md'}`}
-                            >
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
-                </section>
-            }
 
             {/* Filters Section */}
-            <section className="max-w-7xl mx-auto px-6 py-4 mb-4 mt-6 sm:mt-10 border-b border-gray-50">
+            <section id="filters" className="max-w-7xl mx-auto px-6 py-4 mb-4 mt-6 sm:mt-10 border-b border-gray-50">
+                    <div className="text-center sm:text-left">
+                        <h5 className="text-xl font-black text-gray-900 tracking-tight">Filters</h5>
+                    </div>
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
                     {/* Left: Consultation Type & Sort By */}
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 sm:gap-10">
