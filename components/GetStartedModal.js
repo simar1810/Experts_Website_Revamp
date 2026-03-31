@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 export default function GetStartedModal({ isOpen, onClose }) {
     const { login, openLoginModal } = useAuth();
@@ -18,6 +19,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [otp, setOtp] = useState(['', '', '', '']);
+    const [verifyingOtp, setVerifyingOtp] = useState(false);
 
     // Validation state
     const [errors, setErrors] = useState({});
@@ -57,6 +59,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
             setOtp(['', '', '', '']);
             setErrors({});
             setTouched(false);
+            setVerifyingOtp(false);
         }
     }, [isOpen]);
 
@@ -109,21 +112,36 @@ export default function GetStartedModal({ isOpen, onClose }) {
     };
 
     const handleVerifyOtp = async () => {
+        setVerifyingOtp(true);
         try {
             const response = await fetchAPI('/experts/client/verify-otp', {
                 mobileNumber: phone,
                 otp: otp.join(''),
             }, 'POST');
-            const token = response.token;
-            console.log(response);
-            if (token) {
-                login(token, response.client_snapshot);
-            }
-            onClose();
 
+            if (response == null || response === undefined) {
+                toast.error('Verification failed. Please try again.');
+                return;
+            }
+
+            const token = response.token;
+            if (!token) {
+                toast.error('Verification failed. Please try again.');
+                return;
+            }
+
+            login(token, response.client_snapshot);
+            onClose();
             router.push('/');
         } catch (error) {
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : 'Verification failed. Please try again.';
+            toast.error(message);
             console.error('Verification failed:', error);
+        } finally {
+            setVerifyingOtp(false);
         }
     };
 
@@ -325,10 +343,12 @@ export default function GetStartedModal({ isOpen, onClose }) {
                                 {/* Verify Button */}
                                 <div className="pt-2">
                                     <button
+                                        type="button"
                                         onClick={handleVerifyOtp}
-                                        className="w-full py-4 bg-[#71BC2B] hover:bg-[#63a525] text-white rounded-full font-bold text-base shadow-lg shadow-lime-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2"
+                                        disabled={verifyingOtp}
+                                        className="w-full py-4 bg-[#71BC2B] hover:bg-[#63a525] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-full font-bold text-base shadow-lg shadow-lime-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2"
                                     >
-                                        Verify →
+                                        {verifyingOtp ? 'Verifying…' : 'Verify →'}
                                     </button>
                                 </div>
                             </div>
