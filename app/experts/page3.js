@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react';
-import { MapPin, CheckCircle2, MessageSquare, ThumbsUp, ChevronDown, Check, Languages } from 'lucide-react';
+import { MapPin, CheckCircle2, MessageSquare, ThumbsUp, ChevronDown, Check, Languages, Filter, X } from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -14,6 +14,7 @@ export default function ExpertsPage() {
     const [locationQuery, setLocationQuery] = useState('');
     const [filteredExperts, setFilteredExperts] = useState([]);
     const [page, setPage] = useState(1);
+    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
 
     const handleSearch = async () => {
@@ -71,16 +72,36 @@ export default function ExpertsPage() {
             <CategoriesFilter setFilteredExperts={setFilteredExperts} setSelectedSpecialities={setSelectedSpecialities} />
 
             {/* Results Section */}
-            <section className="max-w-7xl mx-auto px-6 py-12 pb-24">
+            <section className="max-w-7xl mx-auto px-6 py-6 md:py-12 pb-24">
+                {/* Mobile Filter Toggle */}
+                <div className="lg:hidden mb-6">
+                    <button
+                        onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                        className="w-full flex items-center justify-between bg-white border border-gray-100 p-4 rounded-[1.5rem] shadow-sm active:scale-95 transition-transform"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-[#84cc16] rounded-xl flex items-center justify-center shadow-lg shadow-lime-500/20">
+                                <Filter className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="text-left">
+                                <h4 className="text-sm font-black text-gray-900 leading-none">Search Filters</h4>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Adjust criteria</p>
+                            </div>
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isMobileFiltersOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                </div>
+
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Left Sidebar */}
-                    <aside className="w-full lg:w-[320px] shrink-0">
+                    <aside className={`w-full lg:w-[320px] shrink-0 ${isMobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
                         <Filters
                             filteredExperts={filteredExperts}
                             setFilteredExperts={setFilteredExperts}
                             filteredExpertsCount={filteredExperts.length}
                             selectedSpecialities={selectedSpecialities}
                             locationQuery={locationQuery}
+                            onClose={() => setIsMobileFiltersOpen(false)}
                         />
                     </aside>
 
@@ -246,7 +267,7 @@ function CategoriesFilter({ setFilteredExperts, setSelectedSpecialities }) {
 }
 
 
-function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, selectedSpecialities, locationQuery }) {
+function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, selectedSpecialities, locationQuery, onClose }) {
     const [openSections, setOpenSections] = useState({
         clients: true,
         languages: true,
@@ -403,54 +424,63 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
     };
 
     return (
-        <div className="flex flex-col w-full bg-[#FAFAFA] rounded-[1.5rem] lg:rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm sticky top-24">
-            {/* Dark Green Header */}
-            <div className="bg-[#004D2C] p-6 lg:p-7 text-white">
-                <p className="text-[10px] lg:text-xs font-medium opacity-80 mb-1">Search Results:</p>
-                <h4 className="text-lg lg:text-xl font-black leading-tight">
-                    {filteredExpertsCount} Coaches <span className="font-medium opacity-80 text-sm">in</span> All Cities
-                </h4>
+        <div className="flex flex-col w-full bg-white rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm sticky top-24">
+            {/* Theme Matched Header */}
+            <div className="bg-white border-b border-gray-50 p-6 lg:p-7 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-[#84cc16]"></div>
+                <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-lg lg:text-xl font-black text-gray-900 tracking-tight">
+                        Filters
+                    </h4>
+                    <button
+                        onClick={handleClearFilters}
+                        className="text-[#84cc16] hover:text-[#76b813] text-[10px] font-black uppercase tracking-widest transition-colors"
+                    >
+                        Clear All
+                    </button>
+                </div>
+                <p className="text-[10px] lg:text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+                    {filteredExpertsCount} Experts Found
+                </p>
             </div>
 
             <div className="p-6 lg:p-8 space-y-7 lg:space-y-9">
-                {/* Filter Title & Clear Button */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <ChevronDown className="w-5 h-5 text-gray-800" />
-                        <h5 className="text-lg lg:text-xl font-black text-gray-900 tracking-tight uppercase">Filter</h5>
-                    </div>
-                    <button
-                        onClick={handleClearFilters}
-                        className="bg-[#84cc16] hover:bg-[#76b813] text-white px-5 py-1.5 rounded-full text-xs font-black transition-all shadow-md active:scale-95"
-                    >
-                        Clear
-                    </button>
+                {/* WZ Assured - Modern Toggle */}
+                <div className="p-4 bg-lime-50/50 rounded-2xl border border-lime-100/50">
+                    <label className="flex items-center justify-between cursor-pointer group">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-[#84cc16] rounded-lg flex items-center justify-center shadow-md shadow-lime-500/10">
+                                <CheckCircle2 className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-sm font-black text-gray-900 tracking-tight italic">WZ Assured</span>
+                        </div>
+                        <div className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={wzAssured}
+                                onChange={() => setWzAssured(!wzAssured)}
+                                className="sr-only peer"
+                            />
+                            <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#84cc16]"></div>
+                        </div>
+                    </label>
                 </div>
-
-                {/* WZ Assured */}
-                <label className="flex items-center gap-4 cursor-pointer group">
-                    <input
-                        type="checkbox"
-                        checked={wzAssured}
-                        onChange={() => setWzAssured(!wzAssured)}
-                        className="w-5 h-5 cursor-pointer accent-[#84cc16]"
-                    />
-                    <span className="text-lg font-black text-gray-900 tracking-tight italic">WZ Assured</span>
-                </label>
 
                 {/* Consultation Mode */}
                 <div className="space-y-5">
-                    <h6 className="text-lg font-black text-gray-900 tracking-tight">Consultation Mode</h6>
-                    <div className="space-y-4 pl-1">
+                    <h6 className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[#84cc16] pl-3">Consultation Mode</h6>
+                    <div className="space-y-3 pl-1">
                         {consultation_modes.map((mode) => (
                             <label key={mode} className="flex items-center gap-4 group cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={filterInputs.Consultation[mode] || false}
-                                    onChange={() => handleFilterChange('Consultation', mode)}
-                                    className="w-5 h-5 cursor-pointer accent-[#84cc16]"
-                                />
-                                <span className={`text-base font-medium transition-colors ${filterInputs.Consultation[mode] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'} capitalize`}>
+                                <div className="relative flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={filterInputs.Consultation[mode] || false}
+                                        onChange={() => handleFilterChange('Consultation', mode)}
+                                        className="w-5 h-5 cursor-pointer accent-[#84cc16] rounded border-gray-300"
+                                    />
+                                </div>
+                                <span className={`text-sm font-bold transition-colors ${filterInputs.Consultation[mode] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'} capitalize`}>
                                     {mode}
                                 </span>
                             </label>
@@ -459,13 +489,13 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                 </div>
 
                 {/* Collapsible: No. of Clients */}
-                <div className="space-y-5">
+                <div className="space-y-5 border-t border-gray-50 pt-5">
                     <button onClick={() => toggleSection('clients')} className="flex items-center justify-between w-full text-left">
-                        <span className="text-lg font-black text-gray-900 tracking-tight">No. of Clients</span>
-                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.clients ? '' : 'rotate-180'}`} />
+                        <span className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[#84cc16] pl-3">No. of Clients</span>
+                        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${openSections.clients ? '' : 'rotate-180'}`} />
                     </button>
                     {openSections.clients && Object.keys(filterInputs.Clients_no).length > 0 && (
-                        <div className="grid grid-cols-1 gap-4 pl-1 pb-2">
+                        <div className="grid grid-cols-1 gap-3 pl-1 pb-2">
                             {Object.keys(filterInputs.Clients_no).map((item) => (
                                 <label key={item} className="flex items-center gap-4 group cursor-pointer">
                                     <input
@@ -474,7 +504,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                         onChange={() => handleFilterChange('Clients_no', item)}
                                         className="w-5 h-5 cursor-pointer accent-[#84cc16]"
                                     />
-                                    <span className="text-base font-medium text-gray-400 group-hover:text-gray-500 transition-colors">{item}</span>
+                                    <span className={`text-sm font-bold transition-colors ${filterInputs.Clients_no[item] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`}>{item}</span>
                                 </label>
                             ))}
                         </div>
@@ -482,13 +512,13 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                 </div>
 
                 {/* Collapsible: Languages */}
-                <div className="space-y-5">
+                <div className="space-y-5 border-t border-gray-50 pt-5">
                     <button onClick={() => toggleSection('languages')} className="flex items-center justify-between w-full text-left">
-                        <span className="text-lg font-black text-gray-900 tracking-tight">Languages</span>
-                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.languages ? '' : 'rotate-180'}`} />
+                        <span className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[#84cc16] pl-3">Languages</span>
+                        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${openSections.languages ? '' : 'rotate-180'}`} />
                     </button>
                     {openSections.languages && Object.keys(filterInputs.Languages).length > 0 && (
-                        <div className="grid grid-cols-1 gap-4 pl-1 pb-2">
+                        <div className="grid grid-cols-1 gap-3 pl-1 pb-2">
                             {Object.keys(filterInputs.Languages).map((item) => (
                                 <label key={item} className="flex items-center gap-4 group cursor-pointer">
                                     <input
@@ -498,7 +528,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                         onChange={() => handleFilterChange('Languages', item)}
                                         className="w-5 h-5 cursor-pointer accent-[#84cc16]"
                                     />
-                                    <span className="text-base font-medium text-gray-400 group-hover:text-gray-500 transition-colors">{item}</span>
+                                    <span className={`text-sm font-bold transition-colors ${filterInputs.Languages[item] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`}>{item}</span>
                                 </label>
                             ))}
                         </div>
@@ -506,16 +536,16 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                 </div>
 
                 {/* Collapsible: Distance Range */}
-                <div className="space-y-5">
+                <div className="space-y-5 border-t border-gray-50 pt-5 pb-4">
                     <button onClick={() => toggleSection('distance')} className="flex items-center justify-between w-full text-left">
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-lg font-black text-gray-900 tracking-tight">Distance Range</span>
-                            <span className="text-[10px] font-black text-gray-900 lowercase italic">(in KM)</span>
+                        <div className="flex items-baseline gap-1 border-l-2 border-[#84cc16] pl-3">
+                            <span className="text-sm font-black text-gray-900 tracking-tight uppercase">Distance Range</span>
+                            <span className="text-[9px] font-black text-gray-400 lowercase italic">(km)</span>
                         </div>
-                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.distance ? '' : 'rotate-180'}`} />
+                        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${openSections.distance ? '' : 'rotate-180'}`} />
                     </button>
                     {openSections.distance && Object.keys(filterInputs.Distance).length > 0 && (
-                        <div className="grid grid-cols-1 gap-4 pl-1 pb-10">
+                        <div className="grid grid-cols-1 gap-3 pl-1">
                             {Object.keys(filterInputs.Distance).map((item) => (
                                 <label key={item} className="flex items-center gap-4 group cursor-pointer">
                                     <input
@@ -524,12 +554,24 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                         onChange={() => handleFilterChange('Distance', item)}
                                         className="w-5 h-5 cursor-pointer accent-[#84cc16]"
                                     />
-                                    <span className="text-base font-medium text-gray-400 group-hover:text-gray-500 transition-colors">{item}</span>
+                                    <span className={`text-sm font-bold transition-colors ${filterInputs.Distance[item] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`}>{item}</span>
                                 </label>
                             ))}
                         </div>
                     )}
                 </div>
+
+                {/* Close/Apply Button for Mobile */}
+                {onClose && (
+                    <div className="lg:hidden pt-4 pb-2">
+                        <button
+                            onClick={onClose}
+                            className="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95"
+                        >
+                            Apply Filters
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
