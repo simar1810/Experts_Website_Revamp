@@ -111,11 +111,34 @@ export default function ExpertProfilePage({ params }) {
       : formState.message;
 
     try {
-      await fetchAPI("/experts/inquiry/create", {
-        listingId,
+      const data = await fetchAPI("/experts/inquiry/create", {
+        listingId: String(listingId),
         message: finalMessage,
         consultationMode,
       });
+
+      const inquiryId = data?.inquiry?._id;
+      if (!inquiryId) {
+        const msg =
+          typeof data?.message === "string" && data.message.trim()
+            ? data.message
+            : "Could not send enquiry. Please try again.";
+        toast.error(msg);
+        return;
+      }
+
+      try {
+        await fetchAPI("/experts/chat/thread-client", {
+          inquiryId: String(inquiryId),
+        });
+      } catch (threadErr) {
+        console.error("Chat thread after inquiry:", threadErr);
+        toast.error(
+          threadErr?.message ||
+            "Your enquiry was delivered, but chat could not be opened. Refresh the page or try again shortly.",
+        );
+      }
+
       toast.success("Enquiry sent successfully");
       setFormState((prev) => ({ ...prev, message: "" }));
     } catch (error) {
@@ -146,7 +169,7 @@ export default function ExpertProfilePage({ params }) {
       {/* sm:px-8 lg:px-10 */}
       <div className="flex w-full flex-col gap-y-20">
         <Hero coachInfo={coachInfo} details={details} />
-        <About details={details} />
+        <About details={details} coachInfo={coachInfo} />
         <Services details={details} />
         <MembershipPrograms
           details={details}

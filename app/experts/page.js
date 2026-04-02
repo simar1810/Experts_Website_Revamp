@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChevronDown, Filter } from "lucide-react";
 import SearchFilters from "@/components/SearchFilters";
 import { getFilteredExperts } from "@/lib/experts_fetch";
 import { ExpertList, CategoriesFilter, Filters } from "./_components";
 
-export default function ExpertsPage() {
+function ExpertsPageInner() {
+  const searchParams = useSearchParams();
+  const specialityFromUrl = searchParams.get("speciality")?.trim() ?? "";
   const [selectedSpecialities, setSelectedSpecialities] = useState([]);
   const [locationQuery, setLocationQuery] = useState("");
   const [filteredExperts, setFilteredExperts] = useState([]);
@@ -23,8 +26,16 @@ export default function ExpertsPage() {
   };
 
   useEffect(() => {
-    handleSearch();
-  }, []);
+    const tags = specialityFromUrl ? [specialityFromUrl] : [];
+    setSelectedSpecialities(tags);
+    (async () => {
+      const experts = await getFilteredExperts({
+        city: "",
+        expertiseTags: tags,
+      });
+      setFilteredExperts(Array.isArray(experts) ? experts : []);
+    })();
+  }, [specialityFromUrl]);
 
   return (
     <main className="min-h-screen bg-white overflow-x-hidden font-sans">
@@ -137,5 +148,23 @@ export default function ExpertsPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function ExpertsPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-white overflow-x-hidden font-sans animate-pulse">
+          <div className="h-[320px] md:h-[450px] bg-gray-200" />
+          <div className="max-w-7xl mx-auto px-6 py-12 space-y-4">
+            <div className="h-8 bg-gray-100 rounded w-1/3" />
+            <div className="h-40 bg-gray-100 rounded-2xl" />
+          </div>
+        </main>
+      }
+    >
+      <ExpertsPageInner />
+    </Suspense>
   );
 }
