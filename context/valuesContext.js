@@ -18,6 +18,7 @@ export const ValuesProvider = ({children}) =>{
     const fetchValues = async () => {
         try{
             const data = await getFilteredExperts();
+            if (!Array.isArray(data) || data.length === 0) return;
             const cities = filterUnique(data.map((expert) => expert.city));
             const expertise_categories = filterUnique([].concat(...data.map((expert)=>expert.specializations)))
             const languages = filterUnique([].concat(...data.map((expert)=>expert.languages)))
