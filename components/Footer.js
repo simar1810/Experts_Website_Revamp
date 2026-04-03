@@ -1,4 +1,4 @@
-import { Instagram } from "lucide-react";
+import { Instagram, Linkedin } from "lucide-react";
 
 export default function Footer() {
   const legalLinks = [
@@ -68,17 +68,24 @@ export default function Footer() {
         <div className="pt-12 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-10">
             <div className="flex items-center gap-8 sm:gap-10">
-              <a href="#" className="hover:text-white transition-colors">
+              <a
+                href="https://www.facebook.com/profile.php?id=61553253021745"
+                className="hover:text-white transition-colors"
+              >
                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                   <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-8.74h-2.94v-3.411h2.94v-2.515c0-2.915 1.779-4.502 4.379-4.502 1.246 0 2.316.093 2.628.135v3.047l-1.803.001c-1.414 0-1.688.672-1.688 1.658v2.171h3.37l-.439 3.411h-2.931v8.74h5.176c.732 0 1.325-.593 1.325-1.325v-21.351c0-.732-.593-1.325-1.325-1.325z" />
                 </svg>
               </a>
-              <a href="#" className="hover:text-white transition-colors">
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z" />
-                </svg>
+              <a
+                href="https://www.linkedin.com/company/96024574/admin/dashboard/"
+                className="hover:text-white transition-colors"
+              >
+                <Linkedin className="w-5 h-5" />
               </a>
-              <a href="#" className="hover:text-white transition-colors">
+              <a
+                href="https://www.instagram.com/wellnessz_official/"
+                className="hover:text-white transition-colors"
+              >
                 <Instagram className="w-5 h-5" />
               </a>
             </div>

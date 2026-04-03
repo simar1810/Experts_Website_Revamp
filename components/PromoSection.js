@@ -42,19 +42,23 @@ export default function PromoSection() {
           <div className="max-w-2xl mb-12 lg:mb-0 text-center lg:text-left">
             <div>
               <span className="bg-[#030712] text-white text-[9px] sm:text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-[0.2em] inline-block mb-6 shadow-2xl">
-                Join the Movement
+                Join the Network
               </span>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-[900] text-white leading-[1.1] tracking-[-0.03em]">
                 Join the <br />
-                <span className="text-[#152e06]">Movement</span> and <br />
-                grow your <br />
-                practice
+                <span className="text-[#152e06]">
+                  WellnessZ Expert Network
+                </span>{" "}
+                and <br />
+                Grow Your <br />
+                Practice
               </h2>
             </div>
 
             <p className="text-white/90 text-sm sm:text-lg md:text-xl font-medium leading-relaxed max-w-lg mb-8 tracking-tight mx-auto lg:mx-0 mt-6">
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua."
+              Get discovered by people actively searching for wellness experts.
+              Build your professional presence, connect with new clients, and
+              grow your coaching business with WellnessZ.
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-4 pt-4">
@@ -77,8 +81,10 @@ export default function PromoSection() {
                   Expert Networking
                 </h4>
                 <p className="text-white/80 text-[10px] leading-relaxed font-bold tracking-wide uppercase opacity-90">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Be part of a growing ecosystem of experts who are redefining
+                  how wellness is delivered. From gaining visibility to managing
+                  clients and increasing revenue, everything you need to grow
+                  your practice is in one place.
                 </p>
               </div>
 
@@ -89,8 +95,8 @@ export default function PromoSection() {
                   Growth Tools
                 </h4>
                 <p className="text-white/80 text-[10px] leading-relaxed font-bold tracking-wide uppercase opacity-90">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Access powerful tools to manage clients, showcase your
+                  expertise, and scale your wellness practice efficiently.
                 </p>
               </div>
             </div>
@@ -103,8 +109,9 @@ export default function PromoSection() {
                   Global Reach
                 </h4>
                 <p className="text-white/80 text-[10px] leading-relaxed font-bold tracking-wide uppercase opacity-90">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Get discovered by clients across India and beyond who are
+                  searching for trusted dietitians, nutritionists, and fitness
+                  coaches.
                 </p>
               </div>
 
@@ -115,8 +122,8 @@ export default function PromoSection() {
                   Seamless Payments
                 </h4>
                 <p className="text-[#1a340a]/70 text-[10px] leading-relaxed font-bold tracking-wide uppercase opacity-90">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Accept payments easily and manage your wellness business
+                  without worrying about manual transactions.
                 </p>
               </div>
             </div>
