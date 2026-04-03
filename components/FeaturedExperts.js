@@ -1,10 +1,89 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { User, User2 } from "lucide-react";
-import { fetchAPI } from "@/lib/api";
+import { User2 } from "lucide-react";
+// import { fetchAPI } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+
+/**
+ * Manual featured experts (swap URLs / `_id` values while the home API is off).
+ * Optional `websiteLink`: opens in a new tab (http/https) or via router (paths starting with `/`).
+ * If `websiteLink` is missing/empty, logged-in users go to `/experts/[_id]` (login modal if guest).
+ */
+const MOCK_FEATURED_EXPERTS = [
+  {
+    _id: "replace-with-real-listing-id-1",
+    websiteLink: "http://www.fitbodyculture.in",
+    coach: {
+      name: "Ankush S. Bhaskar",
+      profilePhoto:
+        "/images/ankush-s-bhaskar.png",
+    },
+    specializations: ["Yoga"],
+    city: "Mumbai",
+    state: "Maharashtra",
+    ratingAgg: { overall: { avg: 4.9 } },
+    reviewAgg: { totalReviews: 48 },
+  },
+  {
+    _id: "replace-with-real-listing-id-2",
+    websiteLink:"https://dietitiananubha.com/",
+    coach: {
+      name: "Anubha Taparia",
+      profilePhoto:
+        "/images/anubha-taparia.png",
+    },
+    specializations: ["Strength Training"],
+    city: "Bengaluru",
+    state: "Karnataka",
+    ratingAgg: { overall: { avg: 4.8 } },
+    reviewAgg: { totalReviews: 32 },
+  },
+  
+  {
+    _id: "replace-with-real-listing-id-23",
+    websiteLink:"https://fitlydietclinic.com/",
+    coach: {
+      name: "Onkar Singh",
+      profilePhoto:
+        "",
+    },
+    specializations: ["Strength Training"],
+    city: "Bengaluru",
+    state: "Karnataka",
+    ratingAgg: { overall: { avg: 4.8 } },
+    reviewAgg: { totalReviews: 32 },
+  },
+  {
+    _id: "replace-with-real-listing-id-24",
+    websiteLink:"http://www.NutridatewithPriyanka.com",
+    coach: {
+      name: "Priyanka Shah",
+      profilePhoto:
+        "",
+    },
+    specializations: ["Strength Training"],
+    city: "Bengaluru",
+    state: "Karnataka",
+    ratingAgg: { overall: { avg: 4.8 } },
+    reviewAgg: { totalReviews: 32 },
+  },
+  {
+    _id: "anuja",
+    websiteLink:"",
+    coach: {
+      name: "Anuja",
+      profilePhoto:
+        "/images/anuja.png",
+    },
+    specializations: ["Strength Training"],
+    city: "Bengaluru",
+    state: "Karnataka",
+    ratingAgg: { overall: { avg: 4.8 } },
+    reviewAgg: { totalReviews: 32 },
+  },
+];
 
 function ExpertPhoto({ src, name }) {
   const [failed, setFailed] = useState(false);
@@ -77,14 +156,31 @@ function blurbFromExperts(experts) {
   return text;
 }
 
+function trimmedWebsiteLink(expert) {
+  const raw = expert?.websiteLink;
+  return typeof raw === "string" && raw.trim().length > 0 ? raw.trim() : "";
+}
+
 export default function FeaturedExperts() {
-  const [experts, setExperts] = useState([]);
+  const experts = MOCK_FEATURED_EXPERTS;
   const { isAuthenticated, openLoginModal } = useAuth();
   const router = useRouter();
 
   const sectionBlurb = useMemo(() => blurbFromExperts(experts), [experts]);
 
   const handleExpertClick = (expert) => {
+    const site = trimmedWebsiteLink(expert);
+    if (site) {
+      if (site.startsWith("/")) {
+        router.push(site);
+        return;
+      }
+      const url =
+        /^https?:\/\//i.test(site) ? site : `https://${site}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     const id = expert._id;
     if (!id) return;
 
@@ -95,19 +191,20 @@ export default function FeaturedExperts() {
     }
   };
 
-  useEffect(() => {
-    async function fetchTopRatedExperts() {
-      try {
-        const data = await fetchAPI("/experts/listing/home/top-rated", {
-          limit: 12,
-        });
-        setExperts(Array.isArray(data?.items) ? data.items.slice(0, 5) : []);
-      } catch {
-        setExperts([]);
-      }
-    }
-    fetchTopRatedExperts();
-  }, []);
+  // API (restore when moving off mock data):
+  // useEffect(() => {
+  //   async function fetchTopRatedExperts() {
+  //     try {
+  //       const data = await fetchAPI("/experts/listing/home/top-rated", {
+  //         limit: 12,
+  //       });
+  //       setExperts(Array.isArray(data?.items) ? data.items.slice(0, 5) : []);
+  //     } catch {
+  //       setExperts([]);
+  //     }
+  //   }
+  //   fetchTopRatedExperts();
+  // }, []);
 
   return (
     <section className="bg-white py-16 sm:py-24">
