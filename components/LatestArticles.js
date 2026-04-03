@@ -59,7 +59,7 @@ export default function LatestArticles() {
                             alt={featuredArticle.title}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
 
                         <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-end">
                             <span className="text-white text-xs sm:text-base font-bold mb-2 opacity-90">
@@ -90,28 +90,29 @@ export default function LatestArticles() {
                         {sideArticles.map((article, idx) => (
                             <div
                                 key={idx}
-                                className="relative flex-1 group cursor-pointer overflow-hidden rounded-2xl shadow-lg min-h-[160px]"
+                                className="relative flex-1 cursor-pointer overflow-hidden rounded-2xl shadow-lg min-h-[160px] bg-[#2D5A11] transition-transform duration-300 ease-out hover:scale-[1.03] hover:shadow-2xl motion-reduce:transform-none"
                             >
+                                {/* Title is only inside the overlay; alt="" avoids duplicate black alt text when images fail to load */}
                                 <img
                                     src={article.image}
-                                    alt={article.title}
-                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                    alt=""
+                                    className="absolute inset-0 w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent" />
 
-                                <div className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-end">
+                                <div className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-end z-10">
                                     <span className="text-white text-[10px] sm:text-xs font-bold mb-1 opacity-90 uppercase tracking-wider">
                                         {article.date}
                                     </span>
-                                    <h4 className="text-lg sm:text-xl font-black text-[#74C62D] mb-2 leading-tight group-hover:text-white transition-colors">
+                                    <h4 className="text-lg sm:text-xl font-black text-[#74C62D] mb-2 leading-tight">
                                         {article.title}
                                     </h4>
 
                                     <div className="flex items-center gap-2">
                                         <img
                                             src={article.authorImage}
-                                            alt={article.author}
-                                            className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-white/20"
+                                            alt=""
+                                            className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-white/20 object-cover"
                                         />
                                         <span className="text-white text-[10px] sm:text-xs font-bold">
                                             {article.author}
