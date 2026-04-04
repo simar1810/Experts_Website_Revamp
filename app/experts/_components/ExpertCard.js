@@ -1,13 +1,7 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import {
-  BadgeCheck,
-  CheckCircle2,
-  MapPin,
-  MessageSquare,
-  ThumbsUp,
-} from "lucide-react";
+import { BadgeCheck, ThumbsUp } from "lucide-react";
 
 export default function ExpertCard({ expert }) {
   const { isAuthenticated, openLoginModal } = useAuth();
@@ -15,12 +9,6 @@ export default function ExpertCard({ expert }) {
   const resolvedName = expert.coach?.name || expert.name || "Expert";
   const resolvedPhoto =
     expert.profilePhoto || expert.coach?.profilePhoto || "/file.svg";
-  const resolvedEmail = expert.coach?.email || expert.email || "";
-  const coachName = expert.coach?.name || expert.name || "Expert";
-  const coachPhoto =
-    expert.coach?.profilePhoto || expert.profilePhoto || "/file.svg";
-  const coachEmail = expert.coach?.email || expert.email || "";
-  const coachId = expert.coach?._id || expert.coachId || "";
   const resolvedListingId =
     expert.listingId ||
     expert.expertListingId ||
@@ -40,37 +28,13 @@ export default function ExpertCard({ expert }) {
     specializations_string = specs[0];
   }
 
-  const handleCardClick = (e) => {
+  const handleCardClick = () => {
     if (!resolvedListingId) return;
-
-    const previewPayload = {
-      coach: {
-        _id: coachId || resolvedListingId,
-        name: coachName,
-        profilePhoto: coachPhoto,
-        email: coachEmail,
-        city: expert.coach?.city || expert.city || "",
-      },
-      expertDetails: {
-        profilePhoto: expert.profilePhoto || coachPhoto,
-        specializations: expert.specializations || expert.expertiseTags || [],
-        yearsExperience: expert.yearsExperience || 0,
-        city: expert.city || "",
-        state: expert.state || "",
-        country: expert.country || "",
-        bio: expert.bio || expert.clinic || "",
-        reviewAgg: expert.reviewAgg || { totalReviews: 0 },
-        ratingAgg: expert.ratingAgg || {},
-        recommendedScoreFinal: expert.recommendedScoreFinal || 0,
-      },
-      reviews: [],
-    };
-    const preview = encodeURIComponent(JSON.stringify(previewPayload));
 
     if (!isAuthenticated) {
       openLoginModal();
     } else {
-      router.push(`/experts/${resolvedListingId}?preview=${preview}`);
+      router.push(`/experts/${resolvedListingId}`);
     }
   };
 
