@@ -1,10 +1,8 @@
 "use client";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, ThumbsUp } from "lucide-react";
 
 export default function ExpertCard({ expert }) {
-  const { isAuthenticated, openLoginModal } = useAuth();
   const router = useRouter();
   const resolvedName = expert.coach?.name || expert.name || "Expert";
   const resolvedPhoto =
@@ -30,12 +28,7 @@ export default function ExpertCard({ expert }) {
 
   const handleCardClick = () => {
     if (!resolvedListingId) return;
-
-    if (!isAuthenticated) {
-      openLoginModal();
-    } else {
-      router.push(`/experts/${resolvedListingId}`);
-    }
+    router.push(`/experts/${resolvedListingId}`);
   };
 
   return (

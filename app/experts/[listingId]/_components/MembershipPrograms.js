@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getEnquiryDefaultsFromClientUser } from "@/lib/clientUser";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 // Must match backend `RAZORPAY_KEY_ID` (expert-program orders use config/razorPay.js `razorpay`, not RAZORPAY_API_KEY).
@@ -112,13 +113,12 @@ function ProgramCard({
 
       const { paymentId, orderId } = orderData;
 
-      const contactRaw =
-        user?.mobileNumber || user?.phoneNumber || user?.contact || "";
-      const digits = String(contactRaw).replace(/\D/g, "");
+      const { name, email, contact } = getEnquiryDefaultsFromClientUser(user);
+      const digits = contact.replace(/\D/g, "");
       const prefill = Object.fromEntries(
         [
-          ["name", user?.name],
-          ["email", user?.email],
+          ["name", name],
+          ["email", email],
           ["contact", digits.length >= 10 ? digits.slice(-10) : ""],
         ].filter(([, v]) => v != null && String(v).trim() !== ""),
       );

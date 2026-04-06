@@ -3,6 +3,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { fetchAPI } from "@/lib/api";
+import { getEnquiryDefaultsFromClientUser } from "@/lib/clientUser";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 import Hero from "./_components/Hero";
@@ -41,10 +42,13 @@ export default function ExpertProfilePage({ params }) {
   });
 
   useEffect(() => {
+    if (!user) return;
+    const { name, email, contact } = getEnquiryDefaultsFromClientUser(user);
     setFormState((prev) => ({
       ...prev,
-      name: user?.name || prev.name,
-      email: user?.email || prev.email,
+      name: name || prev.name,
+      email: email || prev.email,
+      contact: contact || prev.contact,
     }));
   }, [user]);
 

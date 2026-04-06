@@ -1,5 +1,11 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
 
 const AuthContext = createContext();
@@ -49,6 +55,18 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(true);
   };
 
+  /** Shallow-merge into stored client (e.g. after fetching profile). */
+  const updateUser = useCallback((patch) => {
+    if (!patch || typeof patch !== "object") return;
+    setUser((prev) => {
+      const next = { ...(prev || {}), ...patch };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("client_data", JSON.stringify(next));
+      }
+      return next;
+    });
+  }, []);
+
   const logout = () => {
     localStorage.clear();
     setToken(null);
@@ -75,6 +93,7 @@ export function AuthProvider({ children }) {
         user,
         isAuthenticated,
         login,
+        updateUser,
         logout,
         openLoginModal,
         closeLoginModal,
