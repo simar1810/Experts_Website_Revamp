@@ -33,6 +33,8 @@ function ExpertsPageInner() {
   }, [locationFromUrl]);
 
   const useGeo = searchClientLocation?.coordinates?.length === 2;
+  const showDistanceFilter =
+    useGeo || (locationQuery || "").trim().length > 0;
 
   const listing = useExpertsListingSearch({
     selectedSpecialities,
@@ -125,7 +127,7 @@ function ExpertsPageInner() {
             className={`w-full lg:w-[340px] shrink-0 sticky top-0 ${isMobileFiltersOpen ? "block" : "hidden lg:block"}`}
           >
             <ExpertsFiltersSidebar
-              useGeo={useGeo}
+              showDistanceFilter={showDistanceFilter}
               locationLabel={locationLabel}
               freeCount={freeCountDisplay}
               languages={listing.languages}
