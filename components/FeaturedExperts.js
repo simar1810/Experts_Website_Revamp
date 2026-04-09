@@ -5,11 +5,12 @@ import { User2 } from "lucide-react";
 // import { fetchAPI } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { prettyExpertProfileUrlFromListingLike } from "@/lib/prettyExpertProfileUrl";
 
 /**
  * Manual featured experts (swap URLs / `_id` values while the home API is off).
  * Optional `websiteLink`: opens in a new tab (http/https) or via router (paths starting with `/`).
- * If `websiteLink` is missing/empty, logged-in users go to `/experts/[_id]` (login modal if guest).
+ * If `websiteLink` is missing/empty, logged-in users go to the slug profile URL (login modal if guest).
  */
 const MOCK_FEATURED_EXPERTS = [
   {
@@ -187,7 +188,7 @@ export default function FeaturedExperts() {
     if (!isAuthenticated) {
       openLoginModal();
     } else {
-      router.push(`/experts/${id}`);
+      router.push(prettyExpertProfileUrlFromListingLike(expert));
     }
   };
 

@@ -10,9 +10,18 @@ body {
   overflow-x: hidden;
 }
 
+/* Avoid layout shift when overlays (dropdowns, dialogs) hide the scrollbar */
+html {
+  scrollbar-gutter: stable;
+}
+
 @layer utilities {
   .font-lato {
     font-family: var(--font-lato), sans-serif;
+  }
+
+  .font-lexend {
+    font-family: var(--font-lexend), var(--font-geist-sans), sans-serif;
   }
 
   .font-manrope {
@@ -29,6 +38,14 @@ body {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
     /* Safari and Chrome */
+  }
+
+  .font-montserrat {
+    font-family: var(--font-montserrat), var(--font-geist-sans), sans-serif;
+  }
+
+  .font-playfair {
+    font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
   }
 }
 
@@ -73,7 +90,69 @@ body {
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-}
+
+  /* WellnessZ marketing / landing */
+  --color-wz-forest: #2d5a27;
+  --color-wz-lime: #8cc63f;
+  --color-wz-pale-lime: #e6f4a2;
+  --color-wz-mint: #f4f9f1;
+  --color-wz-cream: #fcfee7;
+  --color-wz-cream-warm: #f9f9e0;
+  --color-wz-momentum: #006837;
+  /* Landing: discover + top programs (design spec) */
+  --color-wz-deep-forest: #004d00;
+  --color-wz-program-card: #003300;
+  --color-wz-discover-cream: #faf9f4;
+  --color-wz-input-grey: #e0e0e0;
+  --color-wz-copy-muted: #6b9a64;
+  /* Landing — Top Experts + Trusted block (design spec) */
+  --color-wz-top-green: #76ba43;
+  --color-wz-top-cream: #f9fbe7;
+  --color-wz-top-subtitle: #5a8f52;
+  --color-wz-trusted-bg: #046434;
+  --color-wz-trusted-lime: #89ff5b;
+  --color-wz-see-more-bg: #e8f5d5;
+  --color-wz-see-more-text: #2f6b28;
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  --animate-momentum-watermark-in: momentum-watermark-slide-in 1.15s
+    cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  @keyframes momentum-watermark-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(22vw);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes marquee {
+  from {
+    transform: translateX(0);
+    }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+    }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+  --animate-blink-cursor: blink-cursor 1.2s step-end infinite
+;
+  @keyframes blink-cursor {
+  0%, 49% {
+    opacity: 1;
+    }
+  50%, 100% {
+    opacity: 0;
+    }
+  }}
 
 :root {
   --background: oklch(1 0 0);
