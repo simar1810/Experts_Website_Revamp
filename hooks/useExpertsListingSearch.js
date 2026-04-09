@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { searchListings } from "@/lib/services/listingSearch.service";
+import { EXPERTS_FILTER_DEBOUNCE_MS } from "@/lib/constants/filters";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 const FREE_PAGE_SIZE = 20;
-const SEARCH_DEBOUNCE_MS = 350;
 
 function applyClientFilters(experts, { clientsRanges, wzAssured }) {
   if (!Array.isArray(experts)) return [];
@@ -56,7 +57,12 @@ export function useExpertsListingSearch({
   const [clientsRanges, setClientsRanges] = useState({});
   const [wzAssured, setWzAssured] = useState(false);
 
+  /** Memoize forward-geocoding for typed cities (same as GPS path → $geoNear on backend). */
+  const geocodeCacheRef = useRef({});
+
   const useGeo = searchClientLocation?.coordinates?.length === 2;
+  const useRadius =
+    useGeo || (locationQuery || "").trim().length > 0;
 
   const immediateFilters = useMemo(
     () => ({
@@ -64,11 +70,12 @@ export function useExpertsListingSearch({
       expertiseTags: selectedSpecialities,
       clientLocation: useGeo ? searchClientLocation : null,
       consultationMode: useGeo ? "both" : consultationMode,
-      radiusKm: useGeo ? radiusKm : "",
+      radiusKm: useRadius ? radiusKm : "",
       languages,
     }),
     [
       useGeo,
+      useRadius,
       locationQuery,
       selectedSpecialities,
       searchClientLocation,
@@ -78,15 +85,10 @@ export function useExpertsListingSearch({
     ],
   );
 
-  const [debouncedFilters, setDebouncedFilters] = useState(immediateFilters);
-
-  useEffect(() => {
-    const t = setTimeout(
-      () => setDebouncedFilters(immediateFilters),
-      SEARCH_DEBOUNCE_MS,
-    );
-    return () => clearTimeout(t);
-  }, [immediateFilters]);
+  const debouncedFilters = useDebouncedValue(
+    immediateFilters,
+    EXPERTS_FILTER_DEBOUNCE_MS,
+  );
 
   const buildApiParams = useCallback(
     (pageNum, filters = debouncedFilters) => {
@@ -103,12 +105,78 @@ export function useExpertsListingSearch({
     [debouncedFilters],
   );
 
+  const resolveGeoFromCityText = useCallback(async (filters) => {
+    const coords = filters.clientLocation?.coordinates;
+    const hasClientCoords =
+      Array.isArray(coords) &&
+      coords.length === 2 &&
+      typeof coords[0] === "number" &&
+      typeof coords[1] === "number";
+
+    const city = (filters.city || "").trim();
+    const radiusNum = Number(filters.radiusKm);
+
+    if (hasClientCoords || !city || !(radiusNum > 0)) {
+      return filters;
+    }
+
+    if (filters.consultationMode === "online") {
+      return filters;
+    }
+
+    const key = city.toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(geocodeCacheRef.current, key)) {
+      const cached = geocodeCacheRef.current[key];
+      if (!cached) return filters;
+      return {
+        ...filters,
+        city: "",
+        clientLocation: {
+          type: "Point",
+          coordinates: [cached.lon, cached.lat],
+        },
+        consultationMode:
+          filters.consultationMode === "in_person" ? "in_person" : "both",
+      };
+    }
+
+    try {
+      const res = await fetch(
+        `/api/geocode-search?q=${encodeURIComponent(city)}`,
+      );
+      if (!res.ok) {
+        geocodeCacheRef.current[key] = null;
+        return filters;
+      }
+      const data = await res.json();
+      if (data.lat == null || data.lon == null) {
+        geocodeCacheRef.current[key] = null;
+        return filters;
+      }
+      geocodeCacheRef.current[key] = { lat: data.lat, lon: data.lon };
+      return {
+        ...filters,
+        city: "",
+        clientLocation: {
+          type: "Point",
+          coordinates: [data.lon, data.lat],
+        },
+        consultationMode:
+          filters.consultationMode === "in_person" ? "in_person" : "both",
+      };
+    } catch {
+      geocodeCacheRef.current[key] = null;
+      return filters;
+    }
+  }, []);
+
   const fetchListings = useCallback(
     async (pageNum, filters = debouncedFilters) => {
       setLoading(true);
       setError(null);
       try {
-        const params = buildApiParams(pageNum, filters);
+        const resolved = await resolveGeoFromCityText(filters);
+        const params = buildApiParams(pageNum, resolved);
         const res = await searchListings(params);
         setPaid(res.paid);
         setFree(res.free);
@@ -122,7 +190,7 @@ export function useExpertsListingSearch({
         setLoading(false);
       }
     },
-    [buildApiParams, debouncedFilters],
+    [buildApiParams, debouncedFilters, resolveGeoFromCityText],
   );
 
   useEffect(() => {

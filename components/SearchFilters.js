@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, MapPin, X, ChevronDown, Locate } from "lucide-react";
+import { EXPERTS_FILTER_DEBOUNCE_MS } from "@/lib/constants/filters";
 import { availableSpecialities } from "@/lib/data/specialities";
 import { availableCities } from "@/lib/data/locations";
 
@@ -200,10 +201,24 @@ export default function SearchFilters({
   placeholderLocation = "Location",
 }) {
   const [specialityQuery, setSpecialityQuery] = useState("");
+  const [locationDraft, setLocationDraft] = useState(locationQuery);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showSpecialityDropdown, setShowSpecialityDropdown] = useState(false);
   const [coordinateLocation, setCoordinateLocation] = useState(null);
   const isDark = theme === "dark";
+
+  useEffect(() => {
+    setLocationDraft(locationQuery);
+  }, [locationQuery]);
+
+  useEffect(() => {
+    if (locationDraft === locationQuery) return;
+    const id = setTimeout(() => {
+      setClientLocation?.(null);
+      setLocationQuery(locationDraft);
+    }, EXPERTS_FILTER_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [locationDraft, locationQuery, setLocationQuery, setClientLocation]);
 
   const addSpeciality = (spec) => {
     if (!selectedSpecialities.includes(spec)) {
@@ -235,11 +250,14 @@ export default function SearchFilters({
     getLocation();
   }, []);
 
-  const runSearch = () => {
-    if (typeof onSearch === "function") {
-      onSearch();
-    }
-  };
+  const runSearch = useCallback(() => {
+    setLocationQuery(locationDraft);
+    setTimeout(() => {
+      if (typeof onSearch === "function") {
+        onSearch();
+      }
+    }, 0);
+  }, [locationDraft, setLocationQuery, onSearch]);
 
   const handleUseMyLocation = async () => {
     if (coordinateLocation && setClientLocation) {
@@ -251,14 +269,18 @@ export default function SearchFilters({
       const city = await findCityFromCoordinates({
         coordinates: coordinateLocation,
       });
-      setLocationQuery(city || "Near me");
+      const label = city || "Near me";
+      setLocationDraft(label);
+      setLocationQuery(label);
     } else {
       setClientLocation?.(null);
+      setLocationDraft("Near me");
       setLocationQuery("Near me");
     }
     setShowLocationDropdown(false);
-    // Let state updates flush before triggering API search
-    setTimeout(() => runSearch(), 0);
+    setTimeout(() => {
+      if (typeof onSearch === "function") onSearch();
+    }, 0);
   };
 
   return (
@@ -334,18 +356,21 @@ export default function SearchFilters({
         <input
           type="text"
           placeholder={placeholderLocation}
-          value={locationQuery}
+          value={locationDraft}
           onChange={(e) => {
             setClientLocation?.(null);
-            setLocationQuery(e.target.value);
+            setLocationDraft(e.target.value);
           }}
           onFocus={() => setShowLocationDropdown(true)}
           onBlur={() => setTimeout(() => setShowLocationDropdown(false), 200)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
+              setLocationQuery(locationDraft);
               setShowLocationDropdown(false);
-              runSearch();
+              setTimeout(() => {
+                if (typeof onSearch === "function") onSearch();
+              }, 0);
             }
           }}
           className={`bg-transparent border-none outline-none w-full text-sm min-w-0 ${
@@ -371,8 +396,11 @@ export default function SearchFilters({
         {showLocationDropdown && (
           <LocationSelectorDropdown
             coordinateLocation={coordinateLocation}
-            locationQuery={locationQuery}
-            setLocationQuery={setLocationQuery}
+            locationQuery={locationDraft}
+            setLocationQuery={(next) => {
+              setLocationDraft(next);
+              setLocationQuery(next);
+            }}
             setShowLocationDropdown={setShowLocationDropdown}
             setClientLocation={setClientLocation}
             onUseMyLocation={handleUseMyLocation}

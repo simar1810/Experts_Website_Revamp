@@ -1,8 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useValues } from "@/context/valuesContext";
 import { CheckCircle2, ChevronDown } from "lucide-react";
+import { EXPERTS_FILTER_DEBOUNCE_MS } from "@/lib/constants/filters";
+
+function sameLangs(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort();
+  const sb = [...b].sort();
+  return sa.every((x, i) => x === sb[i]);
+}
+
+function sameClients(a, b) {
+  return JSON.stringify(a || {}) === JSON.stringify(b || {});
+}
 
 const clients_options = [
   "0-100",
@@ -21,7 +34,7 @@ const CONSULTATION_OPTIONS = [
 ];
 
 export default function ExpertsFiltersSidebar({
-  useGeo = false,
+  showDistanceFilter = false,
   locationLabel = "All Cities",
   freeCount = 0,
   languages = [],
@@ -36,49 +49,154 @@ export default function ExpertsFiltersSidebar({
   setWzAssured,
   onClose,
 }) {
+  const debounceMs = EXPERTS_FILTER_DEBOUNCE_MS;
+
   const [openSections, setOpenSections] = useState({
     clients: true,
     languages: true,
-    distance: true,
   });
 
   const { values } = useValues();
 
+  const [localWz, setLocalWz] = useState(wzAssured);
+  const [localConsultation, setLocalConsultation] = useState(consultationMode);
+  const [localLanguages, setLocalLanguages] = useState(() => [...languages]);
+  const [localClients, setLocalClients] = useState(() => ({ ...clientsRanges }));
+  const [localRadius, setLocalRadius] = useState(radiusKm);
+  const radiusCommitTimerRef = useRef(null);
+
+  useEffect(() => {
+    setLocalWz(wzAssured);
+  }, [wzAssured]);
+
+  useEffect(() => {
+    if (localWz === wzAssured) return;
+    const id = setTimeout(() => setWzAssured(localWz), debounceMs);
+    return () => clearTimeout(id);
+  }, [localWz, wzAssured, setWzAssured, debounceMs]);
+
+  useEffect(() => {
+    setLocalConsultation(consultationMode);
+  }, [consultationMode]);
+
+  useEffect(() => {
+    if (localConsultation === consultationMode) return;
+    const id = setTimeout(() => setConsultationMode(localConsultation), debounceMs);
+    return () => clearTimeout(id);
+  }, [localConsultation, consultationMode, setConsultationMode, debounceMs]);
+
+  useEffect(() => {
+    setLocalLanguages((prev) =>
+      sameLangs(prev, languages) ? prev : [...languages],
+    );
+  }, [languages]);
+
+  useEffect(() => {
+    if (sameLangs(localLanguages, languages)) return;
+    const id = setTimeout(() => setLanguages([...localLanguages]), debounceMs);
+    return () => clearTimeout(id);
+  }, [localLanguages, languages, setLanguages, debounceMs]);
+
+  useEffect(() => {
+    setLocalClients((prev) =>
+      sameClients(prev, clientsRanges) ? prev : { ...clientsRanges },
+    );
+  }, [clientsRanges]);
+
+  useEffect(() => {
+    if (sameClients(localClients, clientsRanges)) return;
+    const id = setTimeout(
+      () => setClientsRanges({ ...localClients }),
+      debounceMs,
+    );
+    return () => clearTimeout(id);
+  }, [localClients, clientsRanges, setClientsRanges, debounceMs]);
+
+  useEffect(() => {
+    setLocalRadius(radiusKm);
+  }, [radiusKm]);
+
+  useEffect(() => {
+    return () => {
+      if (radiusCommitTimerRef.current) {
+        clearTimeout(radiusCommitTimerRef.current);
+      }
+    };
+  }, []);
+
+  const scheduleRadiusCommit = (v) => {
+    if (radiusCommitTimerRef.current) {
+      clearTimeout(radiusCommitTimerRef.current);
+    }
+    radiusCommitTimerRef.current = setTimeout(() => {
+      radiusCommitTimerRef.current = null;
+      setRadiusKm(v);
+    }, debounceMs);
+  };
+
+  const flushRadiusCommit = (v) => {
+    if (radiusCommitTimerRef.current) {
+      clearTimeout(radiusCommitTimerRef.current);
+      radiusCommitTimerRef.current = null;
+    }
+    setRadiusKm(v);
+  };
+
+  const flushFiltersToParent = () => {
+    if (radiusCommitTimerRef.current) {
+      clearTimeout(radiusCommitTimerRef.current);
+      radiusCommitTimerRef.current = null;
+    }
+    setWzAssured(localWz);
+    setConsultationMode(localConsultation);
+    setLanguages([...localLanguages]);
+    setClientsRanges({ ...localClients });
+    setRadiusKm(localRadius);
+  };
+
   const languageMap = useMemo(() => {
     const m = {};
     (values?.languages || []).forEach((l) => {
-      m[l] = languages.includes(l);
+      m[l] = localLanguages.includes(l);
     });
     return m;
-  }, [values?.languages, languages]);
+  }, [values?.languages, localLanguages]);
 
   const setLanguageChecked = (lang, checked) => {
-    setLanguages((prev) => {
+    setLocalLanguages((prev) => {
       const p = Array.isArray(prev) ? [...prev] : [];
       if (checked) {
         if (!p.includes(lang)) p.push(lang);
-      } else {
-        return p.filter((x) => x !== lang);
+        return p;
       }
-      return p;
+      return p.filter((x) => x !== lang);
     });
   };
 
   const handleClientsChange = (name) => {
-    setClientsRanges((prev) => ({
+    setLocalClients((prev) => ({
       ...prev,
       [name]: !prev[name],
     }));
   };
 
   const handleClearFilters = () => {
-    setLanguages([]);
-    setConsultationMode("");
-    setRadiusKm(20);
+    if (radiusCommitTimerRef.current) {
+      clearTimeout(radiusCommitTimerRef.current);
+      radiusCommitTimerRef.current = null;
+    }
+    setLocalWz(false);
+    setLocalConsultation("");
+    setLocalRadius(20);
+    setLocalLanguages([]);
     const cleared = {};
     clients_options.forEach((c) => {
       cleared[c] = false;
     });
+    setLocalClients(cleared);
+    setLanguages([]);
+    setConsultationMode("");
+    setRadiusKm(20);
     setClientsRanges(cleared);
     setWzAssured(false);
   };
@@ -124,13 +242,44 @@ export default function ExpertsFiltersSidebar({
               </div>
               <input
                 type="checkbox"
-                checked={wzAssured}
-                onChange={() => setWzAssured(!wzAssured)}
+                checked={localWz}
+                onChange={() => setLocalWz((v) => !v)}
                 className="w-5 h-5 rounded accent-[#70C136] cursor-pointer"
               />
             </label>
           </div>
         </div>
+        {showDistanceFilter && (
+          <div className="space-y-3">
+            <h6 className="text-xs font-black text-gray-900 uppercase border-l-2 border-[#70C136] pl-3">
+              Distance (km)
+            </h6>
+            <div className="px-1 pt-1">
+              <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-2">
+                <span>0</span>
+                <span className="text-[#70C136]">{localRadius} km</span>
+                <span>200</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={200}
+                step={5}
+                value={localRadius}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setLocalRadius(v);
+                  scheduleRadiusCommit(v);
+                }}
+                onPointerUp={(e) =>
+                  flushRadiusCommit(Number(e.currentTarget.value))
+                }
+                onPointerCancel={() => flushRadiusCommit(localRadius)}
+                className="w-full h-2 rounded-full appearance-none bg-lime-100 accent-[#70C136]"
+              />
+            </div>
+          </div>
+        )}
         <div className="space-y-4">
           <h6 className="text-xs font-black text-gray-900 uppercase border-l-2 border-[#70C136] pl-3">
             Consultation Mode
@@ -144,8 +293,8 @@ export default function ExpertsFiltersSidebar({
                 <input
                   type="radio"
                   name="consultationMode"
-                  checked={consultationMode === opt.value}
-                  onChange={() => setConsultationMode(opt.value)}
+                  checked={localConsultation === opt.value}
+                  onChange={() => setLocalConsultation(opt.value)}
                   className="w-4 h-4 accent-[#70C136]"
                 />
                 <span className="text-sm font-bold text-gray-700">
@@ -177,7 +326,7 @@ export default function ExpertsFiltersSidebar({
                 >
                   <input
                     type="checkbox"
-                    checked={clientsRanges[item] || false}
+                    checked={localClients[item] || false}
                     onChange={() => handleClientsChange(item)}
                     className="w-4 h-4 accent-[#70C136]"
                   />
@@ -223,45 +372,14 @@ export default function ExpertsFiltersSidebar({
             </div>
           )}
         </div>
-        {useGeo && (
-          <div className="space-y-4 border-t border-gray-100 pt-6">
-            <button
-              type="button"
-              onClick={() => toggleSection("distance")}
-              className="flex items-center justify-between w-full text-left"
-            >
-              <span className="text-xs font-black uppercase border-l-2 border-[#70C136] pl-3">
-                Distance (km)
-              </span>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 transition-transform ${openSections.distance ? "" : "rotate-180"}`}
-              />
-            </button>
-            {openSections.distance && (
-              <div className="px-1 pt-2">
-                <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-2">
-                  <span>0</span>
-                  <span className="text-[#70C136]">{radiusKm} km</span>
-                  <span>200</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={200}
-                  step={5}
-                  value={radiusKm}
-                  onChange={(e) => setRadiusKm(Number(e.target.value))}
-                  className="w-full h-2 rounded-full appearance-none bg-lime-100 accent-[#70C136]"
-                />
-              </div>
-            )}
-          </div>
-        )}
         {onClose && (
           <div className="lg:hidden pt-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                flushFiltersToParent();
+                onClose();
+              }}
               className="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest"
             >
               Apply Filters
