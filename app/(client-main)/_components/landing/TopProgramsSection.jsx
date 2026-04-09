@@ -1,0 +1,74 @@
+"use client";
+
+import { useRef } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { topProgramsContent } from "@/lib/data/landingContent";
+import { TopProgramCard } from "./TopProgramCard";
+
+/** Horizontal “TOP PROGRAMS” strip (forest panel) — separate from THE TOP EXPERTS. */
+export function TopProgramsSection() {
+  const c = topProgramsContent;
+  const stripRef = useRef(null);
+
+  const scrollStrip = (dir) => {
+    const el = stripRef.current;
+    if (!el) return;
+    const card = el.querySelector("[data-program-card]");
+    const gap = 24;
+    const step = (card?.offsetWidth ?? 552) + gap;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
+  return (
+    <section
+      id="top-programs"
+      className="scroll-mt-24 bg-[#03632C] py-14 font-montserrat sm:py-20"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+          <h2 className="text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
+            <span className="text-white">{c.titleLight}</span>
+            <span className="text-[#9AF45D]">{c.titleHighlight}</span>
+          </h2>
+          <div className="flex shrink-0 justify-end gap-2 sm:pb-0.5">
+            <button
+              type="button"
+              aria-label="Previous programs"
+              onClick={() => scrollStrip(-1)}
+              className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
+            >
+              <ChevronLeft className="size-5" strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              aria-label="Next programs"
+              onClick={() => scrollStrip(1)}
+              className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
+            >
+              <ChevronRight className="size-5" strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+
+        <div
+          ref={stripRef}
+          className="scrollbar-hide mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
+        >
+          {c.programs.map((p) => (
+            <TopProgramCard key={p.id} {...p} />
+          ))}
+        </div>
+
+        <div className="mt-10 flex justify-center sm:mt-12">
+          <Link
+            href={c.seeMoreHref}
+            className="rounded-xl bg-white/10 px-10 py-4 text-[0.9375rem] font-semibold text-[#7ED957] transition-colors hover:bg-wz-program-card/90"
+          >
+            {c.seeMoreLabel}
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

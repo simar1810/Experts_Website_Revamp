@@ -1,11 +1,61 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import { X } from "lucide-react";
+import { Country, State, City } from "country-state-city";
 import { clientProfileFromVerifyResponse, fetchAPI } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
+import {
+  getSortedCountries,
+  getStatesForCountry,
+  MAX_CITIES_IN_SELECT,
+} from "@/lib/addressRegionUtils";
+
+const SELECT_CHEVRON_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`;
+
+const emptyLocation = () => ({
+  countryCode: "",
+  country: "",
+  stateCode: "",
+  state: "",
+  city: "",
+  pincode: "",
+});
+
+const selectClass = (hasError) =>
+  `w-full px-4 py-3.5 bg-white border text-sm font-medium text-gray-900 rounded-xl focus:outline-none transition-all appearance-none cursor-pointer bg-[length:1rem] bg-[right_1rem_center] bg-no-repeat pr-10 ${
+    hasError
+      ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
+      : "border-gray-200 focus:ring-2 focus:ring-lime-500/25 focus:border-[#84cc16]"
+  }`;
+
+const inputClass = (hasError) =>
+  `w-full px-4 py-3.5 bg-white border text-sm font-medium rounded-xl focus:outline-none transition-all placeholder:text-gray-400 ${
+    hasError
+      ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
+      : "border-gray-200 focus:ring-2 focus:ring-lime-500/25 focus:border-[#84cc16]"
+  }`;
+
+function GymIllustration() {
+  return (
+    <Image
+      className="pointer-events-none absolute -bottom-5 right-0 h-40 w-40 object-contain object-bottom opacity-[0.5] text-gray-800"
+      src="/images/gym-illustration-with-dumbell.png"
+      alt="gym-illustration-with-dumbell"
+      height={300}
+      width={300}
+    />
+  );
+}
 
 export default function GetStartedModal({ isOpen, onClose }) {
   const { login, openLoginModal } = useAuth();
@@ -16,16 +66,80 @@ export default function GetStartedModal({ isOpen, onClose }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [location, setLocation] = useState(emptyLocation);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [newsletter, setNewsletter] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
-  // Validation state
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState(false);
 
-  // Body scroll lock
+  const locationRef = useRef(location);
+  locationRef.current = location;
+  const postcodeLookupAbortRef = useRef(null);
+
+  const countries = useMemo(() => getSortedCountries(), []);
+  const states = useMemo(
+    () => getStatesForCountry(location.countryCode),
+    [location.countryCode],
+  );
+  const cities = useMemo(() => {
+    if (!location.countryCode || !location.stateCode) return [];
+    return [
+      ...City.getCitiesOfState(location.countryCode, location.stateCode),
+    ].sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+    );
+  }, [location.countryCode, location.stateCode]);
+
+  const hasStateList = states.length > 0;
+  const useCitySelect =
+    Boolean(location.countryCode && location.stateCode && hasStateList) &&
+    cities.length > 0 &&
+    cities.length <= MAX_CITIES_IN_SELECT;
+  const showCityTextInput = !useCitySelect;
+
+  const suggestPostcodeForLocation = useCallback(async (snapshot) => {
+    const cityVal = snapshot.city?.trim();
+    const stateVal = snapshot.state?.trim();
+    const countryVal = snapshot.country?.trim();
+    if (!cityVal || !stateVal || !countryVal) return;
+
+    postcodeLookupAbortRef.current?.abort();
+    const ac = new AbortController();
+    postcodeLookupAbortRef.current = ac;
+
+    try {
+      const res = await fetch(
+        `/api/lookup-postcode?${new URLSearchParams({
+          city: cityVal,
+          state: stateVal,
+          country: countryVal,
+        }).toString()}`,
+        { signal: ac.signal },
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      const pc = typeof data.postcode === "string" ? data.postcode.trim() : "";
+      if (!pc) return;
+      setLocation((prev) =>
+        prev.city.trim() === cityVal &&
+        prev.state.trim() === stateVal &&
+        prev.country.trim() === countryVal
+          ? { ...prev, pincode: pc }
+          : prev,
+      );
+    } catch (e) {
+      if (e?.name === "AbortError") return;
+      console.error("Postcode lookup failed:", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => postcodeLookupAbortRef.current?.abort();
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -54,9 +168,10 @@ export default function GetStartedModal({ isOpen, onClose }) {
       setName("");
       setPhone("");
       setEmail("");
-      setCity("");
-      setState("");
-      setOtp(["", "", "", ""]);
+      setLocation(emptyLocation());
+      setAgreeTerms(false);
+      setNewsletter(false);
+      setOtp(["", "", "", "", "", ""]);
       setErrors({});
       setTouched(false);
       setVerifyingOtp(false);
@@ -66,11 +181,14 @@ export default function GetStartedModal({ isOpen, onClose }) {
   const handleSendOtp = async () => {
     setTouched(true);
     const newErrors = {};
-    if (!name) newErrors.name = true;
-    if (!phone) newErrors.phone = true;
-    if (!email) newErrors.email = true;
-    if (!city) newErrors.city = true;
-    if (!state) newErrors.state = true;
+    if (!name.trim()) newErrors.name = true;
+    if (!phone.trim()) newErrors.phone = true;
+    if (!email.trim()) newErrors.email = true;
+    if (!location.city.trim()) newErrors.city = true;
+    if (!location.state.trim()) newErrors.state = true;
+    if (!location.country.trim()) newErrors.country = true;
+    if (!location.pincode.trim()) newErrors.pincode = true;
+    if (!agreeTerms) newErrors.terms = true;
 
     setErrors(newErrors);
 
@@ -79,27 +197,21 @@ export default function GetStartedModal({ isOpen, onClose }) {
     }
 
     try {
-      console.log("name", name);
-      console.log("phone", phone);
-      console.log("email", email);
-      console.log("city", city);
-      console.log("state", state);
-      const res = await fetchAPI(
+      await fetchAPI(
         "/experts/client/register",
         {
-          name: name,
-          mobileNumber: phone,
-          email: email,
-          city: city,
-          state: state,
+          name: name.trim(),
+          mobileNumber: phone.trim(),
+          email: email.trim(),
+          city: location.city.trim(),
+          state: location.state.trim(),
+          countryCode: location.countryCode || "IN",
         },
         "POST",
       );
       setShowOtp(true);
-      console.log(res);
     } catch (error) {
       console.error("Registration failed:", error);
-      // Even if it fails, we show OTP for now as per user's flow
       setShowOtp(true);
     }
   };
@@ -110,6 +222,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
         "/experts/client/send-otp",
         {
           mobileNumber: phone,
+          countryCode: location.countryCode || "IN",
         },
         "POST",
       );
@@ -127,6 +240,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
         {
           mobileNumber: phone,
           otp: otp.join(""),
+          countryCode: location.countryCode || "IN",
         },
         "POST",
       );
@@ -145,8 +259,8 @@ export default function GetStartedModal({ isOpen, onClose }) {
       const profile = clientProfileFromVerifyResponse(response, {
         name,
         email,
-        city,
-        state,
+        city: location.city,
+        state: location.state,
         mobileNumber: phone,
       });
       login(token, profile);
@@ -165,56 +279,66 @@ export default function GetStartedModal({ isOpen, onClose }) {
   };
 
   const handleOtpChange = (index, value) => {
-    if (isNaN(value)) return;
+    if (value !== "" && !/^\d$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    // Auto focus next
-    if (value && index < 3) {
+    if (value && index < otp.length - 1) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      const prev = document.getElementById(`otp-${index - 1}`);
+      prev?.focus();
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-      {/* Backdrop - fixed and filling viewport */}
+    <div className="font-lato fixed inset-0 z-9999 flex items-center justify-center overflow-hidden p-6">
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
+        className="fixed inset-0 animate-in fade-in bg-neutral-800/55 backdrop-blur-[2px] duration-300"
         onClick={onClose}
-      ></div>
+        aria-hidden
+      />
 
-      {/* Modal Container */}
-      <div className="relative w-full max-w-[520px] animate-in fade-in zoom-in duration-300 outline-none z-10">
-        {/* Card */}
-        <div className="bg-white rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 relative shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-2 border-[#71BC2B]">
-          {/* Close button */}
+      <div className="relative z-10 w-full max-w-lg animate-in fade-in zoom-in duration-300 outline-none">
+        <div className="relative overflow-hidden rounded-[2rem] border-2 border-[#84cc16] bg-white p-10 shadow-[0_24px_64px_rgba(0,0,0,0.12)]">
+          <GymIllustration />
           <button
+            type="button"
             onClick={onClose}
-            className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors p-2"
+            className="absolute right-5 top-5 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-700"
+            aria-label="Close"
           >
-            <X size={24} />
+            <X size={22} />
           </button>
 
-          <div className="max-w-md mx-auto">
+          <div className="relative mx-auto max-w-md">
             {!showOtp ? (
               <>
-                <h2 className="text-2xl sm:text-3xl font-black text-center text-gray-900 mb-8 tracking-tight">
-                  Get Started with Experts
+                <h2 className="text-center text-[1.65rem] font-bold leading-tight tracking-tight text-gray-900">
+                  Start with the Right Expert
                 </h2>
-                <div className="space-y-5">
-                  {/* Name Field */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="block text-sm font-bold text-gray-900">
+                <p className="mx-auto max-w-sm text-center text-[0.9375rem] leading-relaxed text-gray-500">
+                  Create an account to discover trusted wellness experts who fit
+                  your goals best.
+                </p>
+
+                <div className="mt-2 space-y-2">
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between px-0.5">
+                      <label className="text-sm font-bold text-gray-900">
                         Name
                       </label>
                       {touched && errors.name && (
-                        <span className="text-[10px] sm:text-xs font-bold text-red-500 animate-in fade-in slide-in-from-right-1 tracking-tight">
-                          (required)
+                        <span className="text-xs font-semibold text-red-500">
+                          Required
                         </span>
                       )}
                     </div>
@@ -226,45 +350,19 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         if (touched && e.target.value)
                           setErrors((prev) => ({ ...prev, name: false }));
                       }}
-                      placeholder="Write here..."
-                      className={`w-full px-6 py-4 bg-gray-50 border rounded-full text-sm focus:outline-none transition-all placeholder:text-gray-400 font-medium ${touched && errors.name ? "border-red-500 focus:ring-red-500/10" : "border-gray-100 focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500"}`}
+                      placeholder="Enter your name"
+                      className={inputClass(touched && errors.name)}
                     />
                   </div>
 
-                  {/* Phone Number Field */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="block text-sm font-bold text-gray-900">
-                        Phone Number
-                      </label>
-                      {touched && errors.phone && (
-                        <span className="text-[10px] sm:text-xs font-bold text-red-500 animate-in fade-in slide-in-from-right-1 tracking-tight">
-                          (required)
-                        </span>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      value={phone}
-                      onChange={(e) => {
-                        setPhone(e.target.value);
-                        if (touched && e.target.value)
-                          setErrors((prev) => ({ ...prev, phone: false }));
-                      }}
-                      placeholder="Write here..."
-                      className={`w-full px-6 py-4 bg-gray-50 border rounded-full text-sm focus:outline-none transition-all placeholder:text-gray-400 font-medium ${touched && errors.phone ? "border-red-500 focus:ring-red-500/10" : "border-gray-100 focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500"}`}
-                    />
-                  </div>
-
-                  {/* Email Field */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="block text-sm font-bold text-gray-900">
-                        Email
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between px-0.5">
+                      <label className="text-sm font-bold text-gray-900">
+                        Email ID
                       </label>
                       {touched && errors.email && (
-                        <span className="text-[10px] sm:text-xs font-bold text-red-500 animate-in fade-in slide-in-from-right-1 tracking-tight">
-                          (required)
+                        <span className="text-xs font-semibold text-red-500">
+                          Required
                         </span>
                       )}
                     </div>
@@ -276,75 +374,328 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         if (touched && e.target.value)
                           setErrors((prev) => ({ ...prev, email: false }));
                       }}
-                      placeholder="Write here..."
-                      className={`w-full px-6 py-4 bg-gray-50 border rounded-full text-sm focus:outline-none transition-all placeholder:text-gray-400 font-medium ${touched && errors.email ? "border-red-500 focus:ring-red-500/10" : "border-gray-100 focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500"}`}
+                      placeholder="example@gmail.com"
+                      className={inputClass(touched && errors.email)}
                     />
                   </div>
 
-                  {/* City & State Fields */}
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between px-0.5">
+                      <label className="text-sm font-bold text-gray-900">
+                        Phone Number
+                      </label>
+                      {touched && errors.phone && (
+                        <span className="text-xs font-semibold text-red-500">
+                          Required
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      inputMode="tel"
+                      value={phone}
+                      onChange={(e) => {
+                        setPhone(e.target.value);
+                        if (touched && e.target.value)
+                          setErrors((prev) => ({ ...prev, phone: false }));
+                      }}
+                      placeholder="+91 9876543210"
+                      className={inputClass(touched && errors.phone)}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center px-1">
-                        <label className="block text-sm font-bold text-gray-900">
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between px-0.5">
+                        <label className="text-sm font-bold text-gray-900">
+                          Country
+                        </label>
+                        {touched && errors.country && (
+                          <span className="text-xs font-semibold text-red-500">
+                            Required
+                          </span>
+                        )}
+                      </div>
+                      <select
+                        value={location.countryCode}
+                        onChange={(e) => {
+                          const code = e.target.value;
+                          const c = code
+                            ? Country.getCountryByCode(code)
+                            : null;
+                          setLocation({
+                            countryCode: code,
+                            country: c?.name || "",
+                            stateCode: "",
+                            state: "",
+                            city: "",
+                            pincode: "",
+                          });
+                          if (touched && code)
+                            setErrors((prev) => ({ ...prev, country: false }));
+                        }}
+                        className={selectClass(touched && errors.country)}
+                        style={{ backgroundImage: SELECT_CHEVRON_BG }}
+                      >
+                        <option value="">Select country</option>
+                        {countries.map((c) => (
+                          <option key={c.isoCode} value={c.isoCode}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between px-0.5">
+                        <label className="text-sm font-bold text-gray-900">
+                          State / Region
+                        </label>
+                        {touched && errors.state && (
+                          <span className="text-xs font-semibold text-red-500">
+                            Required
+                          </span>
+                        )}
+                      </div>
+                      {hasStateList ? (
+                        <select
+                          value={location.stateCode}
+                          disabled={!location.countryCode}
+                          onChange={(e) => {
+                            const code = e.target.value;
+                            const s = states.find((x) => x.isoCode === code);
+                            setLocation((prev) => ({
+                              ...prev,
+                              stateCode: code,
+                              state: s?.name || "",
+                              city: "",
+                              pincode: "",
+                            }));
+                            if (touched && code)
+                              setErrors((prev) => ({ ...prev, state: false }));
+                          }}
+                          className={`${selectClass(touched && errors.state)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          style={{ backgroundImage: SELECT_CHEVRON_BG }}
+                        >
+                          <option value="">
+                            {location.countryCode
+                              ? "Select state / region"
+                              : "Select country first"}
+                          </option>
+                          {states.map((s) => (
+                            <option key={s.isoCode} value={s.isoCode}>
+                              {s.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={location.state}
+                          disabled={!location.countryCode}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setLocation((prev) => ({
+                              ...prev,
+                              state: v,
+                              stateCode: "",
+                              city: "",
+                              pincode: "",
+                            }));
+                            if (touched && v)
+                              setErrors((prev) => ({ ...prev, state: false }));
+                          }}
+                          placeholder={
+                            location.countryCode
+                              ? "Region / province (if applicable)"
+                              : "Select country first"
+                          }
+                          className={`${inputClass(touched && errors.state)} disabled:cursor-not-allowed disabled:opacity-50`}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between px-0.5">
+                        <label className="text-sm font-bold text-gray-900">
                           City
                         </label>
                         {touched && errors.city && (
-                          <span className="text-[10px] sm:text-xs font-bold text-red-500 animate-in fade-in slide-in-from-right-1 tracking-tight">
-                            (req)
+                          <span className="text-xs font-semibold text-red-500">
+                            Required
                           </span>
                         )}
                       </div>
-                      <input
-                        type="text"
-                        value={city}
-                        onChange={(e) => {
-                          setCity(e.target.value);
-                          if (touched && e.target.value)
-                            setErrors((prev) => ({ ...prev, city: false }));
-                        }}
-                        placeholder="Select city"
-                        className={`w-full px-6 py-4 bg-gray-50 border rounded-full text-sm focus:outline-none transition-all placeholder:text-gray-400 font-medium ${touched && errors.city ? "border-red-500 focus:ring-red-500/10" : "border-gray-100 focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500"}`}
-                      />
+                      {useCitySelect ? (
+                        <select
+                          value={location.city}
+                          disabled={!location.stateCode}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setLocation((prev) => ({
+                              ...prev,
+                              city: value,
+                              pincode: value.trim() ? "" : "",
+                            }));
+                            if (touched && value)
+                              setErrors((prev) => ({ ...prev, city: false }));
+                            if (value.trim()) {
+                              queueMicrotask(() => {
+                                const snap = {
+                                  ...locationRef.current,
+                                  city: value,
+                                };
+                                suggestPostcodeForLocation(snap);
+                              });
+                            }
+                          }}
+                          className={`${selectClass(touched && errors.city)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          style={{ backgroundImage: SELECT_CHEVRON_BG }}
+                        >
+                          <option value="">
+                            {location.stateCode
+                              ? "Select city"
+                              : hasStateList
+                                ? "Select state first"
+                                : "Enter state first"}
+                          </option>
+                          {cities.map((c) => (
+                            <option
+                              key={`${location.countryCode}-${location.stateCode}-${c.name}`}
+                              value={c.name}
+                            >
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : null}
+                      {!useCitySelect &&
+                      location.countryCode &&
+                      cities.length > MAX_CITIES_IN_SELECT ? (
+                        <p className="mb-2 text-xs text-gray-500">
+                          This region has many localities (
+                          {cities.length.toLocaleString()}). Type your city
+                          name.
+                        </p>
+                      ) : null}
+                      {showCityTextInput ? (
+                        <input
+                          type="text"
+                          value={location.city}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setLocation((prev) => ({
+                              ...prev,
+                              city: v,
+                              pincode: v.trim() ? prev.pincode : "",
+                            }));
+                            if (touched && v)
+                              setErrors((prev) => ({ ...prev, city: false }));
+                          }}
+                          onBlur={() => {
+                            const snap = locationRef.current;
+                            if (
+                              snap.city?.trim() &&
+                              snap.state?.trim() &&
+                              snap.country?.trim()
+                            ) {
+                              suggestPostcodeForLocation(snap);
+                            }
+                          }}
+                          placeholder="City"
+                          disabled={
+                            !location.countryCode ||
+                            (hasStateList && !location.stateCode)
+                          }
+                          className={`${inputClass(touched && errors.city)} disabled:cursor-not-allowed disabled:opacity-50`}
+                        />
+                      ) : null}
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center px-1">
-                        <label className="block text-sm font-bold text-gray-900">
-                          State
+
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between px-0.5">
+                        <label className="text-sm font-bold text-gray-900">
+                          Pincode
                         </label>
-                        {touched && errors.state && (
-                          <span className="text-[10px] sm:text-xs font-bold text-red-500 animate-in fade-in slide-in-from-right-1 tracking-tight">
-                            (req)
+                        {touched && errors.pincode && (
+                          <span className="text-xs font-semibold text-red-500">
+                            Required
                           </span>
                         )}
                       </div>
                       <input
                         type="text"
-                        value={state}
+                        inputMode="numeric"
+                        value={location.pincode}
                         onChange={(e) => {
-                          setState(e.target.value);
-                          if (touched && e.target.value)
-                            setErrors((prev) => ({ ...prev, state: false }));
+                          const v = e.target.value;
+                          setLocation((prev) => ({ ...prev, pincode: v }));
+                          if (touched && v)
+                            setErrors((prev) => ({ ...prev, pincode: false }));
                         }}
-                        placeholder="Select state"
-                        className={`w-full px-6 py-4 bg-gray-50 border rounded-full text-sm focus:outline-none transition-all placeholder:text-gray-400 font-medium ${touched && errors.state ? "border-red-500 focus:ring-red-500/10" : "border-gray-100 focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500"}`}
+                        placeholder="Pincode"
+                        className={inputClass(touched && errors.pincode)}
                       />
                     </div>
                   </div>
 
-                  {/* Send OTP Button */}
-                  <div className="pt-4 flex flex-col items-center gap-4">
-                    <button
-                      onClick={handleSendOtp}
-                      className="w-full py-4 bg-[#71BC2B] hover:bg-[#63a525] text-white rounded-full font-bold text-base shadow-lg shadow-lime-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2"
-                    >
-                      Send OTP →
-                    </button>
+                  <div className="space-y-3 pt-1">
+                    <label className="flex cursor-pointer items-start gap-3 text-sm text-gray-500">
+                      <input
+                        type="checkbox"
+                        checked={agreeTerms}
+                        onChange={(e) => {
+                          setAgreeTerms(e.target.checked);
+                          if (touched && e.target.checked)
+                            setErrors((prev) => ({ ...prev, terms: false }));
+                        }}
+                        className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 accent-[#84cc16]"
+                      />
+                      <span>
+                        By continuing, I agree to the{" "}
+                        <a
+                          href="#"
+                          className="font-bold text-[#84cc16] hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Terms &amp; Conditions
+                        </a>
+                      </span>
+                    </label>
+                    {touched && errors.terms && (
+                      <p className="text-xs font-semibold text-red-500">
+                        Please accept the terms to continue.
+                      </p>
+                    )}
+                    <label className="flex cursor-pointer items-start gap-3 text-sm text-gray-500">
+                      <input
+                        type="checkbox"
+                        checked={newsletter}
+                        onChange={(e) => setNewsletter(e.target.checked)}
+                        className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 accent-[#84cc16]"
+                      />
+                      <span>
+                        Subscribe to our newsletter for regular health news and
+                        updates.
+                      </span>
+                    </label>
+                  </div>
 
-                    <p className="text-sm text-gray-500 font-medium">
+                  <div className="flex flex-col items-center gap-4 pt-4">
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99]"
+                    >
+                      Continue →
+                    </button>
+                    <p className="text-sm text-gray-500">
                       Already registered?{" "}
                       <button
+                        type="button"
                         onClick={openLoginModal}
-                        className="text-[#71BC2B] font-bold hover:underline"
+                        className="font-bold text-[#84cc16] hover:underline"
                       >
                         Login instead
                       </button>
@@ -354,53 +705,62 @@ export default function GetStartedModal({ isOpen, onClose }) {
               </>
             ) : (
               <div className="space-y-6">
-                {/* OTP Title */}
-                <h2 className="text-xl sm:text-2xl font-black text-center text-gray-900 tracking-tight">
-                  One Time Password (OTP) Verification
+                <h2 className="text-center text-[1.65rem] font-semibold leading-tight tracking-tight text-gray-900">
+                  Start with the Right Expert
                 </h2>
+                <p className="text-center text-[0.9375rem] text-gray-500">
+                  Enter the code we sent to your phone to finish signing up.
+                </p>
 
-                {/* 4 OTP Boxes */}
-                <div className="flex justify-center gap-3 sm:gap-4 py-2">
-                  {otp.map((val, idx) => (
-                    <input
-                      key={idx}
-                      id={`otp-${idx}`}
-                      type="text"
-                      maxLength={1}
-                      value={val}
-                      onChange={(e) => handleOtpChange(idx, e.target.value)}
-                      inputMode="numeric"
-                      autoComplete="off"
-                      className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-gray-100 rounded-2xl text-center text-xl font-bold text-gray-900 focus:outline-none focus:border-lime-500 transition-all bg-gray-50 focus:bg-white"
-                    />
-                  ))}
-                </div>
-
-                {/* Resend Row */}
-                <div className="flex items-center justify-between px-2">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500">
-                    Resend OTP in{" "}
-                    <span className="text-[#71BC2B] font-bold">{timer}</span>{" "}
-                    Seconds
+                <div>
+                  <label className="mb-3 block text-sm font-bold text-gray-900">
+                    One Time Password (OTP)
+                  </label>
+                  <div className="flex flex-row flex-wrap items-center gap-3">
+                    <div className="flex flex-1 justify-start gap-2">
+                      {otp.map((val, idx) => (
+                        <input
+                          key={idx}
+                          id={`otp-${idx}`}
+                          type="text"
+                          maxLength={1}
+                          value={val}
+                          onChange={(e) => handleOtpChange(idx, e.target.value)}
+                          onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          className="h-12 w-11 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25"
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={timer > 0}
+                      className={`shrink-0 rounded-xl border-2 px-4 py-2.5 text-sm font-bold transition-colors ${
+                        timer > 0
+                          ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400"
+                          : "border-[#84cc16] bg-white text-[#84cc16] hover:bg-lime-50"
+                      }`}
+                    >
+                      Resend OTP
+                    </button>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    {timer > 0
+                      ? `Resend OTP in ${timer} Seconds`
+                      : "You can resend the OTP now."}
                   </p>
-                  <button
-                    onClick={handleResendOtp}
-                    disabled={timer > 0}
-                    className={`px-4 py-2 rounded-xl font-bold text-xs sm:text-sm transition-colors border ${timer > 0 ? "text-gray-400 border-gray-100 cursor-not-allowed" : "text-[#71BC2B] hover:bg-lime-50 border-lime-100"}`}
-                  >
-                    Resend OTP
-                  </button>
                 </div>
 
-                {/* Verify Button */}
-                <div className="pt-2">
+                <div className="flex w-full justify-center">
                   <button
                     type="button"
                     onClick={handleVerifyOtp}
                     disabled={verifyingOtp}
-                    className="w-full py-4 bg-[#71BC2B] hover:bg-[#63a525] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-full font-bold text-base shadow-lg shadow-lime-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2"
+                    className="inline-flex h-auto w-[200px] max-w-full flex-none items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
                   >
-                    {verifyingOtp ? "Verifying…" : "Verify →"}
+                    {verifyingOtp ? "Verifying…" : "Continue →"}
                   </button>
                 </div>
               </div>
