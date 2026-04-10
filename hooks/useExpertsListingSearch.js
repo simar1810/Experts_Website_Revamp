@@ -51,6 +51,7 @@ export function useExpertsListingSearch({
   const [error, setError] = useState(null);
 
   const [languages, setLanguages] = useState([]);
+  // const [specializations, setSpecializations] = useState([]); 
   const [consultationMode, setConsultationMode] = useState("");
   const [radiusKm, setRadiusKm] = useState(20);
 
@@ -72,6 +73,7 @@ export function useExpertsListingSearch({
       consultationMode: useGeo ? "both" : consultationMode,
       radiusKm: useRadius ? radiusKm : "",
       languages,
+      // specializations, 
     }),
     [
       useGeo,
@@ -82,6 +84,7 @@ export function useExpertsListingSearch({
       consultationMode,
       radiusKm,
       languages,
+      // specializations,
     ],
   );
 
@@ -100,6 +103,7 @@ export function useExpertsListingSearch({
         radiusKm: filters.radiusKm,
         page: pageNum,
         languages: filters.languages,
+        // specializations: filters.specializations, 
       };
     },
     [debouncedFilters],
@@ -241,6 +245,8 @@ export function useExpertsListingSearch({
     setPage,
     languages,
     setLanguages,
+    // specializations, 
+    // setSpecializations,  
     consultationMode,
     setConsultationMode,
     radiusKm,

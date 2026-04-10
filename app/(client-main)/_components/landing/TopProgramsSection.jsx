@@ -26,8 +26,8 @@ export function TopProgramsSection() {
       className="scroll-mt-24 bg-[#03632C] py-14 font-montserrat sm:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-          <h2 className="text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
+        <div className="flex flex-row items-center justify-between gap-4 sm:items-end">
+          <h2 className="text-2xl sm:text-3xl lg:text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
             <span className="text-white">{c.titleLight}</span>
             <span className="text-[#9AF45D]">{c.titleHighlight}</span>
           </h2>
@@ -53,7 +53,8 @@ export function TopProgramsSection() {
 
         <div
           ref={stripRef}
-          className="scrollbar-hide mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
+          // className="scrollbar-hide mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
+          className=" scrollbar-hide mt-10 flex flex-col gap-6 sm:flex-row sm:snap-x sm:snap-mandatory sm:overflow-x-auto sm:pb-2 sm:pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
         >
           {c.programs.map((p) => (
             <TopProgramCard key={p.id} {...p} />

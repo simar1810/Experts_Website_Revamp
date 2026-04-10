@@ -39,6 +39,10 @@ export default function ExpertsFiltersSidebar({
   freeCount = 0,
   languages = [],
   setLanguages,
+  // specializations = [], 
+  // setSpecializations,  
+   selectedSpecialities = [],
+  setSelectedSpecialities,
   consultationMode = "",
   setConsultationMode,
   radiusKm = 20,
@@ -54,15 +58,21 @@ export default function ExpertsFiltersSidebar({
   const [openSections, setOpenSections] = useState({
     clients: true,
     languages: true,
+    specializations: true,
   });
 
   const { values } = useValues();
+
+  useEffect(() => {
+   console.log("VALUES UPDATED:", values);
+  }, [values]);
 
   const [localWz, setLocalWz] = useState(wzAssured);
   const [localConsultation, setLocalConsultation] = useState(consultationMode);
   const [localLanguages, setLocalLanguages] = useState(() => [...languages]);
   const [localClients, setLocalClients] = useState(() => ({ ...clientsRanges }));
   const [localRadius, setLocalRadius] = useState(radiusKm);
+  const [localSpecializations, setLocalSpecializations] = useState(() => [...selectedSpecialities]); //Specializations
   const radiusCommitTimerRef = useRef(null);
 
   useEffect(() => {
@@ -96,6 +106,38 @@ export default function ExpertsFiltersSidebar({
     const id = setTimeout(() => setLanguages([...localLanguages]), debounceMs);
     return () => clearTimeout(id);
   }, [localLanguages, languages, setLanguages, debounceMs]);
+
+  // Specialization
+  useEffect(() => {
+    setLocalSpecializations((prev) =>
+      sameLangs(prev, selectedSpecialities) ? prev : [...selectedSpecialities],
+    );
+  }, [selectedSpecialities]);
+
+  // useEffect(() => {
+  //   if (sameLangs(localSpecializations, specializations)) return;
+  //   const id = setTimeout(
+  //     () => setSpecializations([...localSpecializations]),
+  //     debounceMs,
+  //   );
+  //   return () => clearTimeout(id);
+  // }, [localSpecializations, specializations, setSpecializations, debounceMs]);
+
+     useEffect(() => {
+       if (sameLangs(localSpecializations, selectedSpecialities)) return;
+
+       const id = setTimeout(() => {
+         setSelectedSpecialities([...localSpecializations]);
+       }, debounceMs);
+
+       return () => clearTimeout(id);
+     }, [
+       localSpecializations,
+       selectedSpecialities,
+       setSelectedSpecialities,
+       debounceMs,
+     ]);
+
 
   useEffect(() => {
     setLocalClients((prev) =>
@@ -152,6 +194,7 @@ export default function ExpertsFiltersSidebar({
     setLanguages([...localLanguages]);
     setClientsRanges({ ...localClients });
     setRadiusKm(localRadius);
+    setSelectedSpecialities([...localSpecializations]);
   };
 
   const languageMap = useMemo(() => {
@@ -189,6 +232,7 @@ export default function ExpertsFiltersSidebar({
     setLocalConsultation("");
     setLocalRadius(20);
     setLocalLanguages([]);
+    setSelectedSpecialities([]);
     const cleared = {};
     clients_options.forEach((c) => {
       cleared[c] = false;
@@ -280,6 +324,57 @@ export default function ExpertsFiltersSidebar({
             </div>
           </div>
         )}
+
+        {/* Specialization Section */}
+        <div className="space-y-4 border-t border-gray-100 pt-6">
+          <button
+            type="button"
+            onClick={() => toggleSection("specializations")}
+            className="flex items-center justify-between w-full text-left"
+          >
+            <span className="text-xs font-black uppercase border-l-2 border-[#70C136] pl-3">
+              Specializations
+            </span>
+
+            <ChevronDown
+              className={`w-4 h-4 text-gray-400 transition-transform ${
+                openSections.specializations ? "" : "rotate-180"
+              }`}
+            />
+          </button>
+
+          {openSections.specializations && (
+            <div className="max-h-[220px] overflow-y-auto pr-2 pl-1 space-y-2">
+              {(values?.expertise_categories || []).map((item) => (
+                <label
+                  key={item}
+                  className="flex items-center gap-3 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={localSpecializations.includes(item)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+
+                      setLocalSpecializations((prev) => {
+                        if (checked) {
+                          return prev.includes(item)
+                            ? prev
+                            : [...prev, item];
+                        }
+                        return prev.filter((x) => x !== item);
+                      });
+                    }}
+                    className="w-4 h-4 accent-[#70C136]"
+                  />
+                  <span className="text-sm font-bold text-gray-600">
+                    {item}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="space-y-4">
           <h6 className="text-xs font-black text-gray-900 uppercase border-l-2 border-[#70C136] pl-3">
             Consultation Mode

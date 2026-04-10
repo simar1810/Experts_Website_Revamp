@@ -18,10 +18,14 @@ export default function ExpertCard({ expert, isTopExpert = false, profileHref })
     expert._id ||
     expert.id ||
     expert.coach?._id;
-  const recommendedPct = Number(expert.recommendedScoreFinal ?? 0) * 100;
-  const recommendedLabel = Number.isFinite(recommendedPct)
-    ? `${recommendedPct.toFixed(0)}%`
-    : "0%";
+
+    console.log("Here is the experts card:",expert);
+  // const recommendedPct = Number(expert.recommendedScoreFinal ?? 0) * 100;
+  const rating = Number(expert.ratingAgg?.overall?.avg ?? expert.recommendedScoreFinal ?? 0);
+  // const recommendedLabel = Number.isFinite(recommendedPct)
+  //   ? `${recommendedPct.toFixed(0)}%`
+  //   : "0%";
+  const ratingLabel = rating.toFixed(1);
 
   let specializations_string = "";
   const specs = expert.specializations || expert.expertiseTags || [];
@@ -92,8 +96,10 @@ export default function ExpertCard({ expert, isTopExpert = false, profileHref })
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-1 gap-6">
             <div className="flex items-center justify-center md:justify-start gap-x-4">
               <div className="flex items-center gap-2 bg-[#00A500] text-white px-2.5 py-1 rounded-sm text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
-                <ThumbsUp className="w-3 h-3 fill-current" />
-                <span>{recommendedLabel}</span>
+                {/* <ThumbsUp className="w-3 h-3 fill-current" />
+                <span>{recommendedLabel}</span> */}
+                <span className="text-white text-sm">★</span>
+                <span>{ratingLabel}</span>
               </div>
               <div className="flex items-center gap-1.5 group/stories cursor-pointer">
                 <span className="text-gray-800 text-sm font-medium opacity-80">
