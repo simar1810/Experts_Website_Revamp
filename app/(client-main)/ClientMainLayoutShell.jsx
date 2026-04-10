@@ -10,6 +10,12 @@ export default function ClientMainLayoutShell({ children }) {
   const pathname = usePathname() ?? "";
   const hideFooter =
     pathname === "/enquiries" || pathname.startsWith("/enquiries/");
+  const isDashboard =
+    pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+
+  if (isDashboard) {
+    return children;
+  }
 
   return (
     <div
