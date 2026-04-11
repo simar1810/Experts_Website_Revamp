@@ -44,6 +44,7 @@ export default function ClientChatListings({
       );
       if (!threadId) return;
       dispatch({ type: "clear-ui-error" });
+      dispatch({ type: "clear-unread", payload: { threadId } });
       onSelectThread(threadId);
       sendSocketJoin(threadId);
     },
@@ -69,6 +70,11 @@ export default function ClientChatListings({
         const rowId = normalizeThreadId(
           chat?._id ?? chat?.id ?? chat?.threadId,
         );
+        const unread = Math.max(0, Number(chat?.unreadForClient) || 0);
+        const hasUnread = unread > 0;
+        const isSelected = Boolean(
+          selectedThreadId && rowId && selectedThreadId === rowId,
+        );
         return (
           <button
             key={rowId || JSON.stringify(chat)}
@@ -76,10 +82,10 @@ export default function ClientChatListings({
             onClick={() => selectChat(chat)}
             className={cn(
               "flex w-full items-start gap-4 border-b border-gray-50 p-4 text-left transition-colors last:border-0 hover:bg-gray-50",
-              selectedThreadId &&
-                rowId &&
-                selectedThreadId === rowId &&
-                "bg-gray-50",
+              isSelected &&
+                "bg-gray-50 ring-1 ring-inset ring-gray-200/80",
+              hasUnread && !isSelected && "border-l-4 border-l-[#84cc16] bg-lime-50/60",
+              hasUnread && isSelected && "border-l-4 border-l-[#84cc16]",
             )}
           >
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-200">
@@ -97,15 +103,32 @@ export default function ClientChatListings({
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="mb-1 flex items-baseline justify-between">
-                <h3 className="truncate pr-2 font-bold text-gray-900">
+              <div className="mb-1 flex items-baseline justify-between gap-2">
+                <h3
+                  className={cn(
+                    "truncate pr-2 text-gray-900",
+                    hasUnread ? "font-semibold" : "font-bold",
+                  )}
+                >
                   {chat?.coach?.name || "Expert"}
                 </h3>
-                <span className="shrink-0 text-xs font-medium text-gray-400">
-                  {getChatTimestamp(chat?.lastMessageAt)}
+                <span className="flex shrink-0 items-center gap-1.5">
+                  {hasUnread ? (
+                    <span className="rounded-full bg-[#84cc16] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  ) : null}
+                  <span className="text-xs font-medium text-gray-400">
+                    {getChatTimestamp(chat?.lastMessageAt)}
+                  </span>
                 </span>
               </div>
-              <p className="truncate pr-4 text-sm text-gray-500">
+              <p
+                className={cn(
+                  "truncate pr-4 text-sm",
+                  hasUnread ? "font-medium text-gray-900" : "text-gray-500",
+                )}
+              >
                 {chat?.lastMessagePreview || "—"}
               </p>
             </div>

@@ -96,7 +96,7 @@ function ChatShell({ threads }) {
   );
 
   return (
-    <ClientChatProvider threads={threads}>
+    <ClientChatProvider threads={threads} activeThreadId={selectedThreadId}>
       <main className="flex h-full min-h-0 min-w-0 w-full max-w-[100vw] flex-1 flex-col overflow-hidden">
         <EnquiriesResizableLayout
           selectedThreadId={selectedThreadId}

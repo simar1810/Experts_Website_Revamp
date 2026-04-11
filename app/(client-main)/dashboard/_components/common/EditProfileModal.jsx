@@ -2,24 +2,12 @@
 
 import * as React from "react";
 import { Dialog } from "radix-ui";
-import {
-  Camera,
-  Check,
-  CloudSun,
-  Moon,
-  Plus,
-  SquarePen,
-  Sun,
-  X,
-  Wheat,
-  Drumstick,
-  MilkOff,
-  Leaf,
-} from "lucide-react";
+import { Camera, SquarePen, X } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
-const DEFAULT_OBJECTIVES = ["Muscle Gain", "Flexibility", "Endurance"];
+import { fetchAPI } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 function FieldLabel({ children, className }) {
   return (
@@ -39,23 +27,86 @@ function fieldInputClass(extra) {
     "mt-1.5 w-full rounded-lg border-0 bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-900 outline-none",
     "placeholder:text-gray-400",
     "focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-0",
+    "disabled:cursor-not-allowed disabled:opacity-60",
     extra,
   );
 }
 
-export default function EditProfileModal({ open, onOpenChange }) {
-  const [objectives, setObjectives] = React.useState(
-    () => new Set(DEFAULT_OBJECTIVES),
-  );
-  const [training, setTraining] = React.useState("morning");
+const PLACEHOLDER_AVATAR =
+  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&q=80";
 
-  const toggleObjective = (label) => {
-    setObjectives((prev) => {
-      const next = new Set(prev);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
-      return next;
-    });
+export default function EditProfileModal({
+  open,
+  onOpenChange,
+  profile,
+  onProfileSaved,
+}) {
+  const { refreshUser } = useAuth();
+  const [fullName, setFullName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [city, setCity] = React.useState("");
+  const [state, setState] = React.useState("");
+  const [pincode, setPincode] = React.useState("");
+  const [countryName, setCountryName] = React.useState("");
+  const [notes, setNotes] = React.useState("");
+  const [saving, setSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!open || !profile) return;
+    setFullName(typeof profile.name === "string" ? profile.name : "");
+    setEmail(typeof profile.email === "string" ? profile.email : "");
+    setCity(typeof profile.city === "string" ? profile.city : "");
+    setState(typeof profile.state === "string" ? profile.state : "");
+    setPincode(typeof profile.pincode === "string" ? profile.pincode : "");
+    setCountryName(
+      typeof profile.countryName === "string" ? profile.countryName : "",
+    );
+    setNotes(typeof profile.notes === "string" ? profile.notes : "");
+  }, [open, profile]);
+
+  const avatarSrc =
+    profile &&
+    typeof profile.profilePhoto === "string" &&
+    profile.profilePhoto.trim()
+      ? profile.profilePhoto.trim()
+      : PLACEHOLDER_AVATAR;
+
+  const handleSave = async () => {
+    if (!profile) return;
+    setSaving(true);
+    try {
+      const data = await fetchAPI(
+        "/experts/client/me",
+        {
+          name: fullName.trim(),
+          email: email.trim(),
+          notes: notes.trim(),
+          city: city.trim(),
+          state: state.trim(),
+          pincode: pincode.trim(),
+          countryName: countryName.trim(),
+        },
+        "PATCH",
+      );
+      const snap = data?.client_snapshot;
+      if (snap && typeof snap === "object") {
+        localStorage.setItem("client_data", JSON.stringify(snap));
+        onProfileSaved?.(snap);
+        await refreshUser?.();
+        toast.success("Profile updated.");
+        onOpenChange?.(false);
+      } else {
+        toast.error("Could not update profile.");
+      }
+    } catch (e) {
+      toast.error(
+        e instanceof Error && e.message
+          ? e.message
+          : "Could not update profile.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -80,8 +131,7 @@ export default function EditProfileModal({ open, onOpenChange }) {
         >
           <Dialog.Title className="sr-only">Edit Profile</Dialog.Title>
           <Dialog.Description className="sr-only">
-            Update your profile details, goals, training schedule, and nutrition
-            preferences.
+            Update your profile details and summary.
           </Dialog.Description>
 
           <div className="flex max-h-[min(90vh,52rem)] flex-col">
@@ -112,15 +162,17 @@ export default function EditProfileModal({ open, onOpenChange }) {
                 <div className="relative">
                   <div className="size-28 overflow-hidden rounded-full ring-2 ring-[#70C136] ring-offset-2 ring-offset-white sm:size-32">
                     <img
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&q=80"
+                      src={avatarSrc}
                       alt=""
                       className="size-full object-cover"
                     />
                   </div>
                   <button
                     type="button"
-                    className="absolute -bottom-0.5 -right-0.5 flex size-9 items-center justify-center rounded-full bg-[#70C136] text-white shadow-md ring-[3px] ring-white"
-                    aria-label="Change profile photo"
+                    disabled
+                    className="absolute -bottom-0.5 -right-0.5 flex size-9 cursor-not-allowed items-center justify-center rounded-full bg-[#70C136]/70 text-white shadow-md ring-[3px] ring-white"
+                    aria-label="Photo upload coming soon"
+                    title="Photo upload coming soon"
                   >
                     <Camera className="size-4" strokeWidth={2} />
                   </button>
@@ -132,7 +184,8 @@ export default function EditProfileModal({ open, onOpenChange }) {
                   <FieldLabel>Full Name</FieldLabel>
                   <input
                     type="text"
-                    defaultValue="Alex Rivera"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                     className={fieldInputClass()}
                     autoComplete="name"
                   />
@@ -141,27 +194,68 @@ export default function EditProfileModal({ open, onOpenChange }) {
                   <FieldLabel>Email Address</FieldLabel>
                   <input
                     type="email"
-                    defaultValue="alex.rivera@kinetic.fit"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className={fieldInputClass()}
                     autoComplete="email"
                   />
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <FieldLabel>Mobile Contact</FieldLabel>
                   <input
                     type="tel"
-                    defaultValue="+1 (555) 042-8831"
+                    value={
+                      profile && typeof profile.mobileNumber === "string"
+                        ? profile.mobileNumber
+                        : ""
+                    }
+                    readOnly
+                    disabled
                     className={fieldInputClass()}
                     autoComplete="tel"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Mobile is verified at sign-up. Contact support to change it.
+                  </p>
                 </div>
                 <div>
-                  <FieldLabel>Location</FieldLabel>
+                  <FieldLabel>City</FieldLabel>
                   <input
                     type="text"
-                    defaultValue="Santa Monica, CA"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                     className={fieldInputClass()}
                     autoComplete="address-level2"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>State / Region</FieldLabel>
+                  <input
+                    type="text"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className={fieldInputClass()}
+                    autoComplete="address-level1"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Postal code</FieldLabel>
+                  <input
+                    type="text"
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                    className={fieldInputClass()}
+                    autoComplete="postal-code"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>Country</FieldLabel>
+                  <input
+                    type="text"
+                    value={countryName}
+                    onChange={(e) => setCountryName(e.target.value)}
+                    className={fieldInputClass()}
+                    autoComplete="country-name"
                   />
                 </div>
               </div>
@@ -169,7 +263,8 @@ export default function EditProfileModal({ open, onOpenChange }) {
               <div className="mt-6">
                 <FieldLabel>Professional Profile Summary</FieldLabel>
                 <textarea
-                  defaultValue="Pushing boundaries since 2021. Focus on high-intensity metabolic conditioning and aesthetic symmetry."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                   rows={4}
                   className={cn(fieldInputClass(), "mt-1.5 resize-y")}
                 />
@@ -187,10 +282,11 @@ export default function EditProfileModal({ open, onOpenChange }) {
               </Dialog.Close>
               <Button
                 type="button"
-                className="h-auto rounded-xl bg-[#6AB039] px-6 py-3 font-lato text-sm font-black uppercase tracking-wider text-white hover:bg-[#5a9a31]"
-                onClick={() => onOpenChange?.(false)}
+                disabled={saving || !profile}
+                className="h-auto rounded-xl bg-[#6AB039] px-6 py-3 font-lato text-sm font-black uppercase tracking-wider text-white hover:bg-[#5a9a31] disabled:opacity-60"
+                onClick={handleSave}
               >
-                Save Changes
+                {saving ? "Saving…" : "Save Changes"}
               </Button>
             </footer>
           </div>

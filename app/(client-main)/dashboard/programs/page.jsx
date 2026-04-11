@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Flame, TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import DashboardHeading from "../_components/common/DashboardHeading";
@@ -18,6 +18,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { fetchAPI } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 
 const WEEK_BARS = [
   { day: "MON", pct: 42, emphasis: false },
@@ -39,28 +42,61 @@ const INTENSITY_CHART_CONFIG = {
 const BAR_ACTIVE = "#2d5a1f";
 const BAR_DEFAULT = "rgba(197, 217, 181, 0.9)";
 
-const PROGRAMS = [
-  {
-    id: "1",
-    title: "Metabolic Shred",
-    coach: "Coach Marcus Vance",
-    coachAvatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&q=80",
-    image:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=240&fit=crop&q=80",
-    progress: 65,
-  },
-  {
-    id: "2",
-    title: "Metabolic Shred",
-    coach: "Coach Marcus Vance",
-    coachAvatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&q=80",
-    image:
-      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=240&fit=crop&q=80",
-    progress: 65,
-  },
-];
+const PROGRAM_IMAGE_FALLBACK =
+  "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=240&fit=crop&q=80";
+const COACH_AVATAR_FALLBACK =
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&q=80";
+
+function isEnrollmentCompleted(e) {
+  if (e.status === "expired" || e.status === "cancelled" || e.status === "refunded")
+    return true;
+  if (e.endsAt && new Date(e.endsAt) <= new Date()) return true;
+  return false;
+}
+
+function enrollmentProgressPercent(e) {
+  const start = new Date(e.startsAt).getTime();
+  const end = new Date(e.endsAt).getTime();
+  const now = Date.now();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return 0;
+  if (now <= start) return 0;
+  if (now >= end) return 100;
+  return Math.round(((now - start) / (end - start)) * 100);
+}
+
+function mapEnrollmentToProgramCard(e) {
+  const prog = e.program;
+  const coach = e.coach;
+  const title =
+    prog && typeof prog.title === "string" && prog.title.trim()
+      ? prog.title.trim()
+      : "Program";
+  const coachName =
+    coach && typeof coach.name === "string" && coach.name.trim()
+      ? coach.name.trim()
+      : "Expert";
+  const coachAvatar =
+    coach &&
+    typeof coach.profilePhoto === "string" &&
+    coach.profilePhoto.trim()
+      ? coach.profilePhoto.trim()
+      : COACH_AVATAR_FALLBACK;
+  const image =
+    prog &&
+    typeof prog.coverImage === "string" &&
+    prog.coverImage.trim()
+      ? prog.coverImage.trim()
+      : PROGRAM_IMAGE_FALLBACK;
+
+  return {
+    id: String(e._id),
+    title,
+    coach: coachName.startsWith("Coach ") ? coachName : `Coach ${coachName}`,
+    coachAvatar,
+    image,
+    progress: enrollmentProgressPercent(e),
+  };
+}
 
 function WeeklyTrainingIntensity() {
   const chartData = useMemo(
@@ -82,6 +118,10 @@ function WeeklyTrainingIntensity() {
           </CardTitle>
           <CardDescription className="font-lato text-sm text-zinc-500">
             Volume and load variance over the last 7 days
+            <span className="mt-1.5 block text-xs font-normal text-zinc-400">
+              Illustrative sample data — personal analytics will appear here when
+              available.
+            </span>
           </CardDescription>
         </div>
         <CardAction>
@@ -149,6 +189,9 @@ function WeeklyTrainingIntensity() {
 function StatPills() {
   return (
     <div className="flex flex-col gap-4">
+      <p className="text-xs text-zinc-400 lg:hidden">
+        Stats below are illustrative — not tied to your account yet.
+      </p>
       <div className="rounded-2xl bg-[#e8f5dc] px-5 py-5 shadow-sm">
         <p className="font-lato text-[10px] font-semibold uppercase tracking-wider text-[#3d6630]">
           Monthly completion
@@ -173,6 +216,9 @@ function StatPills() {
           12 Days
         </p>
       </div>
+      <p className="hidden text-xs text-zinc-400 lg:block">
+        Illustrative stats — personal metrics coming later.
+      </p>
     </div>
   );
 }
@@ -239,7 +285,82 @@ function ProgramCard({ program }) {
 }
 
 export default function ProgramsPage() {
+  const { isAuthenticated, openLoginModal } = useAuth();
   const [curriculumFilter, setCurriculumFilter] = useState("in-progress");
+  const [enrollments, setEnrollments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setEnrollments([]);
+      setLoadError(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const res = await fetchAPI(
+          "/experts/client/program-enrollments",
+          undefined,
+          "GET",
+        );
+        const raw = Array.isArray(res?.enrollments) ? res.enrollments : [];
+        if (!cancelled) setEnrollments(raw);
+      } catch (e) {
+        if (!cancelled) {
+          setLoadError(
+            e instanceof Error ? e.message : "Could not load programs.",
+          );
+          setEnrollments([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  const inProgressCards = useMemo(
+    () =>
+      enrollments
+        .filter((e) => !isEnrollmentCompleted(e))
+        .map(mapEnrollmentToProgramCard),
+    [enrollments],
+  );
+
+  const completedCards = useMemo(
+    () =>
+      enrollments
+        .filter((e) => isEnrollmentCompleted(e))
+        .map(mapEnrollmentToProgramCard),
+    [enrollments],
+  );
+
+  const activeList =
+    curriculumFilter === "completed" ? completedCards : inProgressCards;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="font-lato mx-auto flex max-w-lg flex-col items-center justify-center space-y-4 py-16 text-center pb-4">
+        <DashboardHeading text="YOUR PROGRAMS" />
+        <p className="text-sm text-zinc-600">
+          Log in to see expert programs you have joined.
+        </p>
+        <Button
+          type="button"
+          className="mt-4 rounded-xl bg-[#84cc16] px-8 py-3 font-semibold text-white hover:bg-[#6ca832]"
+          onClick={openLoginModal}
+        >
+          Log in
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="font-lato space-y-8 pb-4">
@@ -249,6 +370,10 @@ export default function ProgramsPage() {
         <WeeklyTrainingIntensity />
         <StatPills />
       </div>
+      <p className="hidden text-center text-xs text-zinc-400 lg:block">
+        Weekly overview above uses sample data until personal analytics are
+        connected.
+      </p>
 
       <section className="space-y-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -291,13 +416,22 @@ export default function ProgramsPage() {
           </div>
         </div>
 
-        {curriculumFilter === "completed" ? (
+        {loadError ? (
+          <p className="text-sm text-red-600">{loadError}</p>
+        ) : null}
+        {loading ? (
           <p className="rounded-2xl border border-dashed border-zinc-200 bg-white/60 px-6 py-12 text-center font-lato text-sm text-zinc-500">
-            No completed programs yet. Finish a curriculum to see it here.
+            Loading your programs…
+          </p>
+        ) : activeList.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-zinc-200 bg-white/60 px-6 py-12 text-center font-lato text-sm text-zinc-500">
+            {curriculumFilter === "completed"
+              ? "No completed programs yet. Finish a curriculum to see it here."
+              : "No programs in progress. Join a program from an expert profile to see it here."}
           </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
-            {PROGRAMS.map((p) => (
+            {activeList.map((p) => (
               <ProgramCard key={p.id} program={p} />
             ))}
           </div>
