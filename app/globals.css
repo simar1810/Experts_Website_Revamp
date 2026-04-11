@@ -249,3 +249,29 @@ html {
   width: max-content;
   animation: marquee-left 20s linear infinite;
 }
+
+@keyframes marquee-up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes marquee-down {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-marquee-up {
+  animation: marquee-up 25s linear infinite;
+}
+
+.animate-marquee-down {
+  animation: marquee-down 25s linear infinite;
+}
