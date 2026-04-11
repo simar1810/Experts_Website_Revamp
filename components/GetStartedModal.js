@@ -197,7 +197,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
     }
 
     try {
-      await fetchAPI(
+      const data = await fetchAPI(
         "/experts/client/register",
         {
           name: name.trim(),
@@ -206,13 +206,28 @@ export default function GetStartedModal({ isOpen, onClose }) {
           city: location.city.trim(),
           state: location.state.trim(),
           countryCode: location.countryCode || "IN",
+          countryName: location.country.trim(),
+          pincode: location.pincode.trim(),
+          newsletterOptIn: newsletter,
         },
         "POST",
       );
-      setShowOtp(true);
+      if (data?.status_code === 200) {
+        setShowOtp(true);
+        return;
+      }
+      const msg =
+        typeof data?.message === "string" && data.message.trim()
+          ? data.message.trim()
+          : "Could not start registration. Please try again.";
+      toast.error(msg);
     } catch (error) {
       console.error("Registration failed:", error);
-      setShowOtp(true);
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Registration failed. Please try again.";
+      toast.error(message);
     }
   };
 

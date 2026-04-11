@@ -8,11 +8,15 @@ import { initializeClientChat } from "../utils/socket";
 
 const ClientChatContext = createContext(null);
 
-export function ClientChatProvider({ children, threads }) {
+export function ClientChatProvider({ children, threads, activeThreadId = "" }) {
   const [state, dispatch] = useReducer(
     clientChatReducer,
     buildClientChatInitialState(threads),
   );
+
+  useEffect(() => {
+    dispatch({ type: "set-active-thread", payload: activeThreadId });
+  }, [activeThreadId]);
 
   useEffect(() => {
     const token =

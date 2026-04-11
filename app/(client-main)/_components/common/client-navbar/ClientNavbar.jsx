@@ -9,8 +9,9 @@ import { Bell, Menu, X, ArrowLeftIcon, LogOut } from "lucide-react";
 
 import ClientNavbarDropdown from "./ClientNavbarDropdown";
 import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 
-export default function ClientNavbar() {
+export default function ClientNavbar({ isDashboard = false }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -44,15 +45,28 @@ export default function ClientNavbar() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Experts", href: "/find-experts" },
+    { name: "Pricing - [TESTING]", href: "/pricing" },
     // { name: "Resources", href: "/blogs" },
   ];
 
   return (
     <>
       <header className="sticky font-lato top-0 z-50 bg-white border-b border-gray-100">
-        <nav className="flex md:grid md:grid-cols-3 items-center justify-between px-4 sm:px-6 lg:px-8 py-3 md:py-4 max-w-7xl mx-auto gap-2">
+        <nav
+          className={cn(
+            "flex items-center justify-between gap-2 px-4 py-3 sm:px-6 sm:py-3 md:py-4 lg:px-8",
+            isDashboard
+              ? "w-full max-w-none"
+              : "max-w-7xl mx-auto md:grid md:grid-cols-3",
+          )}
+        >
           {/* Left Section - Logo */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div
+            className={cn(
+              "flex items-center gap-1.5 sm:gap-2 shrink-0",
+              isDashboard && "hidden",
+            )}
+          >
             <Link
               href="/"
               className="text-base sm:text-2xl font-bold font-serif italic text-black truncate sm:whitespace-nowrap"
@@ -61,19 +75,28 @@ export default function ClientNavbar() {
             </Link>
           </div>
           {/* Center Section - Desktop Navigation */}
-          <div className="hidden md:flex items-center justify-center gap-6 lg:gap-12">
+          <div
+            className={cn(
+              "hidden items-center gap-6 md:flex lg:gap-12",
+              isDashboard ? "min-w-0 flex-1 justify-start" : "justify-center",
+            )}
+          >
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`${isActive(link.href)} text-sm transition-colors uppercase tracking-wider`}
+                className={`${isActive(link.href)} text-sm transition-colors tracking-wider`}
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-4 md:justify-end">
+          <div
+            className={cn(
+              "flex shrink-0 items-center gap-1.5 sm:gap-4 md:justify-end",
+            )}
+          >
             {isAuthenticated ? (
               <div className="flex items-center gap-2 sm:gap-6">
                 <button

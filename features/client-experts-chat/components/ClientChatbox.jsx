@@ -81,7 +81,7 @@ export default function ClientChatbox({ selectedThreadId, onClearSelection }) {
 }
 
 function ChatThreadPanel({ threadId }) {
-  const { threads, threadXMessages, dispatch } = useClientChatContext();
+  const { threads, threadXMessages, dispatch, socket } = useClientChatContext();
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const bottomRef = useRef(null);
@@ -115,6 +115,21 @@ function ChatThreadPanel({ threadId }) {
   useEffect(() => {
     reloadMessages();
   }, [reloadMessages]);
+
+  useEffect(() => {
+    if (loading || fetchError || !tid) return;
+    dispatch({ type: "clear-unread", payload: { threadId: tid } });
+    const payload = JSON.stringify({ type: "read", threadId: tid });
+    const sendRead = () => {
+      if (socket?.readyState === WebSocket.OPEN) {
+        socket.send(payload);
+      }
+    };
+    sendRead();
+    if (socket?.readyState === WebSocket.CONNECTING) {
+      socket.addEventListener("open", sendRead, { once: true });
+    }
+  }, [loading, fetchError, tid, socket, dispatch]);
 
   const selectedChat = useMemo(
     () =>
@@ -196,10 +211,7 @@ function ChatThreadPanel({ threadId }) {
           <h3 className="font-bold leading-tight text-gray-900">
             {coach?.name || "Expert"}
           </h3>
-          <div className="mt-0.5 flex items-center gap-1.5">
-            <span className="block h-2 w-2 shrink-0 rounded-full bg-[#84cc16]" />
-            <span className="text-xs font-medium text-gray-400">Online</span>
-          </div>
+          <p className="text-xs font-medium text-gray-500">Expert</p>
         </div>
       </div>
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
