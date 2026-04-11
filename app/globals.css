@@ -4,10 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Prevent horizontal overflow on small screens */
+/* Prevent horizontal overflow without breaking position: sticky (hidden forces overflow-y: auto). */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Avoid layout shift when overlays (dropdowns, dialogs) hide the scrollbar */

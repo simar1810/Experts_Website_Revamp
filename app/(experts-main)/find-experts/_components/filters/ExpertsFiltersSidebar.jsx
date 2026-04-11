@@ -250,8 +250,8 @@ export default function ExpertsFiltersSidebar({
   };
 
   return (
-    <div className="flex flex-col w-full bg-gray-50/80 rounded-2xl overflow-hidden border border-gray-100 shadow-sm sticky top-24">
-      <div className="bg-[#1a4d2e] text-white p-5 lg:p-6">
+    <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/80 shadow-sm lg:h-full lg:max-h-full">
+      <div className="shrink-0 bg-[#1a4d2e] p-5 text-white lg:p-6">
         <div className="flex items-center justify-between gap-2 mb-1">
           <h4 className="text-base tracking-tight leading-tight">
             Search Results:
@@ -262,7 +262,7 @@ export default function ExpertsFiltersSidebar({
         </p>
       </div>
 
-      <div className="p-5 lg:p-7 space-y-6 lg:space-y-8 bg-white">
+      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-y-contain bg-white p-5 lg:space-y-8 lg:p-7 [scrollbar-gutter:stable]">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-xl">Filter</h3>

@@ -33,8 +33,7 @@ function ExpertsPageInner() {
   }, [locationFromUrl]);
 
   const useGeo = searchClientLocation?.coordinates?.length === 2;
-  const showDistanceFilter =
-    useGeo || (locationQuery || "").trim().length > 0;
+  const showDistanceFilter = useGeo || (locationQuery || "").trim().length > 0;
 
   const listing = useExpertsListingSearch({
     selectedSpecialities,
@@ -54,7 +53,7 @@ function ExpertsPageInner() {
     listing.meta?.freeReturned ?? listing.free?.length ?? 0;
 
   return (
-    <main className="min-h-screen bg-white overflow-x-hidden font-sans">
+    <main className="min-h-screen bg-white font-sans">
       <section className="relative w-full min-h-[380px] md:min-h-[480px] flex flex-col items-center justify-center text-center px-4 pb-10 md:pb-12">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 overflow-hidden"
@@ -86,46 +85,19 @@ function ExpertsPageInner() {
             onSearch={handleSearch}
           />
 
-          <HeroCategoryRow
+          {/* <HeroCategoryRow
             categories={values?.expertise_categories || []}
             selectedSpecialities={selectedSpecialities}
             setSelectedSpecialities={setSelectedSpecialities}
-          />
+          /> */}
         </div>
       </section>
-
-      <TopExpertsSection experts={listing.paid} loading={listing.loading} />
-
-      <section className="max-w-7xl mx-auto px-6 py-6 md:py-12 pb-16">
-        <div className="lg:hidden mb-6">
-          <button
-            type="button"
-            onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-            className="w-full flex items-center justify-between bg-white border border-gray-100 p-4 rounded-2xl shadow-sm active:scale-95 transition-transform"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#70C136] rounded-xl flex items-center justify-center shadow-lg shadow-lime-500/20">
-                <Filter className="w-5 h-5 text-white" />
-              </div>
-              <div className="text-left">
-                <h4 className="text-sm font-black text-gray-900 leading-none">
-                  Search Filters
-                </h4>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                  Adjust criteria
-                </p>
-              </div>
-            </div>
-            <ChevronDown
-              className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isMobileFiltersOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 relative">
-          <aside
-            className={`w-full lg:w-[340px] shrink-0 sticky top-24 self-start ${isMobileFiltersOpen ? "block" : "hidden lg:block"}`}
-          >
+      <div className="flex items-start justify-between">
+        <div
+          className={`w-full shrink-0 flex-col px-6 lg:w-[340px] lg:pl-6 lg:pr-0 ${isMobileFiltersOpen ? "flex" : "hidden lg:flex"}`}
+        >
+          <div className="h-10 shrink-0 md:h-12" aria-hidden />
+          <aside className="sticky top-16 z-10 w-full self-start md:top-20 lg:min-h-0 lg:max-h-[calc(100dvh-5rem)]">
             <ExpertsFiltersSidebar
               showDistanceFilter={showDistanceFilter}
               locationLabel={locationLabel}
@@ -147,18 +119,49 @@ function ExpertsPageInner() {
               onClose={() => setIsMobileFiltersOpen(false)}
             />
           </aside>
-
-          <PopularExpertsSection
-            experts={listing.displayFree}
-            loading={listing.loading}
-            page={listing.page}
-            onPageChange={listing.setPage}
-            hasNextPage={listing.hasNextPage}
-            hasPrevPage={listing.hasPrevPage}
-            totalPages={listing.totalPages}
-          />
         </div>
-      </section>
+
+        <div className="min-w-0 flex-1">
+          <TopExpertsSection experts={listing.paid} loading={listing.loading} />
+          <section className="max-w-7xl mx-auto px-6 py-6 md:py-12 pb-16">
+            <div className="lg:hidden mb-6">
+              <button
+                type="button"
+                onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                className="w-full flex items-center justify-between bg-white border border-gray-100 p-4 rounded-2xl shadow-sm active:scale-95 transition-transform"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#70C136] rounded-xl flex items-center justify-center shadow-lg shadow-lime-500/20">
+                    <Filter className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-sm font-black text-gray-900 leading-none">
+                      Search Filters
+                    </h4>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                      Adjust criteria
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isMobileFiltersOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+            </div>
+            <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 relative">
+              <PopularExpertsSection
+                experts={listing.displayFree}
+                loading={listing.loading}
+                page={listing.page}
+                onPageChange={listing.setPage}
+                hasNextPage={listing.hasNextPage}
+                hasPrevPage={listing.hasPrevPage}
+                totalPages={listing.totalPages}
+              />
+            </div>
+          </section>
+        </div>
+      </div>
 
       <ExpertsReviewsSection />
     </main>
@@ -169,7 +172,7 @@ export default function ExpertsPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-white overflow-x-hidden font-sans animate-pulse">
+        <main className="min-h-screen bg-white font-sans animate-pulse">
           <div className="h-[380px] md:h-[480px] bg-gray-200" />
           <div className="max-w-7xl mx-auto px-6 py-12 space-y-4">
             <div className="h-8 bg-gray-100 rounded w-1/3" />
