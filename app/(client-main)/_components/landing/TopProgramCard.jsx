@@ -19,10 +19,12 @@ export function TopProgramCard({
   return (
     <article
       data-program-card
-      className="flex w-[min(92vw,34.5rem)] shrink-0 snap-center p-8 overflow-hidden rounded-4xl bg-white/5 sm:w-[42.5rem]"
+      // className="flex w-[min(92vw,34.5rem)] shrink-0 snap-center p-8 overflow-hidden rounded-4xl bg-white/5 sm:w-[42.5rem]"
+      className="flex w-full max-h-[80vh] overflow-y-auto sm:w-[min(92vw,34.5rem)] lg:w-[42.5rem] shrink-0 sm:snap-center p-8 rounded-4xl bg-white/5"
     >
       <div className="flex flex-col items-start justify-between w-full">
-        <div className="flex justify-between items-center w-full">
+        {/* <div className="flex justify-between items-center w-full"> */}
+         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full gap-4">
           <div className="flex min-w-0 flex-1 flex-col gap-4 sm:gap-5">
             <div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-wz-lime px-2.5 py-1.5">
               <Trophy
@@ -78,13 +80,15 @@ export function TopProgramCard({
             </div>
           </div>
           <div className="h-full flex items-center">
-            <div className="relative h-56 w-56">
+            {/* <div className="relative h-56 w-56"> */}
+            <div className="relative h-54 w-77 sm:h-56 sm:w-56">
               <Image
                 src={imageSrc}
                 alt={imageAlt}
                 fill
                 className="object-cover rounded-3xl shadow-2xl"
-                sizes="(max-width: 640px) 38vw, 220px"
+                // sizes="(max-width: 640px) 38vw, 220px"
+                sizes="(max-width: 640px) 256px, 220px"
               />
             </div>
           </div>

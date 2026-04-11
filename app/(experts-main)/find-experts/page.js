@@ -124,7 +124,7 @@ function ExpertsPageInner() {
 
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 relative">
           <aside
-            className={`w-full lg:w-[340px] shrink-0 sticky top-0 ${isMobileFiltersOpen ? "block" : "hidden lg:block"}`}
+            className={`w-full lg:w-[340px] shrink-0 sticky top-24 self-start ${isMobileFiltersOpen ? "block" : "hidden lg:block"}`}
           >
             <ExpertsFiltersSidebar
               showDistanceFilter={showDistanceFilter}
@@ -132,6 +132,10 @@ function ExpertsPageInner() {
               freeCount={freeCountDisplay}
               languages={listing.languages}
               setLanguages={listing.setLanguages}
+              // specializations = {listing.specializations}
+              // setSpecializations = {listing.setSpecializations}
+              selectedSpecialities={selectedSpecialities}
+              setSelectedSpecialities={setSelectedSpecialities}
               consultationMode={listing.consultationMode}
               setConsultationMode={listing.setConsultationMode}
               radiusKm={listing.radiusKm}
