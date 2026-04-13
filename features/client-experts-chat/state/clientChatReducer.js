@@ -15,6 +15,20 @@ function messageId(msg) {
   return normalizeThreadId(msg?._id ?? msg?.id);
 }
 
+function senderRoleMarkedReadByReceipt(readerRole) {
+  return readerRole === "coach" ? "client" : "coach";
+}
+
+function applyReadReceiptToMessages(list, readerRole, readAt) {
+  if (!Array.isArray(list)) return list;
+  const senderToMark = senderRoleMarkedReadByReceipt(readerRole);
+  return list.map((m) =>
+    m.senderRole === senderToMark && m.readAt == null
+      ? { ...m, readAt }
+      : m,
+  );
+}
+
 export function clientChatReducer(state, action) {
   switch (action.type) {
     case "setup-socket":
@@ -63,12 +77,51 @@ export function clientChatReducer(state, action) {
     }
     case "update-thread-messages": {
       const tid = normalizeThreadId(action.payload.threadId);
+      const pendingReadReceipts = { ...(state.pendingReadReceipts || {}) };
+      let messages = action.payload.messages;
+      const pending = pendingReadReceipts[tid];
+      if (pending?.role && pending?.readAt) {
+        messages = applyReadReceiptToMessages(
+          messages,
+          pending.role,
+          pending.readAt,
+        );
+        delete pendingReadReceipts[tid];
+      }
       return {
         ...state,
         threadXMessages: {
           ...state.threadXMessages,
-          [tid]: action.payload.messages,
+          [tid]: messages,
         },
+        pendingReadReceipts,
+      };
+    }
+    case "read-receipt": {
+      const tid = normalizeThreadId(action.payload?.threadId);
+      const { role, readAt } = action.payload || {};
+      if (!tid || !readAt || !role) return state;
+
+      const list = state.threadXMessages[tid];
+      if (!Array.isArray(list)) {
+        return {
+          ...state,
+          pendingReadReceipts: {
+            ...(state.pendingReadReceipts || {}),
+            [tid]: { role, readAt },
+          },
+        };
+      }
+
+      const pendingReadReceipts = { ...(state.pendingReadReceipts || {}) };
+      delete pendingReadReceipts[tid];
+      return {
+        ...state,
+        threadXMessages: {
+          ...state.threadXMessages,
+          [tid]: applyReadReceiptToMessages(list, role, readAt),
+        },
+        pendingReadReceipts,
       };
     }
     case "read-receipt": {

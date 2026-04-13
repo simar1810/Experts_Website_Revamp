@@ -74,7 +74,7 @@ function ColumnResizeHandle({ onDelta }) {
       aria-label="Resize panels"
       onPointerDown={onPointerDown}
       className={cn(
-        "group relative z-10 hidden shrink-0 cursor-col-resize select-none md:flex",
+        "group relative z-10 hidden shrink-0 cursor-col-resize select-none lg:flex",
         "w-2 items-stretch justify-center bg-transparent px-0 touch-none",
       )}
     >
@@ -195,36 +195,36 @@ export default function EnquiriesResizableLayout({
   }, [clampFiles, containerW, isLg, listWidth]);
 
   const shellClass =
-    "w-full min-w-0 px-0 sm:px-1 sm:pb-2 mb-2 ms-1 flex min-h-0 flex-1 flex-col overflow-hidden";
+    "w-full min-w-0 max-w-full overflow-x-hidden px-0 sm:px-1 sm:pb-2 mb-2 ms-1 flex min-h-0 flex-1 flex-col overflow-hidden";
 
   return (
     <div className={shellClass}>
-      {/* Mobile */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden md:hidden">
+      {/* Stacked layout: below lg — avoids cramped split + horizontal scroll on tablets */}
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden overflow-x-hidden lg:hidden">
         <div
           className={cn(
-            "flex min-h-0 w-full flex-1 flex-col bg-white",
-            "max-md:rounded-none max-md:border-0 max-md:border-b max-md:border-gray-100 max-md:shadow-none",
+            "flex min-h-0 w-full min-w-0 flex-1 flex-col bg-white",
+            "max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-gray-100 max-lg:shadow-none",
             selectedThreadId ? "hidden" : "flex",
           )}
         >
           {chatsColumn}
         </div>
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden overflow-x-hidden">
           {chatColumn}
         </div>
       </div>
 
-      {/* Tablet + desktop */}
+      {/* Split + resize: lg and up */}
       <div
         ref={containerRef}
-        className="hidden min-h-0 min-w-0 flex-1 overflow-hidden md:flex md:flex-row md:items-stretch"
+        className="hidden min-h-0 min-w-0 flex-1 overflow-hidden overflow-x-hidden lg:flex lg:flex-row lg:items-stretch"
       >
         <div
           className={cn(
             "flex min-h-0 shrink-0 flex-col bg-white sm:rounded-2xl sm:border sm:border-gray-100 sm:shadow-sm",
-            "max-md:rounded-none max-md:border-0 max-md:border-b max-md:border-gray-100 max-md:shadow-none",
-            selectedThreadId ? "hidden min-[768px]:flex" : "flex",
+            "max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-gray-100 max-lg:shadow-none",
+            "flex",
           )}
           style={{ width: listWidth }}
         >
@@ -233,7 +233,7 @@ export default function EnquiriesResizableLayout({
 
         <ColumnResizeHandle onDelta={onDragList} />
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden overflow-x-hidden">
           {chatColumn}
         </div>
       </div>

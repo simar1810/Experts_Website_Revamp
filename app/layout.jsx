@@ -66,11 +66,11 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className="overflow-x-hidden h-full"
+      className="overflow-x-clip h-full"
       suppressHydrationWarning
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} ${lexend.variable} ${manrope.variable} ${montserrat.variable} ${playfair.variable} antialiased overflow-x-hidden h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} ${lexend.variable} ${manrope.variable} ${montserrat.variable} ${playfair.variable} antialiased overflow-x-clip h-full`}
         suppressHydrationWarning
       >
         <AuthProvider>

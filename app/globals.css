@@ -4,10 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Prevent horizontal overflow on small screens */
+/* Prevent horizontal overflow without breaking position: sticky (hidden forces overflow-y: auto). */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Avoid layout shift when overlays (dropdowns, dialogs) hide the scrollbar */
@@ -233,4 +233,99 @@ html {
   html {
     @apply font-sans;
   }
+}
+
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marquee-left 20s linear infinite;
+}
+
+@keyframes marquee-up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes marquee-down {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-marquee-up {
+  animation: marquee-up 25s linear infinite;
+}
+
+.animate-marquee-down {
+  animation: marquee-down 25s linear infinite;
+}
+
+/* Filter sheet: distance range slider (green thumb + gray track) */
+.sheet-distance-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.sheet-distance-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    #70c136 0%,
+    #70c136 var(--range-fill, 0%),
+    #e5e7eb var(--range-fill, 0%),
+    #e5e7eb 100%
+  );
+}
+
+.sheet-distance-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background: #70c136;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  border: 2px solid #fff;
+}
+
+.sheet-distance-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    #70c136 0%,
+    #70c136 var(--range-fill, 0%),
+    #e5e7eb var(--range-fill, 0%),
+    #e5e7eb 100%
+  );
+}
+
+.sheet-distance-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #70c136;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  border: 2px solid #fff;
 }

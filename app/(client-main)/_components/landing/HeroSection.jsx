@@ -18,7 +18,7 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-white pb-10 pt-6 font-manrope sm:pb-16 sm:pt-8 lg:pt-10">
       <div className="mx-auto grid max-w-7xl items-center  px-4 sm:px-6  lg:grid-cols-2  lg:px-8 max-sm:gap-10">
-        <div className="grid-cols-2 max-w-xl lg:max-w-none">
+        <div className="order-2 lg:order-1  grid-cols-2 max-w-xl lg:max-w-none">
           <h1 className="font-lexend tracking-tight">
             <span className={headlineLight}>{h.leanBefore}</span>
             <br />
@@ -40,12 +40,12 @@ export function HeroSection() {
             )}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center gap-4 sm:flex-nowrap">
             <LandingButton
               variant="hero"
               size="lg"
-              href="/experts"
-              className="gap-2 rounded-lg px-12 py-5 text-sm font-bold"
+              href={c.primaryCtaHref}
+              className="gap-2 rounded-lg sm:px-12 px-7 py-5 sm:text-sm text-xs font-bold"
             >
               {c.primaryCta}
               <TrendingUp
@@ -56,15 +56,15 @@ export function HeroSection() {
             <LandingButton
               variant="secondary"
               size="lg"
-              href="#curated"
-              className="rounded-lg px-12 py-5 border border-[#03632C]/20 text-sm font-bold text-[#03632C]"
+              href={c.secondaryCtaHref}
+              className="rounded-lg sm:px-12 px-7 py-5 border border-[#03632C]/20 sm:text-sm text-xs font-bold text-[#03632C]"
             >
               {c.secondaryCta}
             </LandingButton>
           </div>
         </div>
 
-        <div className="relative grid-cols-1 flex justify-center lg:justify-end max-sm:p-6">
+        <div className=" order-1 lg:order-2 relative grid-cols-1 flex justify-center lg:justify-end max-sm:p-6">
           <div className="relative w-full max-w-md">
             <div className="relative aspect-[3/4] rounded-xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.40)] [-webkit-transform:rotate(4deg)] [transform:rotate(-3deg)]">
               <Image
@@ -76,7 +76,7 @@ export function HeroSection() {
                 sizes="(max-width: 1024px) 100vw, 448px"
               />
 
-              <div className="absolute -bottom-10 -left-10 flex size-37 flex-col items-center justify-center rounded-full bg-wz-lime p-2 text-center shadow-[0_12px_30px_-8px_rgba(0,0,0,0.40)] sm:size-40 -rotate-[20deg]">
+              <div className="absolute -bottom-10 sm:-left-10 -left-3 flex size-30 flex-col items-center justify-center rounded-full bg-wz-lime p-2 text-center shadow-[0_12px_30px_-8px_rgba(0,0,0,0.40)] sm:size-40 -rotate-[20deg]">
                 {c.digitalBadgeLines.map((line) => (
                   <span
                     key={line}

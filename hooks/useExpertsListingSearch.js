@@ -38,10 +38,14 @@ function applyClientFilters(experts, { clientsRanges, wzAssured }) {
 /**
  * Listing search with paid/free split; free tier is paginated server-side.
  */
+const EMPTY_LOCATION = { mode: "none" };
+
 export function useExpertsListingSearch({
   selectedSpecialities = [],
-  locationQuery = "",
+  locationFilter: locationFilterProp = EMPTY_LOCATION,
   searchClientLocation = null,
+  nameQuery = "",
+  certificationQuery = "",
 }) {
   const [page, setPageState] = useState(1);
   const [paid, setPaid] = useState([]);
@@ -51,6 +55,7 @@ export function useExpertsListingSearch({
   const [error, setError] = useState(null);
 
   const [languages, setLanguages] = useState([]);
+  // const [specializations, setSpecializations] = useState([]); 
   const [consultationMode, setConsultationMode] = useState("");
   const [radiusKm, setRadiusKm] = useState(20);
 
@@ -60,28 +65,54 @@ export function useExpertsListingSearch({
   /** Memoize forward-geocoding for typed cities (same as GPS path → $geoNear on backend). */
   const geocodeCacheRef = useRef({});
 
+  const locationFilter = locationFilterProp || EMPTY_LOCATION;
+
   const useGeo = searchClientLocation?.coordinates?.length === 2;
-  const useRadius =
-    useGeo || (locationQuery || "").trim().length > 0;
+
+  const hasStructuredLocation = useMemo(() => {
+    const m = locationFilter.mode;
+    if (m === "none") return false;
+    if (m === "city") return Boolean((locationFilter.city || "").trim());
+    if (m === "state") return Boolean((locationFilter.state || "").trim());
+    if (m === "country") return Boolean((locationFilter.country || "").trim());
+    return false;
+  }, [locationFilter]);
+
+  const useRadius = useGeo || hasStructuredLocation;
 
   const immediateFilters = useMemo(
     () => ({
-      city: useGeo ? "" : (locationQuery || "").trim(),
+      city:
+        useGeo || locationFilter.mode !== "city"
+          ? ""
+          : (locationFilter.city || "").trim(),
+      state:
+        locationFilter.mode === "state"
+          ? (locationFilter.state || "").trim()
+          : "",
+      country:
+        locationFilter.mode === "state" || locationFilter.mode === "country"
+          ? (locationFilter.country || "").trim()
+          : "",
       expertiseTags: selectedSpecialities,
       clientLocation: useGeo ? searchClientLocation : null,
       consultationMode: useGeo ? "both" : consultationMode,
       radiusKm: useRadius ? radiusKm : "",
       languages,
+      nameQuery: (nameQuery || "").trim(),
+      certificationQuery: (certificationQuery || "").trim(),
     }),
     [
       useGeo,
       useRadius,
-      locationQuery,
+      locationFilter,
       selectedSpecialities,
       searchClientLocation,
       consultationMode,
       radiusKm,
       languages,
+      nameQuery,
+      certificationQuery,
     ],
   );
 
@@ -94,12 +125,16 @@ export function useExpertsListingSearch({
     (pageNum, filters = debouncedFilters) => {
       return {
         city: filters.city,
+        state: filters.state,
+        country: filters.country,
         expertiseTags: filters.expertiseTags,
         clientLocation: filters.clientLocation,
         consultationMode: filters.consultationMode,
         radiusKm: filters.radiusKm,
         page: pageNum,
         languages: filters.languages,
+        nameQuery: filters.nameQuery,
+        certificationQuery: filters.certificationQuery,
       };
     },
     [debouncedFilters],
@@ -241,6 +276,8 @@ export function useExpertsListingSearch({
     setPage,
     languages,
     setLanguages,
+    // specializations, 
+    // setSpecializations,  
     consultationMode,
     setConsultationMode,
     radiusKm,

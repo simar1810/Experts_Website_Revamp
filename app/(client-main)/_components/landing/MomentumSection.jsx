@@ -12,7 +12,7 @@ export function MomentumSection() {
 
   return (
     <section className="relative overflow-hidden bg-[#03632C] py-14 font-montserrat sm:py-20">
-      <MomentumSectionWatermark className="pointer-events-none absolute left-0 top-10 select-none font-black uppercase leading-none text-white/[0.08] sm:top-12 sm:text-[min(42vw,280px)] min-[480px]:text-[min(36vw,320px)] lg:text-[340px]">
+      <MomentumSectionWatermark className="pointer-events-none absolute left-0 top-7 select-none font-black uppercase leading-none text-white/[0.08] text-[28vw] sm:top-12 sm:text-[min(42vw,280px)] min-[480px]:text-[min(36vw,320px)] lg:text-[340px]">
         {c.watermark}
       </MomentumSectionWatermark>
 
