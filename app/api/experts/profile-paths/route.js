@@ -6,12 +6,30 @@ import {
 
 const MAX_IDS = 48;
 
+/** Coach dashboard (e.g. localhost:3001) resolves public profile URLs via this route. */
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
+function jsonWithCors(body, init = {}) {
+  return Response.json(body, {
+    ...init,
+    headers: { ...corsHeaders, ...init.headers },
+  });
+}
+
 export async function POST(request) {
   let body = {};
   try {
     body = await request.json();
   } catch {
-    return Response.json({ paths: {} }, { status: 400 });
+    return jsonWithCors({ paths: {} }, { status: 400 });
   }
 
   const rawIds = Array.isArray(body?.listingIds) ? body.listingIds : [];
@@ -20,7 +38,7 @@ export async function POST(request) {
   ].slice(0, MAX_IDS);
 
   if (unique.length === 0) {
-    return Response.json({ paths: {} });
+    return jsonWithCors({ paths: {} });
   }
 
   const detailsList = await Promise.all(
@@ -71,5 +89,5 @@ export async function POST(request) {
     }
   }
 
-  return Response.json({ paths });
+  return jsonWithCors({ paths });
 }

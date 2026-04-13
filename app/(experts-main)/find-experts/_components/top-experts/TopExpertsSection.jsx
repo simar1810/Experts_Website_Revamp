@@ -30,9 +30,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
     (async () => {
       try {
         const ids = [
-          ...new Set(
-            experts.map((e) => resolveListingId(e)).filter(Boolean),
-          ),
+          ...new Set(experts.map((e) => resolveListingId(e)).filter(Boolean)),
         ];
         const res = await fetch("/api/experts/profile-paths", {
           method: "POST",
@@ -74,10 +72,10 @@ export default function TopExpertsSection({ experts = [], loading }) {
 
   if (loading) {
     return (
-      <section className="relative z-0 max-w-7xl mx-auto px-6 py-10 md:py-12">
+      <section className="relative z-0 max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
         <div>
-          <h2 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Popular Experts
+          <h2 className="text-lg sm:text-3xl font-black text-gray-900 tracking-tight">
+            Top Experts
           </h2>
         </div>
         <div className="flex gap-4 overflow-hidden animate-pulse">
@@ -95,17 +93,17 @@ export default function TopExpertsSection({ experts = [], loading }) {
   if (!experts.length) return null;
 
   return (
-    <section className="relative z-0 max-w-7xl mx-auto px-6 py-10 md:py-12 border-b border-gray-100">
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <h2 className="text-xl sm:text-2xl font-black text-gray-900 text-left">
+    <section className="relative z-0 max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 border-b border-gray-100">
+      <div className="mb-4 md:mb-6 flex items-center justify-between gap-3">
+        <h2 className="text-lg sm:text-2xl font-black text-gray-900 text-left">
           Top Experts
         </h2>
-        <div className="hidden sm:flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => scrollByAmount("left")}
             disabled={!canScrollLeft}
-            className="h-9 w-9 rounded-full border border-gray-200 bg-white text-gray-600 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:border-lime-300 hover:text-lime-700 transition-colors"
+            className="h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-gray-200 bg-white text-[#66BB6A] flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#66BB6A]/50 transition-colors"
             aria-label="Scroll top experts left"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -114,7 +112,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
             type="button"
             onClick={() => scrollByAmount("right")}
             disabled={!canScrollRight}
-            className="h-9 w-9 rounded-full border border-gray-200 bg-white text-gray-600 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:border-lime-300 hover:text-lime-700 transition-colors"
+            className="h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-gray-200 bg-white text-[#66BB6A] flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#66BB6A]/50 transition-colors"
             aria-label="Scroll top experts right"
           >
             <ChevronRight className="h-4 w-4" />
@@ -125,7 +123,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
       <div
         ref={scrollerRef}
         onScroll={syncScrollState}
-        className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1 snap-x snap-mandatory"
+        className="flex gap-3 sm:gap-6 overflow-x-auto pb-3 scrollbar-hide -mx-1 px-1 snap-x snap-mandatory"
       >
         {experts.map((expert, i) => {
           const lid = resolveListingId(expert);
@@ -134,12 +132,14 @@ export default function TopExpertsSection({ experts = [], loading }) {
               key={String(
                 expert._id ?? expert.coach?._id ?? expert.id ?? `ex-${i}`,
               )}
-              className="snap-start shrink-0 w-[min(92vw,490px)] sm:w-[752px]"
+              className="snap-start shrink-0 w-[min(88vw,420px)] sm:w-[min(92vw,490px)] md:w-[752px]"
             >
               <ExpertCard
                 expert={expert}
                 isTopExpert={true}
-                profileHref={lid && profilePaths[lid] ? profilePaths[lid] : undefined}
+                profileHref={
+                  lid && profilePaths[lid] ? profilePaths[lid] : undefined
+                }
               />
             </div>
           );
