@@ -27,14 +27,14 @@ export function FinalCtaSection() {
 
         <div className="mt-12 flex flex-row items-center justify-center gap-8 sm:flex-row sm:gap-10">
           <Link
-            href="/experts"
+            href={c.primaryCtaHref}
             className="inline-flex min-w-[200px] items-center justify-center rounded-lg bg-gradient-to-r from-[#357200] to-[#03632C] sm:px-10 px-5 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/20 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03632C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7] sm:text-base"
           >
             {c.primaryCta}
           </Link>
 
           <a
-            href="#curated"
+            href={c.secondaryCtaHref}
             className="relative inline-block pt-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#064E3B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7]"
           >
             <span className="text-sm font-extrabold uppercase tracking-wide text-[#064E3B] sm:text-base">

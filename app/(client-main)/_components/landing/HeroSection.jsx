@@ -44,7 +44,7 @@ export function HeroSection() {
             <LandingButton
               variant="hero"
               size="lg"
-              href="/experts"
+              href={c.primaryCtaHref}
               className="gap-2 rounded-lg sm:px-12 px-7 py-5 sm:text-sm text-xs font-bold"
             >
               {c.primaryCta}
@@ -56,7 +56,7 @@ export function HeroSection() {
             <LandingButton
               variant="secondary"
               size="lg"
-              href="#curated"
+              href={c.secondaryCtaHref}
               className="rounded-lg sm:px-12 px-7 py-5 border border-[#03632C]/20 sm:text-sm text-xs font-bold text-[#03632C]"
             >
               {c.secondaryCta}

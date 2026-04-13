@@ -739,10 +739,7 @@ export const LocationSearchField = forwardRef(function LocationSearchField(
         }
         cancelLocationBlurClose();
         setShowLocationDropdown(true);
-        if (
-          locationInputRef.current &&
-          e.target !== locationInputRef.current
-        ) {
+        if (locationInputRef.current && e.target !== locationInputRef.current) {
           locationInputRef.current.focus({ preventScroll: true });
         }
       }}
@@ -850,7 +847,7 @@ function SpecialitySelectorDropdown({
         <h4 className="text-xs font-medium text-gray-400">
           {specialityQuery.trim()
             ? "Matching specialities"
-            : "Available specialities — choose one"}
+            : "Available specialities"}
         </h4>
       </div>
       {filtered.length === 0 ? (
