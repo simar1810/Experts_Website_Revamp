@@ -6,6 +6,8 @@ export function buildClientChatInitialState(threads) {
     hasError: false,
     errorMessage: "",
     threadXMessages: {},
+    /** Read receipts received before messages finished loading (race with fetch). */
+    pendingReadReceipts: {},
     socket: null,
   };
 }

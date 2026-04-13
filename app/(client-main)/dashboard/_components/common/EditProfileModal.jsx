@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import { Dialog } from "radix-ui";
-import { Camera, SquarePen, X } from "lucide-react";
+import { Camera, SquarePen, User, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { fetchAPI } from "@/lib/api";
+import { fetchAPI, fetchMultipart } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import AddressRegionFields from "@/components/experts/AddressRegionFields";
+import { addressFromStoredLocation } from "@/lib/addressRegionUtils";
 
 function FieldLabel({ children, className }) {
   return (
@@ -32,9 +34,6 @@ function fieldInputClass(extra) {
   );
 }
 
-const PLACEHOLDER_AVATAR =
-  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&q=80";
-
 export default function EditProfileModal({
   open,
   onOpenChange,
@@ -44,32 +43,106 @@ export default function EditProfileModal({
   const { refreshUser } = useAuth();
   const [fullName, setFullName] = React.useState("");
   const [email, setEmail] = React.useState("");
-  const [city, setCity] = React.useState("");
-  const [state, setState] = React.useState("");
-  const [pincode, setPincode] = React.useState("");
-  const [countryName, setCountryName] = React.useState("");
+  const [address, setAddress] = React.useState(() =>
+    addressFromStoredLocation({}),
+  );
   const [notes, setNotes] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  const [photoWorking, setPhotoWorking] = React.useState(false);
+  const fileInputRef = React.useRef(null);
 
   React.useEffect(() => {
     if (!open || !profile) return;
     setFullName(typeof profile.name === "string" ? profile.name : "");
     setEmail(typeof profile.email === "string" ? profile.email : "");
-    setCity(typeof profile.city === "string" ? profile.city : "");
-    setState(typeof profile.state === "string" ? profile.state : "");
-    setPincode(typeof profile.pincode === "string" ? profile.pincode : "");
-    setCountryName(
-      typeof profile.countryName === "string" ? profile.countryName : "",
+    setAddress(
+      addressFromStoredLocation({
+        countryName: profile.countryName,
+        state: profile.state,
+        city: profile.city,
+        pincode: profile.pincode,
+      }),
     );
     setNotes(typeof profile.notes === "string" ? profile.notes : "");
   }, [open, profile]);
 
-  const avatarSrc =
+  const persistClientSnapshot = React.useCallback(
+    async (snap) => {
+      if (!snap || typeof snap !== "object") return false;
+      localStorage.setItem("client_data", JSON.stringify(snap));
+      onProfileSaved?.(snap);
+      await refreshUser?.();
+      return true;
+    },
+    [onProfileSaved, refreshUser],
+  );
+
+  const photoUrl =
     profile &&
     typeof profile.profilePhoto === "string" &&
     profile.profilePhoto.trim()
       ? profile.profilePhoto.trim()
-      : PLACEHOLDER_AVATAR;
+      : null;
+
+  const handlePhotoFile = React.useCallback(
+    async (file) => {
+      if (!profile || !file) return;
+      const okTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+      if (!okTypes.includes(file.type)) {
+        toast.error("Please choose a JPG, PNG, WebP, or GIF image.");
+        return;
+      }
+      const maxBytes = 12 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        toast.error("Image must be 12 MB or smaller.");
+        return;
+      }
+      setPhotoWorking(true);
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const data = await fetchMultipart("/experts/client/profile-photo", fd);
+        const snap = data?.client_snapshot;
+        if (await persistClientSnapshot(snap)) {
+          toast.success("Profile photo updated.");
+        } else {
+          toast.error("Could not update profile photo.");
+        }
+      } catch (e) {
+        toast.error(
+          e instanceof Error && e.message ? e.message : "Upload failed.",
+        );
+      } finally {
+        setPhotoWorking(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    },
+    [profile, persistClientSnapshot],
+  );
+
+  const handleRemovePhoto = React.useCallback(async () => {
+    if (!profile || !photoUrl) return;
+    setPhotoWorking(true);
+    try {
+      const data = await fetchAPI(
+        "/experts/client/me",
+        { profilePhoto: "" },
+        "PATCH",
+      );
+      const snap = data?.client_snapshot;
+      if (await persistClientSnapshot(snap)) {
+        toast.success("Profile photo removed.");
+      } else {
+        toast.error("Could not remove profile photo.");
+      }
+    } catch (e) {
+      toast.error(
+        e instanceof Error && e.message ? e.message : "Could not remove photo.",
+      );
+    } finally {
+      setPhotoWorking(false);
+    }
+  }, [profile, photoUrl, persistClientSnapshot]);
 
   const handleSave = async () => {
     if (!profile) return;
@@ -81,10 +154,10 @@ export default function EditProfileModal({
           name: fullName.trim(),
           email: email.trim(),
           notes: notes.trim(),
-          city: city.trim(),
-          state: state.trim(),
-          pincode: pincode.trim(),
-          countryName: countryName.trim(),
+          city: address.city.trim(),
+          state: address.state.trim(),
+          pincode: address.zipCode.trim(),
+          countryName: address.country.trim(),
         },
         "PATCH",
       );
@@ -159,24 +232,65 @@ export default function EditProfileModal({
 
             <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-6">
               <div className="mx-auto flex max-w-md flex-col items-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="sr-only"
+                  tabIndex={-1}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handlePhotoFile(f);
+                  }}
+                />
                 <div className="relative">
-                  <div className="size-28 overflow-hidden rounded-full ring-2 ring-[#70C136] ring-offset-2 ring-offset-white sm:size-32">
-                    <img
-                      src={avatarSrc}
-                      alt=""
-                      className="size-full object-cover"
-                    />
+                  <div
+                    className={cn(
+                      "relative flex size-28 items-center justify-center overflow-hidden rounded-full sm:size-32",
+                      "ring-2 ring-[#70C136] ring-offset-2 ring-offset-white",
+                      !photoUrl && "bg-[#70C136]",
+                    )}
+                  >
+                    {photoUrl ? (
+                      <img
+                        src={photoUrl}
+                        alt={`${profile?.name || "User"} profile photo`}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <User
+                        className="size-14 text-white sm:size-16"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                    )}
                   </div>
                   <button
                     type="button"
-                    disabled
-                    className="absolute -bottom-0.5 -right-0.5 flex size-9 cursor-not-allowed items-center justify-center rounded-full bg-[#70C136]/70 text-white shadow-md ring-[3px] ring-white"
-                    aria-label="Photo upload coming soon"
-                    title="Photo upload coming soon"
+                    disabled={photoWorking || !profile}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={cn(
+                      "absolute -bottom-0.5 -right-0.5 flex size-9 items-center justify-center rounded-full bg-[#70C136] text-white shadow-md ring-[3px] ring-white",
+                      "transition-opacity hover:opacity-90",
+                      (photoWorking || !profile) &&
+                        "cursor-not-allowed opacity-60 hover:opacity-60",
+                    )}
+                    aria-label="Upload profile photo"
+                    title="Upload profile photo"
                   >
                     <Camera className="size-4" strokeWidth={2} />
                   </button>
                 </div>
+                {photoUrl ? (
+                  <button
+                    type="button"
+                    disabled={photoWorking}
+                    onClick={() => void handleRemovePhoto()}
+                    className="mt-3 text-xs font-bold uppercase tracking-wider text-red-600 underline-offset-2 hover:text-red-700 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Remove photo
+                  </button>
+                ) : null}
               </div>
 
               <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-6">
@@ -218,45 +332,17 @@ export default function EditProfileModal({
                     Mobile is verified at sign-up. Contact support to change it.
                   </p>
                 </div>
-                <div>
-                  <FieldLabel>City</FieldLabel>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className={fieldInputClass()}
-                    autoComplete="address-level2"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>State / Region</FieldLabel>
-                  <input
-                    type="text"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className={fieldInputClass()}
-                    autoComplete="address-level1"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Postal code</FieldLabel>
-                  <input
-                    type="text"
-                    value={pincode}
-                    onChange={(e) => setPincode(e.target.value)}
-                    className={fieldInputClass()}
-                    autoComplete="postal-code"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Country</FieldLabel>
-                  <input
-                    type="text"
-                    value={countryName}
-                    onChange={(e) => setCountryName(e.target.value)}
-                    className={fieldInputClass()}
-                    autoComplete="country-name"
-                  />
+                <div className="sm:col-span-2">
+                  <FieldLabel>Location</FieldLabel>
+                  <div className="mt-2">
+                    <AddressRegionFields
+                      address={address}
+                      onAddressChange={(patch) =>
+                        setAddress((a) => ({ ...a, ...patch }))
+                      }
+                      errors={{}}
+                    />
+                  </div>
                 </div>
               </div>
 

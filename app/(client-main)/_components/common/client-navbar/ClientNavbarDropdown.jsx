@@ -20,7 +20,7 @@ const ClientNavbarDropdown = () => {
 
   const DROPDOWN_MENU_ITEMS = [
     {
-      label: "Dashboard",
+      label: "Profile",
       icon: <User className="size-5" />,
       onClick: () => router.push("/dashboard"),
       customClassName: "text-base",

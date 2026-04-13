@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown, Filter } from "lucide-react";
 import { useValues } from "@/context/valuesContext";
 import { useExpertsListingSearch } from "@/hooks/useExpertsListingSearch";
+import { availableSpecialities } from "@/lib/data/specialities";
 import HeroSearchBar from "./_components/hero/HeroSearchBar";
 import HeroCategoryRow from "./_components/hero/HeroCategoryRow";
 import TopExpertsSection from "./_components/top-experts/TopExpertsSection";
@@ -20,26 +21,53 @@ function ExpertsPageInner() {
     specialityFromUrl ? [specialityFromUrl] : [],
   );
   const [locationQuery, setLocationQuery] = useState(locationFromUrl);
+  const [locationFilter, setLocationFilter] = useState(() =>
+    locationFromUrl
+      ? { mode: "city", city: locationFromUrl }
+      : { mode: "none" },
+  );
+  const [nameQuery, setNameQuery] = useState("");
+  const [certificationQuery, setCertificationQuery] = useState("");
   const [searchClientLocation, setSearchClientLocation] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { values } = useValues();
+
+  const specialityOptions = useMemo(() => {
+    const v = values?.expertise_categories;
+    if (Array.isArray(v) && v.length > 0) {
+      return [...new Set(v.filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" }),
+      );
+    }
+    return availableSpecialities;
+  }, [values?.expertise_categories]);
 
   useEffect(() => {
     setSelectedSpecialities(specialityFromUrl ? [specialityFromUrl] : []);
   }, [specialityFromUrl]);
 
   useEffect(() => {
-    setLocationQuery(locationFromUrl);
+    if (locationFromUrl) {
+      setLocationFilter({ mode: "city", city: locationFromUrl });
+      setLocationQuery(locationFromUrl);
+    } else {
+      setLocationFilter({ mode: "none" });
+      setLocationQuery("");
+    }
   }, [locationFromUrl]);
 
   const useGeo = searchClientLocation?.coordinates?.length === 2;
   const showDistanceFilter =
-    useGeo || (locationQuery || "").trim().length > 0;
+    useGeo ||
+    locationFilter.mode !== "none" ||
+    (locationQuery || "").trim().length > 0;
 
   const listing = useExpertsListingSearch({
     selectedSpecialities,
-    locationQuery,
+    locationFilter,
     searchClientLocation,
+    nameQuery,
+    certificationQuery,
   });
 
   const handleSearch = async () => {
@@ -55,7 +83,8 @@ function ExpertsPageInner() {
 
   return (
     <main className="min-h-screen bg-white overflow-x-hidden font-sans">
-      <section className="relative w-full min-h-[380px] md:min-h-[480px] flex flex-col items-center justify-center text-center px-4 pb-10 md:pb-12">
+      {/* z-20: keep hero + search dropdowns above following sections (Top Experts paints later in DOM and would cover overflow otherwise) */}
+      <section className="relative z-20 w-full min-h-[380px] md:min-h-[480px] flex flex-col items-center justify-center text-center px-4 pb-10 md:pb-12">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 overflow-hidden"
           style={{
@@ -81,16 +110,22 @@ function ExpertsPageInner() {
             setSelectedSpecialities={setSelectedSpecialities}
             locationQuery={locationQuery}
             setLocationQuery={setLocationQuery}
+            setLocationFilter={setLocationFilter}
             clientLocation={searchClientLocation}
             setClientLocation={setSearchClientLocation}
+            specialityOptions={specialityOptions}
+            nameQuery={nameQuery}
+            setNameQuery={setNameQuery}
+            certificationQuery={certificationQuery}
+            setCertificationQuery={setCertificationQuery}
             onSearch={handleSearch}
           />
-
+          {/* 
           <HeroCategoryRow
             categories={values?.expertise_categories || []}
             selectedSpecialities={selectedSpecialities}
             setSelectedSpecialities={setSelectedSpecialities}
-          />
+          /> */}
         </div>
       </section>
 

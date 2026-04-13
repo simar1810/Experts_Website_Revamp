@@ -8,9 +8,6 @@ import ProfileCard from "./_components/profile/ProfileCard";
 import ProfilePersonalInfoCard from "./_components/profile/ProfilePersonalInfoCard";
 import EditProfileButton from "./_components/common/EditProfileButton";
 
-const PLACEHOLDER_AVATAR =
-  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&q=80";
-
 function formatClientLocation(s) {
   if (!s) return "—";
   const parts = [s.city, s.state, s.countryName].filter(
@@ -115,7 +112,7 @@ export default function DashboardProfileView() {
   const imageSrc =
     typeof profile.profilePhoto === "string" && profile.profilePhoto.trim()
       ? profile.profilePhoto.trim()
-      : PLACEHOLDER_AVATAR;
+      : null;
   const bio =
     typeof profile.notes === "string" && profile.notes.trim()
       ? profile.notes.trim()

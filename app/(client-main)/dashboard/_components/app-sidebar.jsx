@@ -45,11 +45,11 @@ const NAV_ITEMS = [
     href: "/dashboard/programs",
     icon: Album,
   },
-  {
-    label: "Sessions/Meetings",
-    href: "/dashboard/sessions",
-    icon: UserCog,
-  },
+  // {
+  //   label: "Sessions/Meetings",
+  //   href: "/dashboard/sessions",
+  //   icon: UserCog,
+  // },
 ];
 
 function WellnessLogo() {
