@@ -56,7 +56,7 @@ export function HeroSection() {
             <LandingButton
               variant="secondary"
               size="lg"
-              href="#curated"
+              href="#top-programs"
               className="rounded-lg sm:px-12 px-7 py-5 border border-[#03632C]/20 sm:text-sm text-xs font-bold text-[#03632C]"
             >
               {c.secondaryCta}
