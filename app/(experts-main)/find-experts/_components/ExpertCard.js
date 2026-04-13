@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { BadgeCheck, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function ExpertCard({ expert, isTopExpert = false, profileHref }) {
+export default function ExpertCard({
+  expert,
+  isTopExpert = false,
+  profileHref,
+}) {
   const { isAuthenticated, openLoginModal } = useAuth();
   const router = useRouter();
   const resolvedName = expert.coach?.name || expert.name || "Expert";
@@ -19,13 +23,21 @@ export default function ExpertCard({ expert, isTopExpert = false, profileHref })
     expert.id ||
     expert.coach?._id;
 
-    console.log("Here is the experts card:",expert);
-  // const recommendedPct = Number(expert.recommendedScoreFinal ?? 0) * 100;
-  const rating = Number(expert.ratingAgg?.overall?.avg ?? expert.recommendedScoreFinal ?? 0);
-  // const recommendedLabel = Number.isFinite(recommendedPct)
-  //   ? `${recommendedPct.toFixed(0)}%`
-  //   : "0%";
-  const ratingLabel = rating.toFixed(1);
+  // Star rating: 1–5 scale from listing aggregates only. Do not use
+  // recommendedScoreFinal here — elsewhere it is treated as a 0–1 score (×100 for %).
+  const bayes = expert.ratingAgg?.overall?.bayes;
+  const avg = expert.ratingAgg?.overall?.avg;
+  const ratingRaw =
+    typeof bayes === "number" && !Number.isNaN(bayes) ? bayes : avg;
+  const ratingNum =
+    typeof ratingRaw === "number" && !Number.isNaN(ratingRaw)
+      ? ratingRaw
+      : null;
+  const totalReviews = Number(expert.reviewAgg?.totalReviews) || 0;
+  const ratingLabel =
+    totalReviews > 0 && ratingNum != null
+      ? ratingNum.toFixed(1)
+      : "—";
 
   let specializations_string = "";
   const specs = expert.specializations || expert.expertiseTags || [];
@@ -95,34 +107,53 @@ export default function ExpertCard({ expert, isTopExpert = false, profileHref })
           <div className="mt-9 border-t border-dashed border-gray-300 max-w-[236px]" />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-1 gap-6">
             <div className="flex items-center justify-center md:justify-start gap-x-4">
-              <div className="flex items-center gap-2 bg-[#00A500] text-white px-2.5 py-1 rounded-sm text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
-                {/* <ThumbsUp className="w-3 h-3 fill-current" />
-                <span>{recommendedLabel}</span> */}
-                <span className="text-white text-sm">★</span>
-                <span>{ratingLabel}</span>
+              <div className="flex  gap-x-4">
+                <div className="flex items-center gap-2 bg-[#00A500] text-white px-2.5 py-1 rounded-sm text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
+                  {/* <ThumbsUp className="w-3 h-3 fill-current" />
+                  <span>{recommendedLabel}</span> */}
+                  <span className="text-white text-sm">★</span>
+                  <span>{ratingLabel}</span>
+                </div>
+                <div className="flex items-center gap-1.5 group/stories cursor-pointer">
+                  <span className="text-gray-800 text-sm font-medium opacity-80">
+                    <span className="underline decoration-1 underline-offset-2">
+                      {totalReviews}
+                    </span>{" "}
+                    Patient Stories
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 group/stories cursor-pointer">
-                <span className="text-gray-800 text-sm font-medium opacity-80">
-                  <span className="underline decoration-1 underline-offset-2">
-                    {expert.reviewAgg.totalReviews}
-                  </span>{" "}
-                  Patient Stories
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col items-center md:items-center gap-1">
-              {expert.responseTime && (
-                <p className="text-[#67BC2A] text-sm font-bold leading-none">
-                  Responds in {expert.responseTime}
-                </p>
+              {isTopExpert && (
+                <div className="flex flex-col items-center md:items-center gap-1">
+                  {expert.responseTime && (
+                    <p className="text-[#67BC2A] text-sm font-bold leading-none">
+                      Responds in {expert.responseTime}
+                    </p>
+                  )}
+                  <button
+                    onClick={handleCardClick}
+                    className="bg-[#67BC2A]/85 hover:bg-[#67BC2A] cursor-pointer text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all active:scale-95 uppercase tracking-widest mt-2"
+                  >
+                    Message Coach
+                  </button>
+                </div>
               )}
-              <button
-                onClick={handleCardClick}
-                className="bg-[#67BC2A]/85 hover:bg-[#67BC2A] cursor-pointer text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all active:scale-95 uppercase tracking-widest mt-2"
-              >
-                Message Coach
-              </button>
             </div>
+            {!isTopExpert && (
+              <div className="flex flex-col items-center md:items-center gap-1">
+                {expert.responseTime && (
+                  <p className="text-[#67BC2A] text-sm font-bold leading-none">
+                    Responds in {expert.responseTime}
+                  </p>
+                )}
+                <button
+                  onClick={handleCardClick}
+                  className="bg-[#67BC2A]/85 hover:bg-[#67BC2A] cursor-pointer text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all active:scale-95 uppercase tracking-widest mt-2"
+                >
+                  Message Coach
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
