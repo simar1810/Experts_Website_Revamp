@@ -55,6 +55,7 @@ export function useExpertsListingSearch({
   const [error, setError] = useState(null);
 
   const [languages, setLanguages] = useState([]);
+  // const [specializations, setSpecializations] = useState([]); 
   const [consultationMode, setConsultationMode] = useState("");
   const [radiusKm, setRadiusKm] = useState(20);
 
@@ -275,6 +276,8 @@ export function useExpertsListingSearch({
     setPage,
     languages,
     setLanguages,
+    // specializations, 
+    // setSpecializations,  
     consultationMode,
     setConsultationMode,
     radiusKm,

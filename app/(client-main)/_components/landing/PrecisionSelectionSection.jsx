@@ -36,7 +36,7 @@ export function PrecisionSelectionSection() {
     >
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <header className="text-center">
-          <h2 className="font-lexend text-[1.375rem] font-extrabold uppercase leading-tight tracking-[0.04em] text-wz-deep-forest sm:text-[2.5rem]">
+          <h2 className="font-lexend text-[1.575rem] font-extrabold uppercase leading-tight tracking-[0.04em] text-wz-deep-forest sm:text-[2.5rem]">
             {c.title}
           </h2>
           <p className="mx-auto mt-3 max-w-3xl text-[0.9375rem] font-medium italic leading-relaxed text-wz-copy-muted sm:text-[1rem]">
@@ -50,7 +50,7 @@ export function PrecisionSelectionSection() {
         >
           <div className="grid gap-8 sm:grid-cols-2 sm:gap-10">
             <label className="block space-y-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-wz-copy-muted">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-wz-copy-muted mb-2 block ">
                 {c.field1Label}
               </span>
               <div className="relative">
@@ -75,7 +75,7 @@ export function PrecisionSelectionSection() {
             </label>
 
             <label className="block space-y-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-wz-copy-muted">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-wz-copy-muted mb-2 block">
                 {c.field2Label}
               </span>
               <div className="relative">
@@ -100,12 +100,12 @@ export function PrecisionSelectionSection() {
             </label>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-7">
             <LandingButton
               type="submit"
               variant="gradient"
               size="full"
-              className="rounded-xl py-[1.05rem] text-[0.8125rem] font-extrabold tracking-[0.22em] sm:text-sm from-[#67BC2A] to-[#03632C] shadow-md"
+              className="rounded-xl py-[1.05rem] text-[0.8125rem] font-extrabold tracking-[0.12em] sm:tracking-[0.22em] sm:text-sm from-[#67BC2A] to-[#03632C] shadow-md"
             >
               {c.submitLabel}
             </LandingButton>
