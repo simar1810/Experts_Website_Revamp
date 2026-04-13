@@ -74,7 +74,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
 
   if (loading) {
     return (
-      <section className="max-w-7xl mx-auto px-6 py-10 md:py-12">
+      <section className="relative z-0 max-w-7xl mx-auto px-6 py-10 md:py-12">
         <div>
           <h2 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">
             Popular Experts
@@ -95,7 +95,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
   if (!experts.length) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-10 md:py-12 border-b border-gray-100">
+    <section className="relative z-0 max-w-7xl mx-auto px-6 py-10 md:py-12 border-b border-gray-100">
       <div className="mb-6 flex items-center justify-between gap-3">
         <h2 className="text-xl sm:text-2xl font-black text-gray-900 text-left">
           Top Experts

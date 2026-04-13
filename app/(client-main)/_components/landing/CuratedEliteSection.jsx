@@ -79,7 +79,10 @@ export function CuratedEliteSection({
 
         <div className="mt-10 md:hidden">
           <div className="mx-auto w-full max-w-[min(100%,420px)] px-1">
-            {n > 0 ? <CoachShowcaseCard {...mobileCoaches[index]} /> : null}
+            {/* {n > 0 ? <CoachShowcaseCard {...mobileCoaches[index]} /> : null} */}
+            {mobileCoaches.slice(index, index + 3).map((coach,i) => (
+            <div key={coach.id} className={i !== 0 ? "mt-4" : ""}><CoachShowcaseCard key={coach.id} {...coach} /></div>
+            ))}
           </div>
         </div>
 

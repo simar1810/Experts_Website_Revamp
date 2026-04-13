@@ -25,10 +25,10 @@ export function FinalCtaSection() {
           </span>
         </h2>
 
-        <div className="mt-12 flex flex-col items-center justify-center gap-8 sm:flex-row sm:gap-10">
+        <div className="mt-12 flex flex-row items-center justify-center gap-8 sm:flex-row sm:gap-10">
           <Link
             href="/experts"
-            className="inline-flex min-w-[200px] items-center justify-center rounded-lg bg-gradient-to-r from-[#357200] to-[#03632C] px-10 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/20 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03632C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7] sm:text-base"
+            className="inline-flex min-w-[200px] items-center justify-center rounded-lg bg-gradient-to-r from-[#357200] to-[#03632C] sm:px-10 px-5 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/20 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03632C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7] sm:text-base"
           >
             {c.primaryCta}
           </Link>

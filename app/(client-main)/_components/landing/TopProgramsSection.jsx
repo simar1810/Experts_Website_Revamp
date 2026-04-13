@@ -31,7 +31,7 @@ export function TopProgramsSection() {
             <span className="text-white">{c.titleLight}</span>
             <span className="text-[#9AF45D]">{c.titleHighlight}</span>
           </h2>
-          <div className="flex shrink-0 justify-end gap-2 sm:pb-0.5">
+          <div className="hidden sm:flex shrink-0 justify-end gap-2 sm:pb-0.5">
             <button
               type="button"
               aria-label="Previous programs"
