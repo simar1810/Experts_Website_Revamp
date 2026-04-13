@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { useClientChatContext } from "../state/ClientChatContext";
 
@@ -8,49 +8,92 @@ export default function ClientMessageBox({ activeThreadId }) {
   const [disabled, setDisabled] = useState(false);
   const [text, setText] = useState("");
   const { socket } = useClientChatContext();
+  const textRef = useRef(text);
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    textRef.current = text;
+  }, [text]);
+
+  useEffect(() => {
+    if (!activeThreadId) return;
+    const id = requestAnimationFrame(() => {
+      textareaRef.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [activeThreadId]);
 
   const sendMessage = useCallback(() => {
-    const trimmed = text.trim();
-    if (!trimmed || !activeThreadId || !socket) return;
-    if (socket.readyState !== WebSocket.OPEN) return;
+    const el = textareaRef.current;
+    const raw =
+      (typeof el?.value === "string" ? el.value : textRef.current) ?? "";
+    const trimmed = raw.trim();
+    const s = socket;
+    const tid = activeThreadId;
+    if (!trimmed || !tid || !s) return;
+    if (s.readyState !== WebSocket.OPEN) return;
     setDisabled(true);
-    socket.send(
+    s.send(
       JSON.stringify({
         type: "send",
-        threadId: activeThreadId,
+        threadId: tid,
         text: trimmed,
       }),
     );
     setText("");
+    textRef.current = "";
     setDisabled(false);
-  }, [text, activeThreadId, socket]);
+    requestAnimationFrame(() => {
+      const el = textareaRef.current;
+      if (el) {
+        el.style.height = "auto";
+      }
+    });
+  }, [activeThreadId, socket]);
 
   return (
     <div className="shrink-0 bg-white px-6 py-4">
-      <div className="relative flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-4 py-2 shadow-sm">
-        <input
-          type="text"
+      <form
+        className="relative flex items-end gap-3 rounded-xl border border-gray-100 bg-white px-4 py-2 shadow-sm"
+        onSubmit={(e) => {
+          e.preventDefault();
+          sendMessage();
+        }}
+      >
+        <textarea
+          ref={textareaRef}
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage();
-            }
+          rows={1}
+          onChange={(e) => {
+            textRef.current = e.target.value;
+            setText(e.target.value);
           }}
-          placeholder="Type a message"
-          className="flex-1 border-none bg-transparent py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+          onInput={(e) => {
+            const el = e.target;
+            el.style.height = "auto";
+            el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+          }}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            if (e.shiftKey) return;
+            if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+            e.preventDefault();
+            e.stopPropagation();
+            sendMessage();
+          }}
+          placeholder="Type a message..."
+          className="max-h-40 min-h-10 flex-1 resize-none border-none bg-transparent py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+          aria-label="Message"
         />
         <button
-          type="button"
-          className="text-[#84cc16] transition-colors hover:text-[#6ca832] disabled:opacity-40"
+          type="submit"
+          className="flex h-10 shrink-0 items-center justify-center text-[#84cc16] transition-colors hover:text-[#6ca832] disabled:opacity-40"
           disabled={disabled || text.trim() === ""}
-          onClick={sendMessage}
           aria-label="Send message"
         >
           <Send className="h-5 w-5" />
         </button>
-      </div>
+      </form>
     </div>
   );
 }

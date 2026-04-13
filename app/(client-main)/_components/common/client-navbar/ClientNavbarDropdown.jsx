@@ -20,9 +20,9 @@ const ClientNavbarDropdown = () => {
 
   const DROPDOWN_MENU_ITEMS = [
     {
-      label: "Chat Enquiries",
-      icon: <MessageCircle className="size-5" />,
-      onClick: () => router.push("/enquiries"),
+      label: "Profile",
+      icon: <User className="size-5" />,
+      onClick: () => router.push("/dashboard"),
       customClassName: "text-base",
     },
     {
