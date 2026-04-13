@@ -1,6 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+import { cn } from "@/lib/utils";
 import {
   Search,
   MapPin,
@@ -176,7 +185,7 @@ function LocationPickerDropdown({
       role="listbox"
       aria-label="Location suggestions"
       onMouseDown={(e) => e.preventDefault()}
-      className={`absolute top-full left-0 right-0 z-[1000] mt-2 rounded-2xl border p-4 shadow-2xl ring-1 ring-black/5 lg:right-auto lg:w-[min(100vw-2rem,36rem)] ${
+      className={`absolute top-full z-[1000] mt-2 rounded-2xl border p-4 shadow-2xl ring-1 ring-black/5 max-lg:left-1/2 max-lg:right-auto max-lg:w-[min(calc(100vw-1rem),36rem)] max-lg:-translate-x-1/2 lg:left-0 lg:right-auto lg:translate-x-0 lg:w-[min(100vw-2rem,36rem)] ${
         isDark
           ? "bg-gray-900 border-gray-700 ring-white/10"
           : "bg-white border-gray-100"
@@ -444,7 +453,7 @@ function LocationLegacyDropdown({
       role="listbox"
       aria-label="Location suggestions"
       onMouseDown={(e) => e.preventDefault()}
-      className={`absolute top-full left-0 right-0 z-[1000] mt-2 rounded-2xl border p-4 shadow-2xl ring-1 ring-black/5 lg:right-auto lg:w-[min(100vw-2rem,36rem)] ${
+      className={`absolute top-full z-[1000] mt-2 rounded-2xl border p-4 shadow-2xl ring-1 ring-black/5 max-lg:left-1/2 max-lg:right-auto max-lg:w-[min(calc(100vw-1rem),36rem)] max-lg:-translate-x-1/2 lg:left-0 lg:right-auto lg:translate-x-0 lg:w-[min(100vw-2rem,36rem)] ${
         isDark
           ? "bg-gray-900 border-gray-700 ring-white/10"
           : "bg-white border-gray-100"
@@ -557,6 +566,252 @@ function LocationLegacyDropdown({
   );
 }
 
+/** Location row + same dropdown as hero search (pick-only when `setLocationFilter` is passed). */
+export const LocationSearchField = forwardRef(function LocationSearchField(
+  {
+    locationQuery,
+    setLocationQuery,
+    setLocationFilter,
+    setClientLocation,
+    onSearch,
+    theme = "light",
+    placeholderLocation = "Location",
+    locationIconColor = "text-gray-300",
+    className = "",
+  },
+  ref,
+) {
+  const isDark = theme === "dark";
+  const locationPickOnly = typeof setLocationFilter === "function";
+
+  const [locationDraft, setLocationDraft] = useState(locationQuery);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [coordinateLocation, setCoordinateLocation] = useState(null);
+
+  const locationFieldRootRef = useRef(null);
+  const locationInputRef = useRef(null);
+  const locationBlurTimerRef = useRef(null);
+
+  useEffect(() => {
+    setLocationDraft(locationQuery);
+  }, [locationQuery]);
+
+  const cancelLocationBlurClose = useCallback(() => {
+    if (locationBlurTimerRef.current) {
+      clearTimeout(locationBlurTimerRef.current);
+      locationBlurTimerRef.current = null;
+    }
+  }, []);
+
+  const openLocationDropdown = useCallback(() => {
+    cancelLocationBlurClose();
+    setShowLocationDropdown(true);
+  }, [cancelLocationBlurClose]);
+
+  const scheduleLocationBlurClose = useCallback(() => {
+    cancelLocationBlurClose();
+    locationBlurTimerRef.current = setTimeout(() => {
+      locationBlurTimerRef.current = null;
+      const root = locationFieldRootRef.current;
+      if (
+        root &&
+        typeof document !== "undefined" &&
+        root.contains(document.activeElement)
+      ) {
+        return;
+      }
+      setShowLocationDropdown(false);
+      if (locationPickOnly) {
+        setLocationDraft(locationQuery);
+      }
+    }, 150);
+  }, [cancelLocationBlurClose, locationPickOnly, locationQuery]);
+
+  useEffect(() => () => cancelLocationBlurClose(), [cancelLocationBlurClose]);
+
+  useEffect(() => {
+    if (locationPickOnly) return;
+    if (locationDraft === locationQuery) return;
+    const id = setTimeout(() => {
+      setClientLocation?.(null);
+      setLocationQuery(locationDraft);
+    }, EXPERTS_FILTER_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [
+    locationDraft,
+    locationQuery,
+    setLocationQuery,
+    setClientLocation,
+    locationPickOnly,
+  ]);
+
+  useEffect(() => {
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setCoordinateLocation({ latitude, longitude });
+          },
+          (err) => {
+            console.log("failed to fetch location", err);
+          },
+        );
+      } else {
+        console.log("failed to fetch location");
+      }
+    }
+    getLocation();
+  }, []);
+
+  const handleUseMyLocation = async () => {
+    cancelLocationBlurClose();
+
+    const finishWithCoordinates = async (coords) => {
+      if (!coords) return;
+      const { latitude, longitude } = coords;
+      setCoordinateLocation(coords);
+      setClientLocation?.({
+        type: "Point",
+        coordinates: [longitude, latitude],
+      });
+      const placeLabel = await findPlaceLabelFromCoordinates({
+        coordinates: coords,
+      });
+      const label = (placeLabel || "").trim();
+      setLocationDraft(label);
+      setLocationQuery(label);
+      if (locationPickOnly) {
+        setLocationFilter({ mode: "none" });
+      }
+      setShowLocationDropdown(false);
+      setTimeout(() => {
+        if (typeof onSearch === "function") onSearch();
+      }, 0);
+    };
+
+    if (coordinateLocation) {
+      await finishWithCoordinates(coordinateLocation);
+      return;
+    }
+
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          await finishWithCoordinates({ latitude, longitude });
+        },
+        (err) => {
+          console.log("failed to fetch location", err);
+          setShowLocationDropdown(false);
+        },
+      );
+    } else {
+      setShowLocationDropdown(false);
+    }
+  };
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      syncBeforeSearch() {
+        if (locationPickOnly) {
+          setLocationDraft(locationQuery);
+        } else {
+          setLocationQuery(locationDraft);
+        }
+      },
+    }),
+    [locationPickOnly, locationQuery, locationDraft, setLocationQuery],
+  );
+
+  return (
+    <div
+      ref={locationFieldRootRef}
+      className={cn(
+        "relative flex min-h-11 min-w-[11rem] shrink-0 flex-[1.15] items-center px-3 py-1",
+        showLocationDropdown ? "z-[200] isolate" : "z-[2]",
+        className,
+      )}
+      onMouseDown={(e) => {
+        if (e.target instanceof Element && e.target.closest("button")) {
+          return;
+        }
+        cancelLocationBlurClose();
+        setShowLocationDropdown(true);
+        if (locationInputRef.current && e.target !== locationInputRef.current) {
+          locationInputRef.current.focus({ preventScroll: true });
+        }
+      }}
+    >
+      <MapPin className={`w-4 h-4 shrink-0 mr-2 ${locationIconColor}`} />
+      <input
+        ref={locationInputRef}
+        type="text"
+        autoComplete="off"
+        placeholder={placeholderLocation}
+        value={locationDraft}
+        onChange={(e) => {
+          setClientLocation?.(null);
+          if (locationPickOnly) {
+            setLocationFilter({ mode: "none" });
+          }
+          setLocationDraft(e.target.value);
+        }}
+        onFocus={openLocationDropdown}
+        onBlur={scheduleLocationBlurClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            cancelLocationBlurClose();
+            if (locationPickOnly) {
+              setLocationDraft(locationQuery);
+            } else {
+              setLocationQuery(locationDraft);
+            }
+            setShowLocationDropdown(false);
+            setTimeout(() => {
+              if (typeof onSearch === "function") onSearch();
+            }, 0);
+          }
+        }}
+        className={`bg-transparent border-none outline-none w-full text-sm min-w-0 ${
+          isDark
+            ? "text-white placeholder-gray-500"
+            : "text-gray-700 placeholder-gray-400"
+        }`}
+      />
+      {showLocationDropdown &&
+        (locationPickOnly ? (
+          <LocationPickerDropdown
+            locationDraft={locationDraft}
+            setLocationDraft={setLocationDraft}
+            setShowLocationDropdown={setShowLocationDropdown}
+            setClientLocation={setClientLocation}
+            setLocationQuery={setLocationQuery}
+            setLocationFilter={setLocationFilter}
+            onUseMyLocation={handleUseMyLocation}
+            theme={theme}
+          />
+        ) : (
+          <LocationLegacyDropdown
+            coordinateLocation={coordinateLocation}
+            locationQuery={locationDraft}
+            setLocationQuery={(next) => {
+              setLocationDraft(next);
+              setLocationQuery(next);
+            }}
+            setShowLocationDropdown={setShowLocationDropdown}
+            setClientLocation={setClientLocation}
+            onUseMyLocation={handleUseMyLocation}
+            theme={theme}
+          />
+        ))}
+    </div>
+  );
+});
+LocationSearchField.displayName = "LocationSearchField";
+
 function SpecialitySelectorDropdown({
   specialityQuery,
   selectedSpecialities,
@@ -592,7 +847,7 @@ function SpecialitySelectorDropdown({
         <h4 className="text-xs font-medium text-gray-400">
           {specialityQuery.trim()
             ? "Matching specialities"
-            : "Available specialities — choose one"}
+            : "Available specialities"}
         </h4>
       </div>
       {filtered.length === 0 ? (
@@ -680,74 +935,14 @@ export default function SearchFilters({
   }, [specialityOptionsProp]);
 
   const [specialityQuery, setSpecialityQuery] = useState("");
-  const [locationDraft, setLocationDraft] = useState(locationQuery);
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showSpecialityDropdown, setShowSpecialityDropdown] = useState(false);
-  const [coordinateLocation, setCoordinateLocation] = useState(null);
   const isDark = theme === "dark";
 
-  const locationFieldRootRef = useRef(null);
-  const locationInputRef = useRef(null);
-  const locationBlurTimerRef = useRef(null);
-
-  const locationPickOnly = typeof setLocationFilter === "function";
+  const locationFieldRef = useRef(null);
 
   const extendedSearch =
     typeof setNameQuery === "function" &&
     typeof setCertificationQuery === "function";
-
-  useEffect(() => {
-    setLocationDraft(locationQuery);
-  }, [locationQuery]);
-
-  const cancelLocationBlurClose = useCallback(() => {
-    if (locationBlurTimerRef.current) {
-      clearTimeout(locationBlurTimerRef.current);
-      locationBlurTimerRef.current = null;
-    }
-  }, []);
-
-  const openLocationDropdown = useCallback(() => {
-    cancelLocationBlurClose();
-    setShowLocationDropdown(true);
-  }, [cancelLocationBlurClose]);
-
-  const scheduleLocationBlurClose = useCallback(() => {
-    cancelLocationBlurClose();
-    locationBlurTimerRef.current = setTimeout(() => {
-      locationBlurTimerRef.current = null;
-      const root = locationFieldRootRef.current;
-      if (
-        root &&
-        typeof document !== "undefined" &&
-        root.contains(document.activeElement)
-      ) {
-        return;
-      }
-      setShowLocationDropdown(false);
-      if (locationPickOnly) {
-        setLocationDraft(locationQuery);
-      }
-    }, 150);
-  }, [cancelLocationBlurClose, locationPickOnly, locationQuery]);
-
-  useEffect(() => () => cancelLocationBlurClose(), [cancelLocationBlurClose]);
-
-  useEffect(() => {
-    if (locationPickOnly) return;
-    if (locationDraft === locationQuery) return;
-    const id = setTimeout(() => {
-      setClientLocation?.(null);
-      setLocationQuery(locationDraft);
-    }, EXPERTS_FILTER_DEBOUNCE_MS);
-    return () => clearTimeout(id);
-  }, [
-    locationDraft,
-    locationQuery,
-    setLocationQuery,
-    setClientLocation,
-    locationPickOnly,
-  ]);
 
   const addSpeciality = (spec) => {
     if (!selectedSpecialities.includes(spec)) {
@@ -760,90 +955,14 @@ export default function SearchFilters({
     setSelectedSpecialities(selectedSpecialities.filter((s) => s !== spec));
   };
 
-  useEffect(() => {
-    async function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            setCoordinateLocation({ latitude, longitude });
-          },
-          (err) => {
-            console.log("failed to fetch location", err);
-          },
-        );
-      } else {
-        console.log("failed to fetch location");
-      }
-    }
-    getLocation();
-  }, []);
-
   const runSearch = useCallback(() => {
-    if (locationPickOnly) {
-      setLocationDraft(locationQuery);
-    } else {
-      setLocationQuery(locationDraft);
-    }
+    locationFieldRef.current?.syncBeforeSearch?.();
     setTimeout(() => {
       if (typeof onSearch === "function") {
         onSearch();
       }
     }, 0);
-  }, [
-    locationDraft,
-    locationQuery,
-    locationPickOnly,
-    setLocationQuery,
-    onSearch,
-  ]);
-
-  const handleUseMyLocation = async () => {
-    cancelLocationBlurClose();
-
-    const finishWithCoordinates = async (coords) => {
-      if (!coords) return;
-      const { latitude, longitude } = coords;
-      setCoordinateLocation(coords);
-      setClientLocation?.({
-        type: "Point",
-        coordinates: [longitude, latitude],
-      });
-      const placeLabel = await findPlaceLabelFromCoordinates({
-        coordinates: coords,
-      });
-      const label = (placeLabel || "").trim();
-      setLocationDraft(label);
-      setLocationQuery(label);
-      if (locationPickOnly) {
-        setLocationFilter({ mode: "none" });
-      }
-      setShowLocationDropdown(false);
-      setTimeout(() => {
-        if (typeof onSearch === "function") onSearch();
-      }, 0);
-    };
-
-    if (coordinateLocation) {
-      await finishWithCoordinates(coordinateLocation);
-      return;
-    }
-
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          await finishWithCoordinates({ latitude, longitude });
-        },
-        (err) => {
-          console.log("failed to fetch location", err);
-          setShowLocationDropdown(false);
-        },
-      );
-    } else {
-      setShowLocationDropdown(false);
-    }
-  };
+  }, [onSearch]);
 
   const specialityMatches = useMemo(
     () =>
@@ -866,15 +985,16 @@ export default function SearchFilters({
         } ${inputWrapperClassName}`}
       >
         <Search className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`} />
-        <div className="flex flex-wrap gap-1.5 flex-1 items-center min-w-0">
+        {/* One nowrap + overflow-x row so chips sit flush next to the input; extra space stays on the right, not between tags and the field */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain py-0.5 [-webkit-overflow-scrolling:touch] scrollbar-hide">
           {selectedSpecialities.map((spec) => (
             <span
               key={spec}
-              className="bg-lime-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0"
+              className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-lime-500 px-2 py-0.5 text-[10px] font-bold text-white"
             >
               {spec}
               <X
-                className="w-2.5 h-2.5 cursor-pointer hover:text-red-200 transition-colors"
+                className="w-2.5 h-2.5 shrink-0 cursor-pointer hover:text-red-200 transition-colors"
                 onClick={() => removeSpeciality(spec)}
               />
             </span>
@@ -907,7 +1027,7 @@ export default function SearchFilters({
                 }
               }
             }}
-            className={`bg-transparent border-none outline-none text-sm flex-1 min-w-[80px] ${
+            className={`min-w-[4.5rem] shrink-0 basis-24 max-w-[9rem] border-none bg-transparent text-sm outline-none sm:basis-28 sm:max-w-[11rem] ${
               isDark
                 ? "text-white placeholder-gray-500"
                 : "text-gray-700 placeholder-gray-400"
@@ -978,89 +1098,18 @@ export default function SearchFilters({
       )}
 
       {/* Location — pick-only when setLocationFilter is provided */}
-      <div
-        ref={locationFieldRootRef}
-        className={`relative flex min-h-11 min-w-[11rem] shrink-0 flex-[1.15] items-center px-3 py-1 ${
-          showLocationDropdown ? "z-[200] isolate" : "z-[2]"
-        } ${inputWrapperClassName}`}
-        onMouseDown={(e) => {
-          if (e.target instanceof Element && e.target.closest("button")) {
-            return;
-          }
-          cancelLocationBlurClose();
-          setShowLocationDropdown(true);
-          if (
-            locationInputRef.current &&
-            e.target !== locationInputRef.current
-          ) {
-            locationInputRef.current.focus({ preventScroll: true });
-          }
-        }}
-      >
-        <MapPin className={`w-4 h-4 shrink-0 mr-2 ${locationIconColor}`} />
-        <input
-          ref={locationInputRef}
-          type="text"
-          autoComplete="off"
-          placeholder={placeholderLocation}
-          value={locationDraft}
-          onChange={(e) => {
-            setClientLocation?.(null);
-            if (locationPickOnly) {
-              setLocationFilter({ mode: "none" });
-            }
-            setLocationDraft(e.target.value);
-          }}
-          onFocus={openLocationDropdown}
-          onBlur={scheduleLocationBlurClose}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              cancelLocationBlurClose();
-              if (locationPickOnly) {
-                setLocationDraft(locationQuery);
-              } else {
-                setLocationQuery(locationDraft);
-              }
-              setShowLocationDropdown(false);
-              setTimeout(() => {
-                if (typeof onSearch === "function") onSearch();
-              }, 0);
-            }
-          }}
-          className={`bg-transparent border-none outline-none w-full text-sm min-w-0 ${
-            isDark
-              ? "text-white placeholder-gray-500"
-              : "text-gray-700 placeholder-gray-400"
-          }`}
-        />
-        {showLocationDropdown &&
-          (locationPickOnly ? (
-            <LocationPickerDropdown
-              locationDraft={locationDraft}
-              setLocationDraft={setLocationDraft}
-              setShowLocationDropdown={setShowLocationDropdown}
-              setClientLocation={setClientLocation}
-              setLocationQuery={setLocationQuery}
-              setLocationFilter={setLocationFilter}
-              onUseMyLocation={handleUseMyLocation}
-              theme={theme}
-            />
-          ) : (
-            <LocationLegacyDropdown
-              coordinateLocation={coordinateLocation}
-              locationQuery={locationDraft}
-              setLocationQuery={(next) => {
-                setLocationDraft(next);
-                setLocationQuery(next);
-              }}
-              setShowLocationDropdown={setShowLocationDropdown}
-              setClientLocation={setClientLocation}
-              onUseMyLocation={handleUseMyLocation}
-              theme={theme}
-            />
-          ))}
-      </div>
+      <LocationSearchField
+        ref={locationFieldRef}
+        locationQuery={locationQuery}
+        setLocationQuery={setLocationQuery}
+        setLocationFilter={setLocationFilter}
+        setClientLocation={setClientLocation}
+        onSearch={onSearch}
+        theme={theme}
+        placeholderLocation={placeholderLocation}
+        locationIconColor={locationIconColor}
+        className={inputWrapperClassName}
+      />
 
       <button
         type="button"
