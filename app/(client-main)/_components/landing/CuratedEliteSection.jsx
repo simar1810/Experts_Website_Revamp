@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { curatedContent } from "@/lib/data/landingContent";
+import { getCuratedVerticalMarqueeDurationSecFromColumns } from "@/lib/curatedMarqueeDuration";
 import {
   interleaveCoachColumns,
   partitionCoachPropsIntoColumns,
@@ -53,8 +54,8 @@ export function CuratedEliteSection({
     setIndex((i) => (i + dir + n) % n);
   };
 
-  const maxColLen = Math.max(1, ...columns.map((col) => col.length));
-  const marqueeDurationSec = Math.min(120, 22 + maxColLen * 14);
+  const marqueeDurationSec =
+    getCuratedVerticalMarqueeDurationSecFromColumns(columns);
 
   return (
     <section

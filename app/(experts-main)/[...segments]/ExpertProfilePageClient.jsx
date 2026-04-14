@@ -82,6 +82,14 @@ export default function ExpertProfilePageClient({ listingId }) {
 
   const coachInfo = useMemo(() => coachData?.coach || {}, [coachData]);
   const details = useMemo(() => coachData?.expertDetails || {}, [coachData]);
+  const recommendedScoreFinal = useMemo(
+    () =>
+      coachData?.recommendedScoreFinal ??
+      coachData?.coach?.recommendedScoreFinal ??
+      coachData?.listing?.recommendedScoreFinal ??
+      coachData?.expertDetails?.recommendedScoreFinal,
+    [coachData],
+  );
 
   const onFormChange = (event) => {
     const { name, value } = event.target;
@@ -165,7 +173,11 @@ export default function ExpertProfilePageClient({ listingId }) {
   return (
     <main className="bg-white min-h-screen pb-10 font-manrope ">
       <div className="flex w-full flex-col gap-y-20">
-        <Hero coachInfo={coachInfo} details={details} />
+        <Hero
+          coachInfo={coachInfo}
+          details={details}
+          recommendedScoreFinal={recommendedScoreFinal}
+        />
         <About details={details} coachInfo={coachInfo} />
         <Services details={details} />
         <MembershipPrograms

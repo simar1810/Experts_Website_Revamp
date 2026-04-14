@@ -37,7 +37,7 @@ export function FinalCtaSection() {
             href={c.secondaryCtaHref}
             className="relative inline-block pt-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#064E3B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7]"
           >
-            <span className="text-sm font-extrabold uppercase tracking-wide text-[#064E3B] sm:text-base">
+            <span className="text-xs font-extrabold uppercase tracking-wide text-[#064E3B] sm:text-base">
               {c.secondaryCta}
             </span>
             <span

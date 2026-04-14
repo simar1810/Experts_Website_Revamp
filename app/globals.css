@@ -128,31 +128,33 @@ html {
     }
   }
   @keyframes marquee {
-  from {
-    transform: translateX(0);
+    from {
+      transform: translateX(0);
     }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
     }
   }
   @keyframes marquee-vertical {
-  from {
-    transform: translateY(0);
+    from {
+      transform: translateY(0);
     }
-  to {
-    transform: translateY(calc(-100% - var(--gap)));
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
     }
   }
-  --animate-blink-cursor: blink-cursor 1.2s step-end infinite
-;
+  --animate-blink-cursor: blink-cursor 1.2s step-end infinite;
   @keyframes blink-cursor {
-  0%, 49% {
-    opacity: 1;
+    0%,
+    49% {
+      opacity: 1;
     }
-  50%, 100% {
-    opacity: 0;
+    50%,
+    100% {
+      opacity: 0;
     }
-  }}
+  }
+}
 
 :root {
   --background: oklch(1 0 0);
@@ -269,11 +271,11 @@ html {
 }
 
 .animate-marquee-up {
-  animation: marquee-up 25s linear infinite;
+  animation: marquee-up var(--marquee-y-duration, 10s) linear infinite;
 }
 
 .animate-marquee-down {
-  animation: marquee-down 25s linear infinite;
+  animation: marquee-down var(--marquee-y-duration, 10s) linear infinite;
 }
 
 /* Filter sheet: distance range slider (green thumb + gray track) */

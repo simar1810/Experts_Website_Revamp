@@ -22,12 +22,12 @@ export const ValuesProvider = ({children}) =>{
             const cities = filterUnique(data.map((expert) => expert.city));
             const expertise_categories = filterUnique([].concat(...data.map((expert)=>expert.specializations)))
             const languages = filterUnique([].concat(...data.map((expert)=>expert.languages)))
-            setValues({
-                ...values,
+            setValues((prev) => ({
+                ...prev,
                 expertise_categories,
                 languages,
                 cities,
-            })
+            }))
         }
         catch(err){
             console.error("Failed to fetch values:", err);

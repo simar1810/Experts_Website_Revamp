@@ -11,6 +11,8 @@ import ClientNavbarDropdown from "./ClientNavbarDropdown";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import WellnessZLogoLink from "@/components/WellnessZLogoLink";
+import Image from "next/image";
 
 export default function ClientNavbar({ isDashboard = false }) {
   const pathname = usePathname();
@@ -83,13 +85,8 @@ export default function ClientNavbar({ isDashboard = false }) {
             </div>
           ) : null}
           {!isDashboard ? (
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-              <Link
-                href="/"
-                className="truncate text-base font-bold font-serif italic text-black sm:whitespace-nowrap sm:text-2xl"
-              >
-                Wellness<span className="text-[#84cc16]">Z </span>Experts
-              </Link>
+            <div className="flex shrink-0 items-center gap-2">
+              <WellnessZLogoLink href="/" />
             </div>
           ) : null}
           {!isDashboard ? (
@@ -138,7 +135,12 @@ export default function ClientNavbar({ isDashboard = false }) {
                 {isMobileMenuOpen ? (
                   <X className="h-5 w-5" />
                 ) : (
-                  <Menu className="h-5 w-5" />
+                  <Image
+                    src="/svg/hamburger.svg"
+                    height={20}
+                    width={20}
+                    alt="Hamburger menu"
+                  />
                 )}
               </button>
             )}
