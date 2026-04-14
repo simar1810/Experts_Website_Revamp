@@ -752,7 +752,7 @@ export const LocationSearchField = forwardRef(function LocationSearchField(
     <div
       ref={locationFieldRootRef}
       className={cn(
-        "relative flex min-h-11 min-w-[11rem] shrink-0 flex-[1.15] items-center px-3 py-1",
+        "relative flex min-h-11 min-w-0 flex-1 items-center px-3 py-1",
         showLocationDropdown ? "z-[200] isolate" : "z-[2]",
         className,
       )}
@@ -1057,7 +1057,7 @@ export default function SearchFilters({
         ) : null}
         <div
           ref={specialityRootRef}
-          className={`relative flex min-h-11 shrink-0 items-center px-3 py-1 min-w-[10rem] flex-1 lg:max-w-[14rem] ${
+          className={`relative flex min-h-11 min-w-0 flex-1 items-center px-3 py-1 ${
             showSpecialityDropdown ? "z-[200] isolate" : "z-[2]"
           } ${inputWrapperClassName}`}
           onMouseDown={(e) => {
@@ -1068,76 +1068,72 @@ export default function SearchFilters({
             setShowSpecialityDropdown(true);
           }}
         >
-        <Search className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`} />
-        {/* One nowrap + overflow-x row so chips sit flush next to the input; extra space stays on the right, not between tags and the field */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain py-0.5 [-webkit-overflow-scrolling:touch] scrollbar-hide">
-          {selectedSpecialities.map((spec) => (
-            <span
-              key={spec}
-              className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-lime-500 px-2 py-0.5 text-[10px] font-bold text-white"
-            >
-              {spec}
-              <X
-                className="w-2.5 h-2.5 shrink-0 cursor-pointer hover:text-red-200 transition-colors"
-                onClick={() => removeSpeciality(spec)}
-              />
-            </span>
-          ))}
-          <input
-            type="text"
-            autoComplete="off"
-            placeholder={
-              selectedSpecialities.length === 0 ? placeholderSpeciality : ""
-            }
-            value={specialityQuery}
-            onChange={(e) => {
-              setSpecialityQuery(e.target.value);
-              setShowSpecialityDropdown(true);
-            }}
-            onFocus={() => {
-              cancelSpecialityBlur();
-              setShowSpecialityDropdown(true);
-            }}
-            onClick={() => {
-              cancelSpecialityBlur();
-              setShowSpecialityDropdown(true);
-            }}
-            onBlur={(e) => {
-              const next = e.relatedTarget;
-              if (
-                next instanceof Node &&
-                specialityRootRef.current?.contains(next)
-              ) {
-                return;
+          <Search className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`} />
+          {/* One nowrap + overflow-x row so chips sit flush next to the input; extra space stays on the right, not between tags and the field */}
+          <div className="flex min-h-0 min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain py-0.5 [-webkit-overflow-scrolling:touch] scrollbar-hide">
+            {selectedSpecialities.map((spec) => (
+              <span
+                key={spec}
+                className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-lime-500 px-2 py-0.5 text-[10px] font-bold text-white"
+              >
+                {spec}
+                <X
+                  className="w-2.5 h-2.5 shrink-0 cursor-pointer hover:text-red-200 transition-colors"
+                  onClick={() => removeSpeciality(spec)}
+                />
+              </span>
+            ))}
+            <input
+              type="text"
+              autoComplete="off"
+              placeholder={
+                selectedSpecialities.length === 0 ? placeholderSpeciality : ""
               }
-              scheduleSpecialityClose();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                if (specialityMatches.length === 1) {
-                  addSpeciality(specialityMatches[0]);
-                  setShowSpecialityDropdown(false);
+              value={specialityQuery}
+              onChange={(e) => {
+                setSpecialityQuery(e.target.value);
+                setShowSpecialityDropdown(true);
+              }}
+              onFocus={() => {
+                cancelSpecialityBlur();
+                setShowSpecialityDropdown(true);
+              }}
+              onClick={() => {
+                cancelSpecialityBlur();
+                setShowSpecialityDropdown(true);
+              }}
+              onBlur={(e) => {
+                const next = e.relatedTarget;
+                if (
+                  next instanceof Node &&
+                  specialityRootRef.current?.contains(next)
+                ) {
+                  return;
                 }
-              }
-            }}
-            className={`min-w-[4.5rem] shrink-0 basis-24 max-w-[9rem] border-none bg-transparent text-sm outline-none sm:basis-28 sm:max-w-[11rem] ${
-              isDark
-                ? "text-white placeholder-gray-500"
-                : "text-gray-700 placeholder-gray-400"
-            }`}
-          />
-        </div>
-        {showSpecialityDropdown && (
-          <SpecialitySelectorDropdown
-            specialityQuery={specialityQuery}
-            selectedSpecialities={selectedSpecialities}
-            onSelectTag={addSpeciality}
-            setShowSpecialityDropdown={setShowSpecialityDropdown}
-            theme={theme}
-            specialityOptions={specialityOptions}
-          />
-        )}
+                scheduleSpecialityClose();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (specialityMatches.length === 1) {
+                    addSpeciality(specialityMatches[0]);
+                    setShowSpecialityDropdown(false);
+                  }
+                }
+              }}
+              className={`min-w-0 flex-1 border-none bg-transparent text-sm outline-none text-black`}
+            />
+          </div>
+          {showSpecialityDropdown && (
+            <SpecialitySelectorDropdown
+              specialityQuery={specialityQuery}
+              selectedSpecialities={selectedSpecialities}
+              onSelectTag={addSpeciality}
+              setShowSpecialityDropdown={setShowSpecialityDropdown}
+              theme={theme}
+              specialityOptions={specialityOptions}
+            />
+          )}
         </div>
       </div>
 
@@ -1158,11 +1154,7 @@ export default function SearchFilters({
                   runSearch();
                 }
               }}
-              className={`bg-transparent border-none outline-none w-full text-sm min-w-0 ${
-                isDark
-                  ? "text-white placeholder-gray-500"
-                  : "text-gray-700 placeholder-gray-400"
-              }`}
+              className={`bg-transparent border-none outline-none w-full text-sm min-w-0 text-black`}
             />
           </div>
           <div

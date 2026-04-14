@@ -20,7 +20,8 @@ export function MomentumSection() {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <MomentumHeadingTyping
-              titleWhite={c.titleWhite}
+              titleTrusted={c.titleTrusted}
+              titleExperts={c.titleExperts}
               titleGreen={c.titleGreen}
             />
 
