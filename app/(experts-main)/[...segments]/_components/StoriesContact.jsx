@@ -232,7 +232,7 @@ export default function StoriesContact({
               </p>
               <div className="flex flex-wrap items-center gap-10 pt-1">
                 <a
-                  href="#"
+                  href="https://apps.apple.com/in/app/wellnessz/id6478812964"
                   className="block shrink-0 transition-opacity hover:opacity-90"
                 >
                   <img
@@ -242,7 +242,7 @@ export default function StoriesContact({
                   />
                 </a>
                 <a
-                  href="#"
+                  href="https://play.google.com/store/apps/details?id=com.updevelop.wellness_z_mvvm&hl=en_IN"
                   className="block shrink-0 transition-opacity hover:opacity-90"
                 >
                   <img
@@ -273,6 +273,7 @@ export default function StoriesContact({
             <button
               type="button"
               className="mt-5 rounded-lg bg-[#065a23] px-4 py-2 text-xs font-semibold text-white"
+              onClick={() => window.open(mapOpenUrl, "_blank")}
             >
               Get Directions
             </button>
