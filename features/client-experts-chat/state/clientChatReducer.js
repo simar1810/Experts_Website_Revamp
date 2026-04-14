@@ -124,6 +124,28 @@ export function clientChatReducer(state, action) {
         pendingReadReceipts,
       };
     }
+    case "read-receipt": {
+      const tid = normalizeThreadId(action.payload?.threadId);
+      const { role, readAt } = action.payload || {};
+      if (!tid || !readAt || !role) return state;
+
+      const senderToMark = role === "coach" ? "client" : "coach";
+      const list = state.threadXMessages[tid];
+      if (!Array.isArray(list)) return state;
+
+      const nextList = list.map((m) =>
+        m.senderRole === senderToMark && !m.readAt
+          ? { ...m, readAt }
+          : m,
+      );
+      return {
+        ...state,
+        threadXMessages: {
+          ...state.threadXMessages,
+          [tid]: nextList,
+        },
+      };
+    }
     case "message": {
       const payload = action.payload;
       const threadId = normalizeThreadId(payload?.thread ?? payload?.threadId);

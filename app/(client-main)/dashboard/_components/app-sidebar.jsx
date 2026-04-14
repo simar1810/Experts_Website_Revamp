@@ -8,7 +8,6 @@ import {
   CalendarClock,
   ChevronRight,
   Footprints,
-  Home,
   LayoutGrid,
   MessageCircle,
   Newspaper,
@@ -17,7 +16,6 @@ import {
   Soup,
   Store,
   User,
-  Users,
   Dumbbell,
   Album,
   UserCog,
@@ -86,7 +84,7 @@ export function AppSidebar() {
         <SidebarMenu className="gap-2">
           {NAV_ITEMS.map(
             ({ label, href, icon: Icon, chevron, isNew, notify }) => {
-              const active =
+                           const active =
                 pathname === href ||
                 (href !== "/dashboard" && pathname.startsWith(href));
 

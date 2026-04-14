@@ -1,8 +1,17 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+} from "react";
 import { useValues } from "@/context/valuesContext";
-import { CheckCircle2, ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { EXPERTS_FILTER_DEBOUNCE_MS } from "@/lib/constants/filters";
 
 function sameLangs(a, b) {
@@ -33,26 +42,32 @@ const CONSULTATION_OPTIONS = [
   { value: "both", label: "Hybrid" },
 ];
 
-export default function ExpertsFiltersSidebar({
-  showDistanceFilter = false,
-  locationLabel = "All Cities",
-  freeCount = 0,
-  languages = [],
-  setLanguages,
-  // specializations = [], 
-  // setSpecializations,  
-   selectedSpecialities = [],
-  setSelectedSpecialities,
-  consultationMode = "",
-  setConsultationMode,
-  radiusKm = 20,
-  setRadiusKm,
-  clientsRanges = {},
-  setClientsRanges,
-  wzAssured = false,
-  setWzAssured,
-  onClose,
-}) {
+/** Mobile sheet distance slider matches design (desktop sidebar stays 0–200 km). */
+const SHEET_DISTANCE_MAX = 100;
+const SHEET_DISTANCE_STEP = 5;
+
+const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
+  {
+    showDistanceFilter = false,
+    locationLabel = "All Cities",
+    freeCount = 0,
+    languages = [],
+    setLanguages,
+    selectedSpecialities = [],
+    setSelectedSpecialities,
+    consultationMode = "",
+    setConsultationMode,
+    radiusKm = 20,
+    setRadiusKm,
+    clientsRanges = {},
+    setClientsRanges,
+    wzAssured = false,
+    setWzAssured,
+    onClose,
+    embedInSheet = false,
+  },
+  ref,
+) {
   const debounceMs = EXPERTS_FILTER_DEBOUNCE_MS;
 
   const [openSections, setOpenSections] = useState({
@@ -64,15 +79,19 @@ export default function ExpertsFiltersSidebar({
   const { values } = useValues();
 
   useEffect(() => {
-   console.log("VALUES UPDATED:", values);
+    console.log("VALUES UPDATED:", values);
   }, [values]);
 
   const [localWz, setLocalWz] = useState(wzAssured);
   const [localConsultation, setLocalConsultation] = useState(consultationMode);
   const [localLanguages, setLocalLanguages] = useState(() => [...languages]);
-  const [localClients, setLocalClients] = useState(() => ({ ...clientsRanges }));
+  const [localClients, setLocalClients] = useState(() => ({
+    ...clientsRanges,
+  }));
   const [localRadius, setLocalRadius] = useState(radiusKm);
-  const [localSpecializations, setLocalSpecializations] = useState(() => [...selectedSpecialities]); //Specializations
+  const [localSpecializations, setLocalSpecializations] = useState(() => [
+    ...selectedSpecialities,
+  ]); //Specializations
   const radiusCommitTimerRef = useRef(null);
 
   useEffect(() => {
@@ -91,7 +110,10 @@ export default function ExpertsFiltersSidebar({
 
   useEffect(() => {
     if (localConsultation === consultationMode) return;
-    const id = setTimeout(() => setConsultationMode(localConsultation), debounceMs);
+    const id = setTimeout(
+      () => setConsultationMode(localConsultation),
+      debounceMs,
+    );
     return () => clearTimeout(id);
   }, [localConsultation, consultationMode, setConsultationMode, debounceMs]);
 
@@ -123,21 +145,20 @@ export default function ExpertsFiltersSidebar({
   //   return () => clearTimeout(id);
   // }, [localSpecializations, specializations, setSpecializations, debounceMs]);
 
-     useEffect(() => {
-       if (sameLangs(localSpecializations, selectedSpecialities)) return;
+  useEffect(() => {
+    if (sameLangs(localSpecializations, selectedSpecialities)) return;
 
-       const id = setTimeout(() => {
-         setSelectedSpecialities([...localSpecializations]);
-       }, debounceMs);
+    const id = setTimeout(() => {
+      setSelectedSpecialities([...localSpecializations]);
+    }, debounceMs);
 
-       return () => clearTimeout(id);
-     }, [
-       localSpecializations,
-       selectedSpecialities,
-       setSelectedSpecialities,
-       debounceMs,
-     ]);
-
+    return () => clearTimeout(id);
+  }, [
+    localSpecializations,
+    selectedSpecialities,
+    setSelectedSpecialities,
+    debounceMs,
+  ]);
 
   useEffect(() => {
     setLocalClients((prev) =>
@@ -184,7 +205,7 @@ export default function ExpertsFiltersSidebar({
     setRadiusKm(v);
   };
 
-  const flushFiltersToParent = () => {
+  const flushFiltersToParent = useCallback(() => {
     if (radiusCommitTimerRef.current) {
       clearTimeout(radiusCommitTimerRef.current);
       radiusCommitTimerRef.current = null;
@@ -195,7 +216,28 @@ export default function ExpertsFiltersSidebar({
     setClientsRanges({ ...localClients });
     setRadiusKm(localRadius);
     setSelectedSpecialities([...localSpecializations]);
-  };
+  }, [
+    localWz,
+    localConsultation,
+    localLanguages,
+    localClients,
+    localRadius,
+    localSpecializations,
+    setWzAssured,
+    setConsultationMode,
+    setLanguages,
+    setClientsRanges,
+    setRadiusKm,
+    setSelectedSpecialities,
+  ]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      flushToParent: flushFiltersToParent,
+    }),
+    [flushFiltersToParent],
+  );
 
   const languageMap = useMemo(() => {
     const m = {};
@@ -249,239 +291,462 @@ export default function ExpertsFiltersSidebar({
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  return (
-    <div className="flex flex-col w-full bg-gray-50/80 rounded-2xl overflow-hidden border border-gray-100 shadow-sm sticky top-24">
-      <div className="bg-[#1a4d2e] text-white p-5 lg:p-6">
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <h4 className="text-base tracking-tight leading-tight">
-            Search Results:
-          </h4>
-        </div>
-        <p className="text-base font-black  ">
-          {freeCount} Coaches in {locationLabel}
-        </p>
-      </div>
+  const checkboxClass = embedInSheet
+    ? "size-4 shrink-0 rounded-sm border border-gray-300 text-[#70C136] focus:ring-[#70C136] accent-[#70C136]"
+    : "w-4 h-4 accent-[#70C136]";
 
-      <div className="p-5 lg:p-7 space-y-6 lg:space-y-8 bg-white">
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-xl">Filter</h3>
+  const sheetRadiusDisplay = Math.min(localRadius, SHEET_DISTANCE_MAX);
+
+  const distanceSectionDesktop = showDistanceFilter && !embedInSheet && (
+    <div className="space-y-3">
+      <h6 className="text-xs font-black text-gray-900 uppercase border-l-2 border-[#70C136] pl-3">
+        Distance (km)
+      </h6>
+      <div className="px-1 pt-1">
+        <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-2">
+          <span>0</span>
+          <span className="text-[#70C136]">{localRadius} km</span>
+          <span>200</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={200}
+          step={5}
+          value={localRadius}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setLocalRadius(v);
+            scheduleRadiusCommit(v);
+          }}
+          onPointerUp={(e) =>
+            flushRadiusCommit(Number(e.currentTarget.value))
+          }
+          onPointerCancel={() => flushRadiusCommit(localRadius)}
+          className="w-full h-2 rounded-full appearance-none bg-lime-100 accent-[#70C136]"
+        />
+      </div>
+    </div>
+  );
+
+  const distanceSectionSheet = showDistanceFilter && embedInSheet && (
+    <section className="py-4">
+      <h3 className="font-bold text-base text-gray-900 mb-3">Distance Range</h3>
+      <div className="pt-1">
+        <input
+          type="range"
+          min={0}
+          max={SHEET_DISTANCE_MAX}
+          step={SHEET_DISTANCE_STEP}
+          value={sheetRadiusDisplay}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setLocalRadius(v);
+            scheduleRadiusCommit(v);
+          }}
+          onPointerUp={(e) =>
+            flushRadiusCommit(Number(e.currentTarget.value))
+          }
+          onPointerCancel={() => flushRadiusCommit(localRadius)}
+          className="sheet-distance-slider w-full"
+          style={{
+            "--range-fill": `${(sheetRadiusDisplay / SHEET_DISTANCE_MAX) * 100}%`,
+          }}
+        />
+        <div className="flex justify-between text-xs text-gray-400 mt-3 px-0.5 tabular-nums">
+          {[20, 40, 60, 80, 100].map((n) => (
+            <span key={n}>{n}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  return (
+    <div
+      className={cn(
+        "flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/80 shadow-sm lg:h-full lg:max-h-full",
+        embedInSheet &&
+          "h-full max-h-full rounded-none border-0 bg-white shadow-none",
+      )}
+    >
+      {!embedInSheet && (
+        <div className="shrink-0 bg-[#1a4d2e] p-5 text-white lg:p-6">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <h4 className="text-base tracking-tight leading-tight">
+              Search Results:
+            </h4>
+          </div>
+          <p className="text-base font-black">
+            {freeCount} Coaches in {locationLabel}
+          </p>
+        </div>
+      )}
+
+      {embedInSheet ? (
+        <>
+          <div className="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-4">
+            <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+              Filter
+            </h2>
             <button
               type="button"
               onClick={handleClearFilters}
-              className="cursor-pointer text-[10px] font-black uppercase tracking-widest text-white bg-[#67BC2A] hover:shadow p-1 px-2 rounded-full shrink-0"
+              className="text-sm font-semibold text-[#70C136] active:opacity-80"
             >
               Clear
             </button>
           </div>
-          <div className="p-4 bg-lime-50/50 rounded-2xl border border-lime-100/50">
-            <label className="flex items-center justify-between cursor-pointer">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-[#70C136] rounded-lg flex items-center justify-center shadow-md">
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-sm font-black text-gray-900">
-                  WZ Assured
-                </span>
+          <div className="min-h-0 flex-1 divide-y divide-gray-200 overflow-y-auto overscroll-y-contain bg-white px-5 [scrollbar-gutter:stable]">
+            <section className="py-4">
+              <h3 className="font-bold text-base text-gray-900 mb-3">
+                Specialization
+              </h3>
+              <div className="grid max-h-[min(40vh,280px)] grid-cols-2 gap-x-4 gap-y-3 overflow-y-auto pr-1">
+                {(values?.expertise_categories || []).map((item) => (
+                  <label
+                    key={item}
+                    className="flex cursor-pointer items-start gap-2.5"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={localSpecializations.includes(item)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setLocalSpecializations((prev) => {
+                          if (checked) {
+                            return prev.includes(item) ? prev : [...prev, item];
+                          }
+                          return prev.filter((x) => x !== item);
+                        });
+                      }}
+                      className={checkboxClass}
+                    />
+                    <span className="text-sm font-normal leading-snug text-gray-800">
+                      {item}
+                    </span>
+                  </label>
+                ))}
               </div>
-              <input
-                type="checkbox"
-                checked={localWz}
-                onChange={() => setLocalWz((v) => !v)}
-                className="w-5 h-5 rounded accent-[#70C136] cursor-pointer"
-              />
-            </label>
-          </div>
-        </div>
-        {showDistanceFilter && (
-          <div className="space-y-3">
-            <h6 className="text-xs font-black text-gray-900 uppercase border-l-2 border-[#70C136] pl-3">
-              Distance (km)
-            </h6>
-            <div className="px-1 pt-1">
-              <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-2">
-                <span>0</span>
-                <span className="text-[#70C136]">{localRadius} km</span>
-                <span>200</span>
+            </section>
+
+            <section className="py-4">
+              <h3 className="font-bold text-base text-gray-900 mb-3">
+                Consultation Mode
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {CONSULTATION_OPTIONS.filter((o) => o.value !== "").map(
+                  (opt) => {
+                    const selected = localConsultation === opt.value;
+                    return (
+                      <label
+                        key={opt.value}
+                        className={cn(
+                          "inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors",
+                          selected
+                            ? "border-[#70C136] bg-[#70C136]/10"
+                            : "border-gray-200 bg-white",
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="consultationModeSheet"
+                          checked={selected}
+                          onChange={() => setLocalConsultation(opt.value)}
+                          className="sr-only"
+                        />
+                        <span
+                          className={cn(
+                            "flex size-4 shrink-0 items-center justify-center rounded-sm border",
+                            selected
+                              ? "border-[#70C136] bg-[#70C136] text-white"
+                              : "border-gray-300 bg-white",
+                          )}
+                          aria-hidden
+                        >
+                          {selected ? (
+                            <svg
+                              className="size-2.5"
+                              viewBox="0 0 12 12"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                            >
+                              <path
+                                d="M2 6l3 3 5-6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          ) : null}
+                        </span>
+                        <span className="text-sm font-medium text-gray-800">
+                          {opt.label}
+                        </span>
+                      </label>
+                    );
+                  },
+                )}
               </div>
-              <input
-                type="range"
-                min={0}
-                max={200}
-                step={5}
-                value={localRadius}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  setLocalRadius(v);
-                  scheduleRadiusCommit(v);
-                }}
-                onPointerUp={(e) =>
-                  flushRadiusCommit(Number(e.currentTarget.value))
-                }
-                onPointerCancel={() => flushRadiusCommit(localRadius)}
-                className="w-full h-2 rounded-full appearance-none bg-lime-100 accent-[#70C136]"
-              />
-            </div>
-          </div>
-        )}
+            </section>
 
-        {/* Specialization Section */}
-        <div className="space-y-4 border-t border-gray-100 pt-6">
-          <button
-            type="button"
-            onClick={() => toggleSection("specializations")}
-            className="flex items-center justify-between w-full text-left"
-          >
-            <span className="text-xs font-black uppercase border-l-2 border-[#70C136] pl-3">
-              Specializations
-            </span>
-
-            <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition-transform ${
-                openSections.specializations ? "" : "rotate-180"
-              }`}
-            />
-          </button>
-
-          {openSections.specializations && (
-            <div className="max-h-[220px] overflow-y-auto pr-2 pl-1 space-y-2">
-              {(values?.expertise_categories || []).map((item) => (
-                <label
-                  key={item}
-                  className="flex items-center gap-3 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={localSpecializations.includes(item)}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-
-                      setLocalSpecializations((prev) => {
-                        if (checked) {
-                          return prev.includes(item)
-                            ? prev
-                            : [...prev, item];
-                        }
-                        return prev.filter((x) => x !== item);
-                      });
-                    }}
-                    className="w-4 h-4 accent-[#70C136]"
-                  />
-                  <span className="text-sm font-bold text-gray-600">
-                    {item}
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="space-y-4">
-          <h6 className="text-xs font-black text-gray-900 uppercase border-l-2 border-[#70C136] pl-3">
-            Consultation Mode
-          </h6>
-          <div className="space-y-2 pl-1">
-            {CONSULTATION_OPTIONS.map((opt) => (
-              <label
-                key={opt.label}
-                className="flex items-center gap-3 cursor-pointer"
+            <section className="py-4">
+              <button
+                type="button"
+                onClick={() => toggleSection("clients")}
+                className="flex w-full items-center justify-between text-left"
               >
-                <input
-                  type="radio"
-                  name="consultationMode"
-                  checked={localConsultation === opt.value}
-                  onChange={() => setLocalConsultation(opt.value)}
-                  className="w-4 h-4 accent-[#70C136]"
-                />
-                <span className="text-sm font-bold text-gray-700">
-                  {opt.label}
-                </span>
-              </label>
-            ))}
+                <h3 className="font-bold text-base text-gray-900">
+                  No. of Clients
+                </h3>
+                {openSections.clients ? (
+                  <ChevronUp className="size-5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="size-5 text-gray-400" />
+                )}
+              </button>
+              {openSections.clients && (
+                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                  {clients_options.map((item) => (
+                    <label
+                      key={item}
+                      className="flex cursor-pointer items-start gap-2.5"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={localClients[item] || false}
+                        onChange={() => handleClientsChange(item)}
+                        className={checkboxClass}
+                      />
+                      <span className="text-sm font-normal text-gray-800">
+                        {item}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="py-4">
+              <button
+                type="button"
+                onClick={() => toggleSection("languages")}
+                className="flex w-full items-center justify-between text-left"
+              >
+                <h3 className="font-bold text-base text-gray-900">Languages</h3>
+                {openSections.languages ? (
+                  <ChevronUp className="size-5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="size-5 text-gray-400" />
+                )}
+              </button>
+              {openSections.languages &&
+                (values?.languages || []).length > 0 && (
+                  <div className="mt-3 grid max-h-48 grid-cols-2 gap-x-4 gap-y-3 overflow-y-auto pr-1">
+                    {(values?.languages || []).map((item) => (
+                      <label
+                        key={item}
+                        className="flex cursor-pointer items-start gap-2.5"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={languageMap[item] || false}
+                          onChange={(e) =>
+                            setLanguageChecked(item, e.target.checked)
+                          }
+                          className={checkboxClass}
+                        />
+                        <span className="text-sm font-normal text-gray-800">
+                          {item}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+            </section>
+
+            {distanceSectionSheet}
           </div>
-        </div>
-        <div className="space-y-4 border-t border-gray-100 pt-6">
-          <button
-            type="button"
-            onClick={() => toggleSection("clients")}
-            className="flex items-center justify-between w-full text-left"
-          >
-            <span className="text-xs font-black uppercase border-l-2 border-[#70C136] pl-3">
-              No. of Clients
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition-transform ${openSections.clients ? "" : "rotate-180"}`}
-            />
-          </button>
-          {openSections.clients && (
-            <div className="grid grid-cols-1 gap-2 pl-1">
-              {clients_options.map((item) => (
-                <label
-                  key={item}
-                  className="flex items-center gap-3 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={localClients[item] || false}
-                    onChange={() => handleClientsChange(item)}
-                    className="w-4 h-4 accent-[#70C136]"
-                  />
-                  <span className="text-sm font-bold text-gray-600">
-                    {item}
-                  </span>
-                </label>
-              ))}
+          {onClose && (
+            <div className="shrink-0 border-t border-gray-200 bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                onClick={() => {
+                  flushFiltersToParent();
+                  onClose();
+                }}
+                className="w-full rounded-xl bg-[#70C136] py-3.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#5fa82f] active:scale-[0.99]"
+              >
+                Apply filters
+              </button>
             </div>
           )}
-        </div>
-        <div className="space-y-4 border-t border-gray-100 pt-6">
-          <button
-            type="button"
-            onClick={() => toggleSection("languages")}
-            className="flex items-center justify-between w-full text-left"
-          >
-            <span className="text-xs font-black uppercase border-l-2 border-[#70C136] pl-3">
-              Languages
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition-transform ${openSections.languages ? "" : "rotate-180"}`}
-            />
-          </button>
-          {openSections.languages && (values?.languages || []).length > 0 && (
-            <div className="grid grid-cols-1 gap-2 pl-1 max-h-48 overflow-y-auto">
-              {(values?.languages || []).map((item) => (
-                <label
-                  key={item}
-                  className="flex items-center gap-3 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={languageMap[item] || false}
-                    onChange={(e) => setLanguageChecked(item, e.target.checked)}
-                    className="w-4 h-4 accent-[#70C136]"
-                  />
-                  <span className="text-sm font-bold text-gray-600">
-                    {item}
-                  </span>
-                </label>
-              ))}
+        </>
+      ) : (
+        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-y-contain bg-white p-5 lg:space-y-8 lg:p-7 [scrollbar-gutter:stable]">
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-xl">Filter</h3>
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="cursor-pointer shrink-0 rounded-full bg-[#67BC2A] p-1 px-2 text-[10px] font-black uppercase tracking-widest text-white hover:shadow"
+              >
+                Clear
+              </button>
             </div>
-          )}
-        </div>
-        {onClose && (
-          <div className="lg:hidden pt-2">
+          </div>
+          {distanceSectionDesktop}
+
+          <div className="space-y-4 border-t border-gray-100 pt-6">
             <button
               type="button"
-              onClick={() => {
-                flushFiltersToParent();
-                onClose();
-              }}
-              className="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest"
+              onClick={() => toggleSection("specializations")}
+              className="flex w-full items-center justify-between text-left"
             >
-              Apply Filters
+              <span className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
+                Specializations
+              </span>
+              <ChevronUp
+                className={`size-4 text-gray-400 transition-transform ${
+                  openSections.specializations ? "" : "rotate-180"
+                }`}
+              />
             </button>
+            {openSections.specializations && (
+              <div className="max-h-[220px] space-y-2 overflow-y-auto pl-1 pr-2">
+                {(values?.expertise_categories || []).map((item) => (
+                  <label
+                    key={item}
+                    className="flex cursor-pointer items-center gap-3"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={localSpecializations.includes(item)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setLocalSpecializations((prev) => {
+                          if (checked) {
+                            return prev.includes(item) ? prev : [...prev, item];
+                          }
+                          return prev.filter((x) => x !== item);
+                        });
+                      }}
+                      className={checkboxClass}
+                    />
+                    <span className="text-sm font-bold text-gray-600">
+                      {item}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+          <div className="space-y-4">
+            <h6 className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
+              Consultation Mode
+            </h6>
+            <div className="space-y-2 pl-1">
+              {CONSULTATION_OPTIONS.map((opt) => (
+                <label
+                  key={opt.label}
+                  className="flex cursor-pointer items-center gap-3"
+                >
+                  <input
+                    type="radio"
+                    name="consultationMode"
+                    checked={localConsultation === opt.value}
+                    onChange={() => setLocalConsultation(opt.value)}
+                    className="size-4 accent-[#70C136]"
+                  />
+                  <span className="text-sm font-bold text-gray-700">
+                    {opt.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-4 border-t border-gray-100 pt-6">
+            <button
+              type="button"
+              onClick={() => toggleSection("clients")}
+              className="flex w-full items-center justify-between text-left"
+            >
+              <span className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
+                No. of Clients
+              </span>
+              <ChevronUp
+                className={`size-4 text-gray-400 transition-transform ${
+                  openSections.clients ? "" : "rotate-180"
+                }`}
+              />
+            </button>
+            {openSections.clients && (
+              <div className="grid grid-cols-1 gap-2 pl-1">
+                {clients_options.map((item) => (
+                  <label
+                    key={item}
+                    className="flex cursor-pointer items-center gap-3"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={localClients[item] || false}
+                      onChange={() => handleClientsChange(item)}
+                      className={checkboxClass}
+                    />
+                    <span className="text-sm font-bold text-gray-600">
+                      {item}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="space-y-4 border-t border-gray-100 pt-6">
+            <button
+              type="button"
+              onClick={() => toggleSection("languages")}
+              className="flex w-full items-center justify-between text-left"
+            >
+              <span className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
+                Languages
+              </span>
+              <ChevronUp
+                className={`size-4 text-gray-400 transition-transform ${
+                  openSections.languages ? "" : "rotate-180"
+                }`}
+              />
+            </button>
+            {openSections.languages &&
+              (values?.languages || []).length > 0 && (
+                <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto pl-1">
+                  {(values?.languages || []).map((item) => (
+                    <label
+                      key={item}
+                      className="flex cursor-pointer items-center gap-3"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={languageMap[item] || false}
+                        onChange={(e) =>
+                          setLanguageChecked(item, e.target.checked)
+                        }
+                        className={checkboxClass}
+                      />
+                      <span className="text-sm font-bold text-gray-600">
+                        {item}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+});
+
+ExpertsFiltersSidebar.displayName = "ExpertsFiltersSidebar";
+
+export default ExpertsFiltersSidebar;

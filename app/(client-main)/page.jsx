@@ -38,7 +38,7 @@ export default async function ClientLandingPage() {
       <TopProgramsSection />
       <CuratedEliteSection coachColumns={curatedCoachColumns} />
       <MomentumSection />
-      <ClientResultsSection/>
+      <ClientResultsSection />
       {/* <ClientTransformations /> */}
       <FinalCtaSection />
     </main>

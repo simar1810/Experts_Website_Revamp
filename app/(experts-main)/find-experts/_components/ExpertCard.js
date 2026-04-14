@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { BadgeCheck, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function ExpertCard({ expert, isTopExpert = false, profileHref }) {
+export default function ExpertCard({
+  expert,
+  isTopExpert = false,
+  profileHref,
+}) {
   const { isAuthenticated, openLoginModal } = useAuth();
   const router = useRouter();
   const resolvedName = expert.coach?.name || expert.name || "Expert";
@@ -19,13 +23,42 @@ export default function ExpertCard({ expert, isTopExpert = false, profileHref })
     expert.id ||
     expert.coach?._id;
 
-    console.log("Here is the experts card:",expert);
-  // const recommendedPct = Number(expert.recommendedScoreFinal ?? 0) * 100;
-  const rating = Number(expert.ratingAgg?.overall?.avg ?? expert.recommendedScoreFinal ?? 0);
-  // const recommendedLabel = Number.isFinite(recommendedPct)
-  //   ? `${recommendedPct.toFixed(0)}%`
-  //   : "0%";
-  const ratingLabel = rating.toFixed(1);
+  const agg =
+    expert.ratingAgg?.overall ??
+    expert.coach?.ratingAgg?.overall ??
+    expert.listing?.ratingAgg?.overall;
+  const toRatingNum = (v) => {
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string" && v.trim() !== "") {
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+    return null;
+  };
+  const bayesNum = toRatingNum(agg?.bayes);
+  const avgNum = toRatingNum(agg?.avg);
+  const ratingOutOf5 = bayesNum ?? avgNum;
+  const scoreFinalRaw =
+    expert.recommendedScoreFinal ??
+    expert.coach?.recommendedScoreFinal ??
+    expert.listing?.recommendedScoreFinal;
+  const scoreFinalNum = toRatingNum(scoreFinalRaw);
+  let popularPercentLabel = "—";
+  if (scoreFinalNum != null) {
+    const pct =
+      scoreFinalNum >= 0 && scoreFinalNum <= 1
+        ? scoreFinalNum * 100
+        : scoreFinalNum;
+    popularPercentLabel = `${Math.round(pct)}%`;
+  }
+  const topExpertRatingLabel =
+    ratingOutOf5 != null ? `${ratingOutOf5.toFixed(1)}` : "—";
+  const totalReviews =
+    Number(
+      expert.reviewAgg?.totalReviews ??
+        expert.coach?.reviewAgg?.totalReviews ??
+        expert.listing?.reviewAgg?.totalReviews,
+    ) || 0;
 
   let specializations_string = "";
   const specs = expert.specializations || expert.expertiseTags || [];
@@ -37,6 +70,8 @@ export default function ExpertCard({ expert, isTopExpert = false, profileHref })
     specializations_string = specs[0];
   }
 
+  const locationLine = [expert.city, expert.state].filter(Boolean).join(", ");
+
   const handleCardClick = () => {
     if (!resolvedListingId) return;
 
@@ -47,83 +82,184 @@ export default function ExpertCard({ expert, isTopExpert = false, profileHref })
     }
   };
 
+  const ratingBadge = (
+    <div
+      className={cn(
+        "inline-flex items-center gap-1.5 text-white px-2.5 py-1.5 text-xs font-bold shadow-sm",
+        isTopExpert ? "bg-[#7CB342] rounded-lg" : "bg-[#00A500] rounded-md",
+      )}
+    >
+      {isTopExpert ? (
+        <>
+          <span className="text-white text-sm leading-none">★</span>
+          <span>{topExpertRatingLabel}</span>
+        </>
+      ) : (
+        <>
+          <ThumbsUp className="w-3.5 h-3.5 shrink-0 fill-current" />
+          <span>{popularPercentLabel}</span>
+        </>
+      )}
+    </div>
+  );
+
+  const patientStories = (
+    <span
+      className={cn(
+        "text-xs sm:text-sm font-medium",
+        isTopExpert ? "text-gray-600" : "text-gray-500",
+      )}
+    >
+      <span className="underline decoration-1 underline-offset-2 text-gray-700">
+        {totalReviews}
+      </span>{" "}
+      Patient Stories
+    </span>
+  );
+
+  const messageButton = (className) => (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        handleCardClick();
+      }}
+      className={cn(
+        "cursor-pointer text-white font-bold transition-all active:scale-[0.98]",
+        "px-5 py-3 text-sm",
+        isTopExpert
+          ? "bg-[#7CB342] hover:bg-[#6fad3a] rounded-xl"
+          : "bg-[#66BB6A] hover:bg-[#5cb85c] rounded-xl px-5 py-2.5 text-xs sm:text-sm",
+        className,
+      )}
+    >
+      Message Coach
+    </button>
+  );
+
   return (
-    <div onClick={handleCardClick} className="block cursor-pointer">
+    <div onClick={handleCardClick} className="block cursor-pointer h-full">
       <div
         className={cn(
-          "bg-white border border-gray-100 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row gap-6 sm:gap-10 shadow-sm hover:shadow-md hover:border-lime-100/50 transition-all duration-500 relative group overflow-hidden",
-          isTopExpert && "bg-[#67BC2A1A]",
-          !isTopExpert && "bg-white",
+          "rounded-2xl border transition-all duration-300 relative group overflow-hidden h-full",
+          isTopExpert &&
+            "flex flex-col items-stretch text-left gap-0 md:flex-row md:items-start md:gap-10 p-4 sm:p-5 md:p-6 bg-[#F7FAF5] border-gray-200/90 shadow-sm hover:shadow-md",
+          !isTopExpert &&
+            "flex flex-row items-start gap-3 md:gap-10 p-4 sm:p-5 md:p-6 bg-white border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 rounded-[14px]",
         )}
       >
-        <div className="absolute top-0 right-0 w-32 h-32 bg-lime-50 rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+        {isTopExpert && (
+          <div className="absolute top-0 right-0 w-32 h-32 bg-lime-50 rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700 hidden md:block" />
+        )}
 
-        <div className="relative w-28 h-28 sm:w-40 sm:h-40 shrink-0 mx-auto md:mx-0">
-          <div className="w-full h-full rounded-full border-2 border-[#67BC2A] overflow-hidden shadow-inner transition-colors">
+        <div
+          className={cn(
+            "relative shrink-0",
+            isTopExpert
+              ? "w-[104px] h-[104px] sm:w-[118px] sm:h-[118px] md:w-40 md:h-40 self-start mb-4 md:mb-0"
+              : "w-24 h-24 sm:w-28 sm:h-28 md:w-40 md:h-40 shrink-0 self-start",
+          )}
+        >
+          <div
+            className={cn(
+              "w-full h-full rounded-full border-2 overflow-hidden shadow-inner",
+              isTopExpert ? "border-[#7CB342]" : "border-[#66BB6A]",
+            )}
+          >
             <img
               src={resolvedPhoto}
               alt={resolvedName}
-              className="w-full h-full object-cover transition-all duration-500 "
+              className="w-full h-full object-cover"
             />
           </div>
-          <div className="absolute right-1 bottom-1 p-1.5 ">
-            <BadgeCheck className="w-5 h-5 sm:w-7 sm:h-7  text-white fill-[#67BC2A] " />
+          <div className="absolute right-0 bottom-0 p-0.5">
+            <BadgeCheck
+              className={cn(
+                "w-5 h-5 sm:w-6 sm:h-6 text-white",
+                isTopExpert ? "fill-[#7CB342]" : "fill-[#66BB6A]",
+              )}
+            />
           </div>
         </div>
 
-        <div className="flex-1 space-y-1 text-center md:text-left relative z-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-            <h3 className="text-lg sm:text-2xl font-semibold text-gray-900">
-              {expert.name || expert.coach?.name || "Expert"}
-            </h3>
-          </div>
-          <p className="text-sm text-gray-500 font-medium opacity-80">
+        <div className="flex-1 min-w-0 flex flex-col text-left">
+          <h3
+            className={cn(
+              "text-gray-900 font-bold leading-snug",
+              isTopExpert
+                ? "text-lg sm:text-xl md:text-2xl"
+                : "text-[15px] sm:text-xl md:text-2xl pr-1",
+            )}
+          >
+            {expert.name || expert.coach?.name || "Expert"}
+          </h3>
+          <p className="text-sm text-gray-500 font-medium mt-1.5">
             {specializations_string}
           </p>
-          <p className="text-sm text-gray-500 font-medium opacity-80">
+          <p className="text-sm text-gray-500 font-normal mt-1">
             {expert.yearsExperience} years experience overall
           </p>
 
-          <div className="flex items-center justify-center md:justify-start gap-2 text-gray-900 text-xs sm:text-sm font-bold pt-1">
-            <span className="text-gray-700">
-              {expert.city} , {expert.state}
-            </span>
-          </div>
-          <p className="text-gray-400 text-[10px] sm:text-xs font-medium leading-relaxed max-w-md mx-auto md:mx-0 italic">
-            {expert.clinic}
-          </p>
-          <div className="mt-9 border-t border-dashed border-gray-300 max-w-[236px]" />
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-1 gap-6">
-            <div className="flex items-center justify-center md:justify-start gap-x-4">
-              <div className="flex items-center gap-2 bg-[#00A500] text-white px-2.5 py-1 rounded-sm text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
-                {/* <ThumbsUp className="w-3 h-3 fill-current" />
-                <span>{recommendedLabel}</span> */}
-                <span className="text-white text-sm">★</span>
-                <span>{ratingLabel}</span>
+          {isTopExpert ? (
+            <>
+              {locationLine ? (
+                <p className="text-sm font-bold text-gray-800 mt-3">
+                  {locationLine}
+                </p>
+              ) : null}
+              {expert.clinic ? (
+                <p className="text-sm font-normal text-gray-600 leading-snug mt-1">
+                  {expert.clinic}
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {locationLine ? (
+                <p className="text-sm font-bold text-gray-900 mt-1.5">
+                  {locationLine}
+                </p>
+              ) : null}
+              {expert.clinic ? (
+                <p className="text-gray-500 text-xs sm:text-sm font-medium leading-snug mt-1 line-clamp-2">
+                  {expert.clinic}
+                </p>
+              ) : null}
+            </>
+          )}
+
+          {isTopExpert ? (
+            <>
+              <div className="w-full border-t border-dashed border-gray-300 mt-4" />
+              <div className="flex flex-row items-center gap-3 flex-wrap mt-4">
+                {ratingBadge}
+                {patientStories}
               </div>
-              <div className="flex items-center gap-1.5 group/stories cursor-pointer">
-                <span className="text-gray-800 text-sm font-medium opacity-80">
-                  <span className="underline decoration-1 underline-offset-2">
-                    {expert.reviewAgg.totalReviews}
-                  </span>{" "}
-                  Patient Stories
-                </span>
+              <div className="flex flex-row items-center gap-3 mt-4 w-full min-w-0">
+                <div className="min-w-0 flex-1">{messageButton("w-full")}</div>
+                {expert.responseTime ? (
+                  <p className="text-[#7CB342] text-xs sm:text-sm font-semibold shrink-0 leading-tight text-right">
+                    Responds in {expert.responseTime}
+                  </p>
+                ) : null}
               </div>
-            </div>
-            <div className="flex flex-col items-center md:items-center gap-1">
-              {expert.responseTime && (
-                <p className="text-[#67BC2A] text-sm font-bold leading-none">
+            </>
+          ) : (
+            <div className="mt-3 pt-3 border-t border-dashed border-gray-300 space-y-2">
+              {expert.responseTime ? (
+                <p className="text-[#66BB6A] text-xs sm:text-sm font-bold leading-none">
                   Responds in {expert.responseTime}
                 </p>
-              )}
-              <button
-                onClick={handleCardClick}
-                className="bg-[#67BC2A]/85 hover:bg-[#67BC2A] cursor-pointer text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all active:scale-95 uppercase tracking-widest mt-2"
-              >
-                Message Coach
-              </button>
+              ) : null}
+              <div className="flex flex-row items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-wrap">
+                  {ratingBadge}
+                  {patientStories}
+                </div>
+                {messageButton("shrink-0")}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
