@@ -1,18 +1,37 @@
+"use client";
+
+import { useRef, useEffect } from "react";
+
 export function ClientResultsSection() {
   const columns = 4;
 
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+  const el = scrollRef.current;
+  if (!el) return;
+
+  const scrollToCenter = () => {
+    const scrollWidth = el.scrollWidth;
+    const clientWidth = el.clientWidth;
+
+    el.scrollLeft = (scrollWidth - clientWidth) / 2;
+  };
+
+  scrollToCenter();}, []);
+
   return (
-    <section className="relative py-24 overflow-hidden bg-white text-neutral-900">
+    <section className="relative py-14 font-montserrat sm:py-20  overflow-hidden bg-white text-neutral-900 mx-auto">
 
       {/* WRAPPER */}
-      <div className="relative px-6 sm:px-12">
+      <div className="relative px-6 sm:px-45 mx-auto">
 
         {/* ===== HEADING ===== */}
         <div className="relative z-30">
-          <h2 className="text-3xl sm:text-5xl font-extrabold uppercase leading-none">
+          <h2 className="text-3xl sm:text-[72px] font-extrabold uppercase leading-none">
             CLIENT
             <br />
-            <span className="text-[#9AF45D]">TRANSFORMATIONS</span>
+            <span className="text-[#67BC2A]">TRANSFORMATIONS.</span>
           </h2>
         </div>
 
@@ -55,21 +74,38 @@ export function ClientResultsSection() {
       </div>
 
       {/* ===== FOREGROUND ===== */}
-      <div className="relative z-20 flex justify-center gap-6 px-6 mt-10">
-
-        <div className="-translate-y-6">
-          <div className="h-80 w-64 rounded-3xl bg-white shadow-xl border border-black/10" />
-        </div>
-
-        <div className="translate-y-6">
-          <div className="h-80 w-64 rounded-3xl bg-white shadow-xl border border-black/10" />
-        </div>
-
-        <div className="-translate-y-6">
-          <div className="h-80 w-64 rounded-3xl bg-white shadow-xl border border-black/10" />
-        </div>
-
+      <div ref={scrollRef} className="relative z-20 mt-20 overflow-x-auto overflow-y-hidden scrollbar-hide">
+  <div className="flex gap-6 px-6 w-max sm:w-full sm:justify-center">
+    
+    <div className="-translate-y-6 shrink-0 pt-6">
+      <div className="h-80 w-64 rounded-3xl bg-white shadow-xl border border-black/10 overflow-hidden">
+        <img
+          src="https://tse3.mm.bing.net/th/id/OIP.e6i2cbM9YUdZWO72Iu4wbQHaHa?pid=Api&P=0&h=180"
+          className="w-full h-full object-cover"
+        />
       </div>
+    </div>
+
+    <div className="translate-y-6 shrink-0">
+      <div className="h-80 w-64 rounded-3xl bg-white shadow-xl border border-black/10 overflow-hidden">
+        <img
+          src="https://sophia-jung.com/wp-content/uploads/2022/01/Client-Transformation-1.jpg"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+
+    <div className="-translate-y-6 shrink-0 pt-6">
+      <div className="h-80 w-64 rounded-3xl bg-white shadow-xl border border-black/10 overflow-hidden">
+        <img
+          src="https://tse3.mm.bing.net/th/id/OIP.pIMf4i3W24nyHDdYKf7DRwHaGr?pid=Api&P=0&h=180"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+
+  </div>
+</div>
     </section>
   );
 }

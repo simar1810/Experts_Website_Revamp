@@ -14,7 +14,8 @@ export function MomentumHeadingTyping({ titleWhite, titleGreen }) {
         </TypingAnimation>
       </span>
       <span className="mt-4 block text-[2.2rem] sm:text-[4.4rem] text-wz-trusted-lime sm:mt-1.5">
-        <span className="grid grid-cols-1 leading-[0.5] sm:leading-[1.12]">
+        {/* <span className="grid grid-cols-1 leading-[0.5] sm:leading-[1.12]"> */}
+        <span className="block mt-4 text-[2.2rem] sm:text-[4.4rem] text-wz-trusted-lime sm:mt-1.5 whitespace-nowrap">
           <span
             className="absolute opacity-0 pointer-events-none select-none"
             aria-hidden
