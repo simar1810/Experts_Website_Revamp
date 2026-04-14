@@ -41,7 +41,7 @@ export function PrecisionSelectionSection() {
   return (
     <section
       id={c.id}
-      className="relative z-20 scroll-mt-24 bg-wz-discover-cream py-14 font-montserrat sm:py-20"
+      className="relative z-20 scroll-mt-24 bg-wz-discover-cream py-14 sm:py-20"
     >
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <header className="text-center">

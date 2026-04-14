@@ -23,7 +23,7 @@ export function TopProgramsSection() {
   return (
     <section
       id="top-programs"
-      className="scroll-mt-24 bg-[#03632C] py-14 font-montserrat sm:py-20"
+      className="scroll-mt-24 bg-[#03632C] py-14 sm:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-row items-center justify-between gap-4 sm:items-end">

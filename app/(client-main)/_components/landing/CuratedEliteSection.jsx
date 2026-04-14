@@ -59,7 +59,7 @@ export function CuratedEliteSection({
   return (
     <section
       id="curated"
-      className="scroll-mt-24 bg-wz-top-cream py-14 font-montserrat sm:py-20"
+      className="scroll-mt-24 bg-wz-top-cream py-14 sm:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
@@ -80,8 +80,10 @@ export function CuratedEliteSection({
         <div className="mt-10 md:hidden">
           <div className="mx-auto w-full max-w-[min(100%,420px)] px-1">
             {/* {n > 0 ? <CoachShowcaseCard {...mobileCoaches[index]} /> : null} */}
-            {mobileCoaches.slice(index, index + 3).map((coach,i) => (
-            <div key={coach.id} className={i !== 0 ? "mt-4" : ""}><CoachShowcaseCard key={coach.id} {...coach} /></div>
+            {mobileCoaches.slice(index, index + 3).map((coach, i) => (
+              <div key={coach.id} className={i !== 0 ? "mt-4" : ""}>
+                <CoachShowcaseCard key={coach.id} {...coach} />
+              </div>
             ))}
           </div>
         </div>
