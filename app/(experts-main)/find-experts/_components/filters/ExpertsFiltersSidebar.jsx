@@ -319,9 +319,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
             setLocalRadius(v);
             scheduleRadiusCommit(v);
           }}
-          onPointerUp={(e) =>
-            flushRadiusCommit(Number(e.currentTarget.value))
-          }
+          onPointerUp={(e) => flushRadiusCommit(Number(e.currentTarget.value))}
           onPointerCancel={() => flushRadiusCommit(localRadius)}
           className="w-full h-2 rounded-full appearance-none bg-lime-100 accent-[#70C136]"
         />
@@ -344,9 +342,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
             setLocalRadius(v);
             scheduleRadiusCommit(v);
           }}
-          onPointerUp={(e) =>
-            flushRadiusCommit(Number(e.currentTarget.value))
-          }
+          onPointerUp={(e) => flushRadiusCommit(Number(e.currentTarget.value))}
           onPointerCancel={() => flushRadiusCommit(localRadius)}
           className="sheet-distance-slider w-full"
           style={{
@@ -365,7 +361,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
   return (
     <div
       className={cn(
-        "flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/80 shadow-sm lg:h-full lg:max-h-full",
+        "font-lato flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/80 shadow-sm lg:h-full lg:max-h-full",
         embedInSheet &&
           "h-full max-h-full rounded-none border-0 bg-white shadow-none",
       )}
@@ -717,29 +713,28 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                 }`}
               />
             </button>
-            {openSections.languages &&
-              (values?.languages || []).length > 0 && (
-                <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto pl-1">
-                  {(values?.languages || []).map((item) => (
-                    <label
-                      key={item}
-                      className="flex cursor-pointer items-center gap-3"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={languageMap[item] || false}
-                        onChange={(e) =>
-                          setLanguageChecked(item, e.target.checked)
-                        }
-                        className={checkboxClass}
-                      />
-                      <span className="text-sm font-bold text-gray-600">
-                        {item}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
+            {openSections.languages && (values?.languages || []).length > 0 && (
+              <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto pl-1">
+                {(values?.languages || []).map((item) => (
+                  <label
+                    key={item}
+                    className="flex cursor-pointer items-center gap-3"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={languageMap[item] || false}
+                      onChange={(e) =>
+                        setLanguageChecked(item, e.target.checked)
+                      }
+                      className={checkboxClass}
+                    />
+                    <span className="text-sm font-bold text-gray-600">
+                      {item}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

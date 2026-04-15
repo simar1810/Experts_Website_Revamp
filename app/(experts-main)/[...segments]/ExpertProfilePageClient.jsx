@@ -171,7 +171,7 @@ export default function ExpertProfilePageClient({ listingId }) {
   }
 
   return (
-    <main className="bg-white min-h-screen pb-10 font-manrope ">
+    <main className="bg-white min-h-screen pb-10">
       <div className="flex w-full flex-col gap-y-20">
         <Hero
           coachInfo={coachInfo}

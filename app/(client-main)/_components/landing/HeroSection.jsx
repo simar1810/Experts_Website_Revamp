@@ -16,7 +16,7 @@ export function HeroSection() {
     "text-[4.6rem] max-sm:text-[2.8rem]  font-extrabold leading-[1.05] text-[#03632C]";
 
   return (
-    <section className="relative overflow-hidden bg-white pb-10 pt-6 font-manrope sm:pb-16 sm:pt-8 lg:pt-10">
+    <section className="relative overflow-hidden bg-white pb-10 pt-6 sm:pb-16 sm:pt-8 lg:pt-10">
       <div className="mx-auto grid max-w-7xl items-center  px-4 sm:px-6  lg:grid-cols-2  lg:px-8 max-sm:gap-10">
         <div className="order-2 lg:order-1  grid-cols-2 max-w-xl lg:max-w-none">
           <h1 className="font-lexend tracking-tight">
