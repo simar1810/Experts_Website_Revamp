@@ -19,25 +19,25 @@ export function CoachShowcaseCard({
   imageUnoptimized = false,
 }) {
   const detailsHover =
-    "group-hover:opacity-0 group-hover:translate-y-2 group-hover:pointer-events-none group-focus-within:opacity-0 group-focus-within:translate-y-2 group-focus-within:pointer-events-none";
+    "group-hover/card:opacity-0 group-hover/card:translate-y-2 group-hover/card:pointer-events-none group-focus-within/card:opacity-0 group-focus-within/card:translate-y-2 group-focus-within/card:pointer-events-none";
 
   return (
     <article
       tabIndex={0}
-      className="group relative aspect-[3/4] w-full min-w-0 max-w-none overflow-hidden rounded-[22px] shadow-lg shadow-black/10 outline-none focus-visible:ring-2 focus-visible:ring-wz-top-green focus-visible:ring-offset-2 focus-visible:ring-offset-wz-top-cream md:rounded-3xl"
+      className="group/card relative aspect-[3/4] w-full min-w-0 max-w-none overflow-hidden rounded-[22px] shadow-lg shadow-black/10 outline-none focus-visible:ring-2 focus-visible:ring-wz-top-green focus-visible:ring-offset-2 focus-visible:ring-offset-wz-top-cream md:rounded-3xl"
     >
       <Image
         src={imageSrc}
         alt={imageAlt}
         fill
         unoptimized={imageUnoptimized}
-        className="object-cover transition-[transform,filter,opacity] duration-500 ease-out scale-[1.02] group-hover:scale-105 group-hover:blur-xs group-hover:brightness-[0.9] group-focus-within:scale-105 group-focus-within:blur-md group-focus-within:brightness-[0.55]"
+        className="object-cover transition-[transform,filter,opacity] duration-500 ease-out scale-[1.02] group-hover/card:scale-105 group-hover/card:blur-xs group-hover/card:brightness-[0.9] group-focus-within/card:scale-105 group-focus-within/card:blur-md group-focus-within/card:brightness-[0.55]"
         sizes="(max-width: 768px) 90vw, 320px"
       />
       <div
         className={cn(
           "absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent transition-opacity duration-500",
-          "group-hover:from-black/92 group-hover:via-black/20 group-focus-within:from-black/92 group-focus-within:via-black/45",
+          "group-hover/card:from-black/92 group-hover/card:via-black/20 group-focus-within/card:from-black/92 group-focus-within/card:via-black/45",
         )}
       />
 
@@ -87,11 +87,11 @@ export function CoachShowcaseCard({
       <div
         className={cn(
           "absolute inset-x-0 bottom-0 z-20 flex flex-col items-center px-4 pb-6 pt-10 opacity-0 translate-y-10 pointer-events-none transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none",
-          "group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto",
-          "group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto",
+          "group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:pointer-events-auto",
+          "group-focus-within/card:opacity-100 group-focus-within/card:translate-y-0 group-focus-within/card:pointer-events-auto",
         )}
       >
-        <div className="relative w-full translate-y-8 transition-transform duration-500 ease-out motion-reduce:translate-y-0 group-hover:translate-y-0 group-focus-within:translate-y-0">
+        <div className="relative w-full translate-y-8 transition-transform duration-500 ease-out motion-reduce:translate-y-0 group-hover/card:translate-y-0 group-focus-within/card:translate-y-0">
           <h3 className="text-lg font-extrabold uppercase tracking-[0.06em] text-white sm:text-xl">
             {name}
           </h3>

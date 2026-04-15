@@ -1,7 +1,6 @@
 import { searchListings } from "@/lib/services/listingSearch.service";
 import { paidListingsToCoachColumns } from "@/lib/curatedShowcaseFromListing";
 import {
-  ClientTransformations,
   CuratedEliteSection,
   FinalCtaSection,
   HeroSection,
@@ -39,7 +38,6 @@ export default async function ClientLandingPage() {
       <CuratedEliteSection coachColumns={curatedCoachColumns} />
       <MomentumSection />
       <ClientResultsSection />
-      {/* <ClientTransformations /> */}
       <FinalCtaSection />
     </main>
   );

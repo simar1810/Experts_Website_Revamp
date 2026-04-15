@@ -11,7 +11,7 @@ export function MomentumSection() {
   const [a, b, stat3] = c.stats;
 
   return (
-    <section className="relative overflow-hidden bg-[#03632C] py-14 font-montserrat sm:py-20">
+    <section className="relative overflow-hidden bg-[#03632C] py-14 sm:py-20">
       <MomentumSectionWatermark className="pointer-events-none absolute left-0 top-7 select-none font-black uppercase leading-none text-white/[0.08] text-[28vw] sm:top-12 sm:text-[min(42vw,280px)] min-[480px]:text-[min(36vw,320px)] lg:text-[340px]">
         {c.watermark}
       </MomentumSectionWatermark>
@@ -20,7 +20,8 @@ export function MomentumSection() {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <MomentumHeadingTyping
-              titleWhite={c.titleWhite}
+              titleTrusted={c.titleTrusted}
+              titleExperts={c.titleExperts}
               titleGreen={c.titleGreen}
             />
 

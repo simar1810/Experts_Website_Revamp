@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { topProgramsContent } from "@/lib/data/landingContent";
 import { TopProgramCard } from "./TopProgramCard";
 
@@ -23,7 +23,7 @@ export function TopProgramsSection() {
   return (
     <section
       id="top-programs"
-      className="scroll-mt-24 bg-[#03632C] py-14 font-montserrat sm:py-20"
+      className="scroll-mt-24 bg-[#03632C] py-14 sm:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-row items-center justify-between gap-4 sm:items-end">
@@ -38,7 +38,7 @@ export function TopProgramsSection() {
               onClick={() => scrollStrip(-1)}
               className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
             >
-              <ChevronLeft className="size-5" strokeWidth={2} />
+              <ArrowLeft className="size-5" strokeWidth={2} />
             </button>
             <button
               type="button"
@@ -46,7 +46,7 @@ export function TopProgramsSection() {
               onClick={() => scrollStrip(1)}
               className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
             >
-              <ChevronRight className="size-5" strokeWidth={2} />
+              <ArrowRight className="size-5" strokeWidth={2} />
             </button>
           </div>
         </div>

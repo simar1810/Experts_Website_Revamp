@@ -21,12 +21,6 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800", "900"],
-});
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -64,13 +58,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className="overflow-x-clip h-full"
-      suppressHydrationWarning
-    >
+    <html lang="en" className="overflow-x-clip h-full" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} ${lexend.variable} ${manrope.variable} ${montserrat.variable} ${playfair.variable} antialiased overflow-x-clip h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} ${lexend.variable} ${manrope.variable} ${playfair.variable} antialiased overflow-x-clip h-full`}
         suppressHydrationWarning
       >
         <AuthProvider>

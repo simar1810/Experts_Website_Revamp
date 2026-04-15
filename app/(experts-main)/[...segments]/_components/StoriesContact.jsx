@@ -90,7 +90,7 @@ export default function StoriesContact({
   };
 
   return (
-    <section className="w-full sm:px-8 lg:px-10">
+    <section className="w-full px-4 sm:px-8 lg:px-10">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-y-20">
         {reviews.length > 0 && (
           <div className="flex flex-col gap-y-5 py-7 sm:py-9 lg:py-10">
@@ -232,7 +232,7 @@ export default function StoriesContact({
               </p>
               <div className="flex flex-wrap items-center gap-10 pt-1">
                 <a
-                  href="#"
+                  href="https://apps.apple.com/in/app/wellnessz/id6478812964"
                   className="block shrink-0 transition-opacity hover:opacity-90"
                 >
                   <img
@@ -242,7 +242,7 @@ export default function StoriesContact({
                   />
                 </a>
                 <a
-                  href="#"
+                  href="https://play.google.com/store/apps/details?id=com.updevelop.wellness_z_mvvm&hl=en_IN"
                   className="block shrink-0 transition-opacity hover:opacity-90"
                 >
                   <img
@@ -256,26 +256,53 @@ export default function StoriesContact({
           </aside>
         </div>
 
-        <article className="mb-6 grid grid-cols-1 items-center gap-5 rounded-[1.8rem] bg-[#f2f4f3] p-6 lg:grid-cols-2">
+        <article className="mb-6 grid grid-cols-1 items-center gap-5 rounded-[1.8rem] bg-[#f2f4f3] p-8 sm:p-10 lg:grid-cols-2">
           <div>
             <h3 className="text-4xl font-extrabold text-[#0d3b1f]">
               Visit the Sanctuary
             </h3>
-            <div className="mt-4 space-y-3 text-sm text-[#1d3327]">
-              <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> {formState.location}
-              </p>
-              <p className="flex items-center gap-2">
-                <Clock3 className="h-4 w-4" />{" "}
-                {details?.availabilityHours || "Hours shared on enquiry"}
-              </p>
+            <div className="mt-4 space-y-5 text-sm text-[#1d3327]">
+              <div className="flex gap-3">
+                <MapPin
+                  className="mt-0.5 h-5 w-5 shrink-0 text-[#03632C]"
+                  aria-hidden
+                />
+                <div className="min-w-0">
+                  <h4 className="text-sm font-bold text-[#03632C]">
+                    Office Location
+                  </h4>
+                  <p className=" text-xs leading-6 text-[#65746c] whitespace-pre-line">
+                    {(
+                      details?.address ||
+                      formState.location ||
+                      "Address shared on enquiry"
+                    ).trim()}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Clock3
+                  className="mt-0.5 h-5 w-5 shrink-0 text-[#03632C]"
+                  aria-hidden
+                />
+                <div className="min-w-0">
+                  <h4 className="text-sm font-bold text-[#03632C]">
+                    Operating Hours
+                  </h4>
+                  <p className="text-xs leading-6 text-[#65746c] whitespace-pre-line">
+                    {details?.availabilityHours || "Hours shared on enquiry"}
+                  </p>
+                </div>
+              </div>
             </div>
-            <button
-              type="button"
-              className="mt-5 rounded-lg bg-[#065a23] px-4 py-2 text-xs font-semibold text-white"
+            <a
+              href={mapOpenUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-[#065a23] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#04481c] sm:w-auto"
             >
               Get Directions
-            </button>
+            </a>
           </div>
           <div className="min-h-[180px] overflow-hidden rounded-2xl border border-[#d7e8dc] bg-[#b8d9c0]">
             <iframe
