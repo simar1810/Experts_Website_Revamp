@@ -48,6 +48,7 @@ export default function ClientNavbar({ isDashboard = false }) {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Experts", href: "/find-experts" },
+    { name: "Programs", href: "/discover-programs" },
 
     // { name: "Resources", href: "/blogs" },
   ];
@@ -114,13 +115,6 @@ export default function ClientNavbar({ isDashboard = false }) {
                   className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-[#84cc16] px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-lime-500/10 transition-all hover:bg-[#76b813] sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
                 >
                   Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
-                </button>
-                <button
-                  type="button"
-                  onClick={openLoginModal}
-                  className="hidden whitespace-nowrap rounded-xl border-2 border-[#84cc16] px-6 py-2 text-sm font-bold text-[#84cc16] transition-colors hover:bg-gray-50 sm:block sm:px-8 sm:py-2.5"
-                >
-                  Log In
                 </button>
               </div>
             )}

@@ -249,7 +249,13 @@ html {
 .animate-marquee-left {
   display: flex;
   width: max-content;
-  animation: marquee-left 20s linear infinite;
+  animation: marquee-left var(--marquee-duration, 55s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left {
+    animation: none;
+  }
 }
 
 @keyframes marquee-up {
