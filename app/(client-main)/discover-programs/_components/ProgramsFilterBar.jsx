@@ -33,7 +33,9 @@ function FilterDropdown({ options, value, onChange, ariaLabel }) {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger aria-label={ariaLabel} className={triggerClassName}>
-        <span className="min-w-0 truncate text-[10px]">{label}</span>
+        <span className="min-w-0 truncate text-xs max-md:text-[10px]">
+          {label}
+        </span>
         <ChevronDown
           className="size-3 shrink-0 text-neutral-400 sm:size-4"
           strokeWidth={2}

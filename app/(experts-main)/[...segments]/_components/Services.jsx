@@ -164,12 +164,39 @@ function CertificationsBentoCard({ text }) {
 const CONSULTATION_HEADLINE =
   "Pioneering the next era of clinical editorial care.";
 
+function certificationSummaryText(cert) {
+  if (!cert || typeof cert !== "object") {
+    return "Certification records are not shared publicly yet.";
+  }
+  let rows = [];
+  if (Array.isArray(cert.items) && cert.items.length > 0) {
+    rows = cert.items
+      .map((i) => ({
+        name: String(i?.name ?? "").trim(),
+        isVerified: Boolean(i?.isVerified),
+      }))
+      .filter((r) => r.name);
+  } else {
+    const names = Array.isArray(cert.names) ? cert.names : [];
+    const allV = Boolean(cert.isVerified);
+    rows = names
+      .map((n) => ({
+        name: String(n ?? "").trim(),
+        isVerified: allV,
+      }))
+      .filter((r) => r.name);
+  }
+  if (rows.length === 0) {
+    return "Certification records are not shared publicly yet.";
+  }
+  return rows
+    .map((r) => (r.isVerified ? `${r.name}` : `${r.name} (not verified)`))
+    .join(" · ");
+}
+
 export default function Services({ details }) {
   const specializations = details?.specializations || [];
-  const certifications = details?.certifications?.names || [];
-  const certificationsText = certifications.length
-    ? certifications.join(", ")
-    : "Certification records are not shared publicly yet.";
+  const certificationsText = certificationSummaryText(details?.certifications);
 
   const specializationsLeadText =
     details?.bio?.trim() ||

@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { useMemo } from "react";
 
 /** PNG assets in `public/png` (filenames must match disk exactly). */
 const EXPERT_CATEGORY_ITEMS = [
@@ -32,12 +31,6 @@ function categoryPngSrc(file) {
 }
 
 export default function ExpertCategories() {
-  const scrollRef = useRef(null);
-  const trackRef = useRef(null);
-  const thumbRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const thumbWidth = 120;
-
   const carouselItems = useMemo(() => {
     const minSlots = 10;
     if (EXPERT_CATEGORY_ITEMS.length >= minSlots) {
@@ -53,83 +46,11 @@ export default function ExpertCategories() {
     return out;
   }, []);
 
-  const updateThumbPosition = useCallback(() => {
-    if (scrollRef.current && thumbRef.current && trackRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      const totalScroll = scrollWidth - clientWidth;
-
-      if (totalScroll > 0) {
-        const progress = scrollLeft / totalScroll;
-        const maxTranslate = clientWidth - thumbWidth;
-        const translateX = progress * maxTranslate;
-        thumbRef.current.style.transform = `translateX(${translateX}px)`;
-      }
-    }
-  }, [thumbWidth]);
-
-  const handleScroll = () => {
-    window.requestAnimationFrame(updateThumbPosition);
-  };
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      const resizeObserver = new ResizeObserver(() => {
-        updateThumbPosition();
-      });
-      resizeObserver.observe(scrollRef.current);
-      updateThumbPosition();
-      return () => resizeObserver.disconnect();
-    }
-  }, [updateThumbPosition, carouselItems.length]);
-
-  const handleDrag = useCallback(
-    (e) => {
-      if (!isDragging && e.type !== "mousedown" && e.type !== "touchstart")
-        return;
-
-      const track = trackRef.current;
-      const scrollContainer = scrollRef.current;
-      if (!track || !scrollContainer) return;
-
-      const rect = track.getBoundingClientRect();
-      const clientX = e.clientX || e.touches?.[0]?.clientX;
-      const clickX = clientX - rect.left - thumbWidth / 2;
-      const maxTrackX = rect.width - thumbWidth;
-
-      const progress = Math.max(0, Math.min(clickX / maxTrackX, 1));
-      const scrollAmount =
-        progress * (scrollContainer.scrollWidth - scrollContainer.clientWidth);
-
-      scrollContainer.scrollTo({
-        left: scrollAmount,
-        behavior: isDragging ? "auto" : "smooth",
-      });
-    },
-    [isDragging, thumbWidth],
+  /** Two identical sequences for seamless CSS loop (translateX -50%). */
+  const marqueeItems = useMemo(
+    () => [...carouselItems, ...carouselItems],
+    [carouselItems],
   );
-
-  const handleDragStart = (e) => {
-    setIsDragging(true);
-    handleDrag(e);
-  };
-
-  useEffect(() => {
-    const onEnd = () => setIsDragging(false);
-    const onMove = (e) => isDragging && handleDrag(e);
-
-    if (isDragging) {
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onEnd);
-      window.addEventListener("touchmove", onMove, { passive: false });
-      window.addEventListener("touchend", onEnd);
-    }
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onEnd);
-      window.removeEventListener("touchmove", onMove);
-      window.removeEventListener("touchend", onEnd);
-    };
-  }, [isDragging, handleDrag]);
 
   return (
     <section className="bg-black text-white py-16">
@@ -141,20 +62,18 @@ export default function ExpertCategories() {
           Find the best experts to help you reach your goals
         </p>
 
-        <>
+        <div className="group/marquee relative overflow-x-hidden">
           <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide snap-x snap-mandatory select-none scroll-smooth"
+            className="flex gap-4 pb-4 select-none animate-marquee-left motion-reduce:animate-none group-hover/marquee:paused"
+            style={{ "--marquee-duration": "70s" }}
           >
-            {carouselItems.map(({ name, file }, index) => (
-              <Link
+            {marqueeItems.map(({ name, file }, index) => (
+              <div
                 key={`${name}-${index}`}
-                href={`/experts?speciality=${encodeURIComponent(name)}`}
-                className="shrink-0 w-56 sm:w-64 bg-gray-900 p-5 rounded-2xl border border-gray-800 hover:border-lime-500 transition-all cursor-pointer group snap-start block"
+                className="shrink-0 w-56 sm:w-64 bg-gray-900 p-5 rounded-2xl border border-gray-800 hover:border-lime-500 transition-all cursor-default group/item"
               >
                 <div
-                  className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-800 rounded-xl mb-4 group-hover:bg-lime-500/20 transition-colors flex items-center justify-center p-1.5 sm:p-2"
+                  className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-800 rounded-xl mb-4 group-hover/item:bg-lime-500/20 transition-colors flex items-center justify-center p-1.5 sm:p-2"
                   aria-hidden
                 >
                   <img
@@ -163,28 +82,13 @@ export default function ExpertCategories() {
                     className="max-h-full max-w-full object-contain"
                   />
                 </div>
-                <h3 className="font-bold text-gray-200 group-hover:text-lime-500 transition-colors text-sm sm:text-base leading-tight">
+                <h3 className="font-bold text-gray-200 group-hover/item:text-lime-500 transition-colors text-sm sm:text-base leading-tight">
                   {name}
                 </h3>
-              </Link>
+              </div>
             ))}
           </div>
-
-          <div
-            ref={trackRef}
-            onMouseDown={handleDragStart}
-            onTouchStart={handleDragStart}
-            className="w-full h-1 bg-gray-800 mt-8 rounded-full relative cursor-pointer group/track"
-          >
-            <div
-              ref={thumbRef}
-              className={`h-full bg-lime-500 rounded-full absolute top-0 left-0 will-change-transform ${isDragging ? "" : "transition-transform duration-150 ease-out"}`}
-              style={{
-                width: `${thumbWidth}px`,
-              }}
-            />
-          </div>
-        </>
+        </div>
       </div>
     </section>
   );
