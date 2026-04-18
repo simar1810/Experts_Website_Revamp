@@ -17,11 +17,10 @@ const MOCK_FEATURED_EXPERTS = [
     _id: "replace-with-real-listing-id-1",
     websiteLink: "http://www.fitbodyculture.in",
     coach: {
-      name: "Ankush S. Bhaskar",
-      profilePhoto:
-        "/images/ankush-s-bhaskar.png",
+      name: "Ankush",
+      profilePhoto: "/images/ankush-s-bhaskar.png",
     },
-    specializations: ["Yoga"],
+    specializations: ["Fitness Trainer"],
     city: "Mumbai",
     state: "Maharashtra",
     ratingAgg: { overall: { avg: 4.9 } },
@@ -29,28 +28,26 @@ const MOCK_FEATURED_EXPERTS = [
   },
   {
     _id: "replace-with-real-listing-id-2",
-    websiteLink:"https://dietitiananubha.com/",
+    websiteLink: "https://dietitiananubha.com/",
     coach: {
-      name: "Anubha Taparia",
-      profilePhoto:
-        "/images/anubha-taparia.png",
+      name: "Anubha",
+      profilePhoto: "/images/anubha-taparia.png",
     },
-    specializations: ["Strength Training"],
+    specializations: ["Dietitian"],
     city: "Bengaluru",
     state: "Karnataka",
     ratingAgg: { overall: { avg: 4.8 } },
     reviewAgg: { totalReviews: 32 },
   },
-  
+
   {
     _id: "replace-with-real-listing-id-23",
-    websiteLink:"https://fitlydietclinic.com/",
+    websiteLink: "https://fitlydietclinic.com/",
     coach: {
       name: "Onkar Singh",
-      profilePhoto:
-        "",
+      profilePhoto: "",
     },
-    specializations: ["Strength Training"],
+    specializations: ["Nutritionist"],
     city: "Bengaluru",
     state: "Karnataka",
     ratingAgg: { overall: { avg: 4.8 } },
@@ -58,13 +55,12 @@ const MOCK_FEATURED_EXPERTS = [
   },
   {
     _id: "replace-with-real-listing-id-24",
-    websiteLink:"http://www.NutridatewithPriyanka.com",
+    websiteLink: "http://www.NutridatewithPriyanka.com",
     coach: {
       name: "Priyanka Shah",
-      profilePhoto:
-        "",
+      profilePhoto: "",
     },
-    specializations: ["Strength Training"],
+    specializations: ["Dietitian"],
     city: "Bengaluru",
     state: "Karnataka",
     ratingAgg: { overall: { avg: 4.8 } },
@@ -72,13 +68,12 @@ const MOCK_FEATURED_EXPERTS = [
   },
   {
     _id: "anuja",
-    websiteLink:"",
+    websiteLink: "",
     coach: {
       name: "Anuja",
-      profilePhoto:
-        "/images/anuja.png",
+      profilePhoto: "/images/anuja.png",
     },
-    specializations: ["Strength Training"],
+    specializations: ["Dietitian"],
     city: "Bengaluru",
     state: "Karnataka",
     ratingAgg: { overall: { avg: 4.8 } },
@@ -176,8 +171,7 @@ export default function FeaturedExperts() {
         router.push(site);
         return;
       }
-      const url =
-        /^https?:\/\//i.test(site) ? site : `https://${site}`;
+      const url = /^https?:\/\//i.test(site) ? site : `https://${site}`;
       window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
@@ -274,7 +268,7 @@ export default function FeaturedExperts() {
 
         <div className="mt-16 flex justify-center">
           <button
-            onClick={() => router.push("/experts")}
+            onClick={() => router.push("/find-experts")}
             className="w-full sm:w-auto min-w-[300px] bg-[#f0f0f0] hover:bg-[#e8e8e8] text-[#84cc16] px-12 py-4 rounded-lg font-bold text-base transition-colors"
           >
             View all Experts
