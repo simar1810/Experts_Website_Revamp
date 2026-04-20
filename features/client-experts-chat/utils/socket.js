@@ -35,10 +35,11 @@ function handleSocketMessages(raw, dispatch) {
       break;
     case "read":
       dispatch({
-        type: "message",
+        type: "read-receipt",
         payload: {
           threadId: parsed?.threadId,
           role: parsed?.role,
+          readAt: parsed?.readAt,
         },
       });
       break;

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { topProgramsContent } from "@/lib/data/landingContent";
 import { TopProgramCard } from "./TopProgramCard";
 
@@ -23,22 +23,22 @@ export function TopProgramsSection() {
   return (
     <section
       id="top-programs"
-      className="scroll-mt-24 bg-[#03632C] py-14 font-montserrat sm:py-20"
+      className="scroll-mt-24 bg-[#03632C] py-14 sm:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-          <h2 className="text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
+        <div className="flex flex-row items-center justify-between gap-4 sm:items-end">
+          <h2 className="text-2xl sm:text-3xl lg:text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
             <span className="text-white">{c.titleLight}</span>
             <span className="text-[#9AF45D]">{c.titleHighlight}</span>
           </h2>
-          <div className="flex shrink-0 justify-end gap-2 sm:pb-0.5">
+          <div className="hidden sm:flex shrink-0 justify-end gap-2 sm:pb-0.5">
             <button
               type="button"
               aria-label="Previous programs"
               onClick={() => scrollStrip(-1)}
               className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
             >
-              <ChevronLeft className="size-5" strokeWidth={2} />
+              <ArrowLeft className="size-5" strokeWidth={2} />
             </button>
             <button
               type="button"
@@ -46,14 +46,15 @@ export function TopProgramsSection() {
               onClick={() => scrollStrip(1)}
               className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
             >
-              <ChevronRight className="size-5" strokeWidth={2} />
+              <ArrowRight className="size-5" strokeWidth={2} />
             </button>
           </div>
         </div>
 
         <div
           ref={stripRef}
-          className="scrollbar-hide mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
+          // className="scrollbar-hide mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
+          className=" scrollbar-hide mt-10 flex flex-col gap-6 sm:flex-row sm:snap-x sm:snap-mandatory sm:overflow-x-auto sm:pb-2 sm:pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
         >
           {c.programs.map((p) => (
             <TopProgramCard key={p.id} {...p} />

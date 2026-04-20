@@ -33,8 +33,8 @@ function ChatShell({ threads }) {
   const chatsColumn = (
     <div
       className={cn(
-        "flex min-h-0 flex-1 flex-col overflow-hidden sm:rounded-2xl",
-        "max-md:rounded-none",
+        "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden sm:rounded-2xl",
+        "max-lg:rounded-none",
       )}
     >
       <div className="shrink-0 border-b border-gray-100 p-4">
@@ -69,15 +69,15 @@ function ChatShell({ threads }) {
   const chatColumn = (
     <div
       className={cn(
-        "flex min-h-0 h-full min-w-0 flex-1 flex-col bg-white",
+        "flex min-h-0 h-full min-w-0 flex-1 flex-col overflow-x-hidden bg-white",
         "rounded-2xl border border-gray-100 shadow-sm",
-        "max-md:rounded-none max-md:border-0 max-md:border-t max-md:border-gray-100 max-md:shadow-none",
+        "max-lg:rounded-none max-lg:border-0 max-lg:border-t max-lg:border-gray-100 max-lg:shadow-none",
       )}
     >
       <div
         className={cn(
-          "flex min-h-0 h-full min-w-0 flex-1 flex-col overflow-hidden rounded-2xl",
-          "max-md:rounded-none",
+          "flex min-h-0 h-full min-w-0 flex-1 flex-col overflow-hidden overflow-x-hidden rounded-2xl",
+          "max-lg:rounded-none",
         )}
       >
         <ClientChatbox
@@ -96,8 +96,8 @@ function ChatShell({ threads }) {
   );
 
   return (
-    <ClientChatProvider threads={threads}>
-      <main className="flex h-full min-h-0 min-w-0 w-full max-w-[100vw] flex-1 flex-col overflow-hidden">
+    <ClientChatProvider threads={threads} activeThreadId={selectedThreadId}>
+      <main className="flex h-full min-h-0 min-w-0 w-full max-w-full flex-1 flex-col overflow-hidden overflow-x-hidden">
         <EnquiriesResizableLayout
           selectedThreadId={selectedThreadId}
           chatsColumn={chatsColumn}

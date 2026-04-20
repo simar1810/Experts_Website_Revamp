@@ -34,7 +34,7 @@ export function SectionHeading({
       ) : null}
       <h2
         className={cn(
-          "text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3",
+          "text-[2rem] sm:text-[3.6rem] font-extrabold uppercase leading-tight sm:leading-none tracking-[0.02em] space-x-3",
           dark ? "text-white" : "text-wz-forest",
           headingClassName,
         )}

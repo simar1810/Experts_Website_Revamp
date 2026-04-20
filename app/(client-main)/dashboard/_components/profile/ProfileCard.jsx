@@ -1,9 +1,9 @@
-import { CalendarDays, Check, MapPin } from "lucide-react";
+import { CalendarDays, Check, MapPin, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
  * @param {object} props
- * @param {string} props.imageSrc
+ * @param {string | null | undefined} props.imageSrc
  * @param {string} props.name
  * @param {string} props.bio
  * @param {string} props.location
@@ -34,12 +34,27 @@ export default function ProfileCard({
 
       <div className="flex min-w-0 flex-1 flex-col gap-5 p-5 sm:flex-row sm:items-start sm:gap-6 sm:p-6 md:gap-8 md:p-10">
         <div className="relative mx-auto shrink-0 sm:mx-0">
-          <div className="relative size-22 overflow-hidden rounded-full sm:size-32">
-            <img
-              src={imageSrc}
-              alt={alt}
-              className="size-full rounded-full object-cover ring-4 ring-[#70C136]/35 ring-offset-2 ring-offset-white"
-            />
+          <div
+            className={cn(
+              "relative flex size-22 items-center justify-center overflow-hidden rounded-full sm:size-32",
+              "ring-4 ring-[#70C136]/35 ring-offset-2 ring-offset-white",
+              !imageSrc && "bg-[#70C136]",
+            )}
+            {...(!imageSrc ? { "aria-label": alt } : {})}
+          >
+            {imageSrc ? (
+              <img
+                src={imageSrc}
+                alt={alt}
+                className="size-full rounded-full object-cover"
+              />
+            ) : (
+              <User
+                className="size-11 text-white sm:size-17"
+                strokeWidth={2}
+                aria-hidden
+              />
+            )}
           </div>
           {isVerified ? (
             <span

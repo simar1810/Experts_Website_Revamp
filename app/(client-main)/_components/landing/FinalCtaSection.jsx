@@ -11,7 +11,7 @@ export function FinalCtaSection() {
           {c.badge}
         </span>
 
-        <h2 className="font-montserrat font-extrabold uppercase leading-[1.08] tracking-tight text-[#064E3B]">
+        <h2 className="font-extrabold uppercase leading-[1.08] tracking-tight text-[#064E3B]">
           <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-[3.8rem]">
             {c.line1}
           </span>
@@ -25,19 +25,19 @@ export function FinalCtaSection() {
           </span>
         </h2>
 
-        <div className="mt-12 flex flex-col items-center justify-center gap-8 sm:flex-row sm:gap-10">
+        <div className="mt-12 flex flex-row items-center justify-center gap-8 sm:flex-row sm:gap-10">
           <Link
-            href="/experts"
-            className="inline-flex min-w-[200px] items-center justify-center rounded-lg bg-gradient-to-r from-[#357200] to-[#03632C] px-10 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/20 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03632C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7] sm:text-base"
+            href={c.primaryCtaHref}
+            className="inline-flex min-w-[200px] items-center justify-center rounded-lg bg-gradient-to-r from-[#357200] to-[#03632C] sm:px-10 px-5 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-xl shadow-black/20 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#03632C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7] sm:text-base"
           >
             {c.primaryCta}
           </Link>
 
           <a
-            href="#curated"
+            href={c.secondaryCtaHref}
             className="relative inline-block pt-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#064E3B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9FBE7]"
           >
-            <span className="text-sm font-extrabold uppercase tracking-wide text-[#064E3B] sm:text-base">
+            <span className="text-xs font-extrabold uppercase tracking-wide text-[#064E3B] sm:text-base">
               {c.secondaryCta}
             </span>
             <span

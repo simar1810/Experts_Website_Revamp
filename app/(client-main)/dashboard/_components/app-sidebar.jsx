@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -8,7 +9,6 @@ import {
   CalendarClock,
   ChevronRight,
   Footprints,
-  Home,
   LayoutGrid,
   MessageCircle,
   Newspaper,
@@ -17,7 +17,6 @@ import {
   Soup,
   Store,
   User,
-  Users,
   Dumbbell,
   Album,
   UserCog,
@@ -45,21 +44,30 @@ const NAV_ITEMS = [
     href: "/dashboard/programs",
     icon: Album,
   },
-  {
-    label: "Sessions/Meetings",
-    href: "/dashboard/sessions",
-    icon: UserCog,
-  },
+  // {
+  //   label: "Sessions/Meetings",
+  //   href: "/dashboard/sessions",
+  //   icon: UserCog,
+  // },
 ];
 
 function WellnessLogo() {
   return (
-    <Link
-      href="/"
-      className="text-base sm:text-2xl font-bold font-serif italic text-white truncate sm:whitespace-nowrap"
-    >
-      Wellness<span className="text-[#84cc16]">Z </span>Experts
-    </Link>
+    <div className="flex w-full justify-center">
+      <Link
+        href="/"
+        className="inline-flex w-fit max-w-full shrink-0 items-center justify-center rounded-md bg-white px-3 py-3 shadow-sm ring-1 ring-white/10"
+      >
+        <Image
+          src="/experts-logo.png"
+          alt="WellnessZ Experts"
+          width={400}
+          height={120}
+          className="h-[56px] w-auto max-w-full object-contain object-center sm:h-[68px]"
+          priority
+        />
+      </Link>
+    </div>
   );
 }
 
@@ -86,7 +94,7 @@ export function AppSidebar() {
         <SidebarMenu className="gap-2">
           {NAV_ITEMS.map(
             ({ label, href, icon: Icon, chevron, isNew, notify }) => {
-              const active =
+                           const active =
                 pathname === href ||
                 (href !== "/dashboard" && pathname.startsWith(href));
 

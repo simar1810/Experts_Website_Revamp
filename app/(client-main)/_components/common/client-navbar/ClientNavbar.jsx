@@ -5,11 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import GetStartedModal from "@/components/GetStartedModal";
 import LoginModal from "@/components/LoginModal";
-import { Bell, Menu, X, ArrowLeftIcon, LogOut } from "lucide-react";
+import { Menu, X, ArrowLeftIcon, LogOut } from "lucide-react";
 
 import ClientNavbarDropdown from "./ClientNavbarDropdown";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import WellnessZLogoLink from "@/components/WellnessZLogoLink";
+import Image from "next/image";
 
 export default function ClientNavbar({ isDashboard = false }) {
   const pathname = usePathname();
@@ -45,7 +48,8 @@ export default function ClientNavbar({ isDashboard = false }) {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Experts", href: "/find-experts" },
-    { name: "Pricing - [TESTING]", href: "/pricing" },
+    { name: "Programs", href: "/discover-programs" },
+
     // { name: "Resources", href: "/blogs" },
   ];
 
@@ -60,89 +64,84 @@ export default function ClientNavbar({ isDashboard = false }) {
               : "max-w-7xl mx-auto md:grid md:grid-cols-3",
           )}
         >
-          {/* Left Section - Logo */}
-          <div
-            className={cn(
-              "flex items-center gap-1.5 sm:gap-2 shrink-0",
-              isDashboard && "hidden",
-            )}
-          >
-            <Link
-              href="/"
-              className="text-base sm:text-2xl font-bold font-serif italic text-black truncate sm:whitespace-nowrap"
-            >
-              Wellness<span className="text-[#84cc16]">Z </span>Experts
-            </Link>
-          </div>
-          {/* Center Section - Desktop Navigation */}
-          <div
-            className={cn(
-              "hidden items-center gap-6 md:flex lg:gap-12",
-              isDashboard ? "min-w-0 flex-1 justify-start" : "justify-center",
-            )}
-          >
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`${isActive(link.href)} text-sm transition-colors tracking-wider`}
+          {isDashboard ? (
+            <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+              <SidebarTrigger className="shrink-0 text-zinc-700 md:hidden" />
+              <div
+                className={cn(
+                  "flex min-w-0 flex-1 items-center gap-4 overflow-x-auto md:gap-6 lg:gap-12",
+                  "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+                )}
               >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-
-          <div
-            className={cn(
-              "flex shrink-0 items-center gap-1.5 sm:gap-4 md:justify-end",
-            )}
-          >
-            {isAuthenticated ? (
-              <div className="flex items-center gap-2 sm:gap-6">
-                <button
-                  type="button"
-                  className="text-gray-900 p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <Bell className="w-5 h-5 fill-current" />
-                </button>
-
-                <ClientNavbarDropdown />
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`${isActive(link.href)} shrink-0 text-sm transition-colors tracking-wider`}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
               </div>
+            </div>
+          ) : null}
+          {!isDashboard ? (
+            <div className="flex shrink-0 items-center gap-2">
+              <WellnessZLogoLink href="/" />
+            </div>
+          ) : null}
+          {!isDashboard ? (
+            <div className="hidden items-center justify-center gap-6 md:flex lg:gap-12">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`${isActive(link.href)} text-sm transition-colors tracking-wider`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-4">
+            {isAuthenticated ? (
+              <ClientNavbarDropdown />
             ) : (
               <div className="flex items-center gap-1.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={openRegisterModal}
-                  className="bg-[#84cc16] text-white px-3 py-2 sm:px-8 sm:py-2.5 rounded-lg sm:rounded-xl shadow-lg shadow-lime-500/10 font-bold hover:bg-[#76b813] transition-all text-[11px] sm:text-sm whitespace-nowrap flex items-center gap-1"
+                  className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-[#84cc16] px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-lime-500/10 transition-all hover:bg-[#76b813] sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
                 >
-                  Get Started <ArrowLeftIcon className="w-3 h-3 rotate-180" />
-                </button>
-                <button
-                  type="button"
-                  onClick={openLoginModal}
-                  className="hidden sm:block text-[#84cc16] px-6 sm:px-8 py-2 sm:py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-colors border-2 border-[#84cc16] text-sm whitespace-nowrap"
-                >
-                  Log In
+                  Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
                 </button>
               </div>
             )}
 
-            {/* Mobile Menu Toggle */}
-            <button
-              type="button"
-              className="md:hidden p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </button>
+            {/* Mobile site nav (dashboard shows Home/Experts in the top bar) */}
+            {!isDashboard && (
+              <button
+                type="button"
+                className="rounded-lg p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-black md:hidden"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Image
+                    src="/svg/hamburger.svg"
+                    height={20}
+                    width={20}
+                    alt="Hamburger menu"
+                  />
+                )}
+              </button>
+            )}
           </div>
         </nav>
 
-        {isMobileMenuOpen && (
+        {!isDashboard && isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100">
             <div className="flex flex-col p-4 space-y-2">
               {navLinks.map((link) => (

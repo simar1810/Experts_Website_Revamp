@@ -11,7 +11,7 @@ export function ClientTransformations() {
           {c.badge}
         </span>
 
-        <h2 className="font-montserrat font-extrabold uppercase leading-[1.08] tracking-tight text-[#064E3B]">
+        <h2 className="font-extrabold uppercase leading-[1.08] tracking-tight text-[#064E3B]">
           <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-[3.8rem]">
             {c.line1}
           </span>

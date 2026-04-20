@@ -1,7 +1,6 @@
 import { searchListings } from "@/lib/services/listingSearch.service";
 import { paidListingsToCoachColumns } from "@/lib/curatedShowcaseFromListing";
 import {
-  ClientTransformations,
   CuratedEliteSection,
   FinalCtaSection,
   HeroSection,
@@ -9,6 +8,7 @@ import {
   PrecisionSelectionSection,
   TopProgramsSection,
 } from "./_components/landing";
+import { ClientResultsSection } from "./_components/landing/ClientResultsSection";
 
 export const metadata = {
   title: "WellnessZ Experts | Elite Human Performance",
@@ -37,7 +37,7 @@ export default async function ClientLandingPage() {
       <TopProgramsSection />
       <CuratedEliteSection coachColumns={curatedCoachColumns} />
       <MomentumSection />
-      {/* <ClientTransformations /> */}
+      <ClientResultsSection />
       <FinalCtaSection />
     </main>
   );

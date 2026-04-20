@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,54 +12,71 @@ import DashboardHeading from "../_components/common/DashboardHeading";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { fetchAPI } from "@/lib/api";
 
-const SESSIONS = [
-  {
-    id: "1",
-    coachName: "Jordan Blake",
-    coachImage:
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=120&h=120&fit=crop&q=80",
-    badge: "ELITE TIER",
-    day: 5,
-    monthIndex: 9,
-    year: 2024,
-    title: "1-ON-1 STRENGTH TRAINING",
-    timeStart: "09:00 AM",
-    timeEnd: "10:30 AM",
-    isVirtual: false,
-    locationLabel: "Studio B",
-  },
-  {
-    id: "2",
-    coachName: "Samira Chen",
-    coachImage:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&h=120&fit=crop&q=80",
-    badge: "RECOVERY",
-    day: 10,
-    monthIndex: 9,
-    year: 2024,
-    title: "MOBILITY & FOAM ROLLING",
-    timeStart: "02:00 PM",
-    timeEnd: "03:00 PM",
-    isVirtual: true,
-    locationLabel: "Virtual Session",
-  },
-  {
-    id: "3",
-    coachName: "Marcus Vance",
-    coachImage:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&q=80",
-    badge: "ELITE TIER",
-    day: 12,
-    monthIndex: 9,
-    year: 2024,
-    title: "CONDITIONING CIRCUIT",
-    timeStart: "06:30 PM",
-    timeEnd: "07:30 PM",
-    isVirtual: false,
-    locationLabel: "Track — East Wing",
-  },
-];
+const COACH_PLACEHOLDER =
+  "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=120&h=120&fit=crop&q=80";
+
+function mapAppointmentToSession(appt) {
+  const start = new Date(appt.startAt);
+  const end = new Date(appt.endAt);
+  const joinUrl =
+    typeof appt.meeting?.joinUrl === "string" ? appt.meeting.joinUrl.trim() : "";
+  const isVirtual =
+    Boolean(joinUrl) ||
+    (appt.meeting?.provider &&
+      appt.meeting.provider !== "none" &&
+      appt.meeting.provider !== "others");
+
+  const coach = appt.coach;
+  const coachImage =
+    coach && typeof coach.profilePhoto === "string" && coach.profilePhoto.trim()
+      ? coach.profilePhoto.trim()
+      : COACH_PLACEHOLDER;
+  const coachName =
+    coach && typeof coach.name === "string" && coach.name.trim()
+      ? coach.name.trim()
+      : "Expert";
+
+  const titleRaw = appt.title || appt.appointmentType || "Consultation";
+  const title =
+    typeof titleRaw === "string" ? titleRaw.trim() || "Consultation" : "Consultation";
+
+  const statusBadge =
+    typeof appt.status === "string" && appt.status.trim()
+      ? appt.status.trim().replace(/_/g, " ").toUpperCase()
+      : "SCHEDULED";
+
+  const locationLabel = isVirtual
+    ? "Virtual session"
+    : (typeof appt.agenda === "string" && appt.agenda.trim()
+        ? appt.agenda.trim()
+        : "In person"
+      ).slice(0, 120);
+
+  return {
+    id: String(appt._id),
+    coachName,
+    coachImage,
+    badge: statusBadge,
+    day: start.getDate(),
+    monthIndex: start.getMonth(),
+    year: start.getFullYear(),
+    title: title.toUpperCase(),
+    timeStart: start.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+    timeEnd: end.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+    isVirtual,
+    locationLabel,
+    joinUrl,
+  };
+}
 
 function SessionCard({ session }) {
   const dateLabel = new Date(
@@ -71,6 +88,12 @@ function SessionCard({ session }) {
     day: "2-digit",
     year: "numeric",
   });
+
+  const openJoin = () => {
+    if (session.joinUrl) {
+      window.open(session.joinUrl, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
     <article className="font-lato flex flex-col gap-4 rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm sm:flex-row sm:items-stretch sm:gap-5">
@@ -118,9 +141,11 @@ function SessionCard({ session }) {
       <div className="flex shrink-0 items-center sm:items-center">
         <Button
           type="button"
-          className="w-full rounded-xl bg-[#70C136] px-12 py-6 font-lato text-sm font-bold uppercase tracking-wide text-white hover:bg-[#5fa82d] sm:w-auto sm:min-w-26"
+          onClick={openJoin}
+          disabled={!session.joinUrl}
+          className="w-full rounded-xl bg-[#70C136] px-12 py-6 font-lato text-sm font-bold uppercase tracking-wide text-white hover:bg-[#5fa82d] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-26"
         >
-          Join
+          {session.joinUrl ? "Join" : "No link yet"}
         </Button>
       </div>
     </article>
@@ -128,34 +153,103 @@ function SessionCard({ session }) {
 }
 
 export default function SessionsPage() {
-  const [month, setMonth] = useState(() => new Date(2024, 9, 1));
-  const [selectedDate, setSelectedDate] = useState(() => new Date(2024, 9, 5));
+  const { isAuthenticated, openLoginModal } = useAuth();
+  const [month, setMonth] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   const year = month.getFullYear();
   const monthIndex = month.getMonth();
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setSessions([]);
+      setLoadError(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const from = new Date(year, monthIndex, 1).toISOString();
+        const to = new Date(
+          year,
+          monthIndex + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        ).toISOString();
+        const res = await fetchAPI(
+          `/appointments/client/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+          undefined,
+          "GET",
+        );
+        const raw = Array.isArray(res?.data) ? res.data : [];
+        if (cancelled) return;
+        setSessions(raw.map(mapAppointmentToSession));
+      } catch (e) {
+        if (!cancelled) {
+          setLoadError(
+            e instanceof Error ? e.message : "Could not load appointments.",
+          );
+          setSessions([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, year, monthIndex]);
+
   const sessionDates = useMemo(
-    () => SESSIONS.map((s) => new Date(s.year, s.monthIndex, s.day)),
-    [],
+    () =>
+      sessions.map((s) => new Date(s.year, s.monthIndex, s.day)),
+    [sessions],
   );
 
   const sessionsInMonth = useMemo(
     () =>
-      SESSIONS.filter(
-        (s) => s.year === year && s.monthIndex === monthIndex,
-      ).sort((a, b) => a.day - b.day),
-    [year, monthIndex],
+      sessions
+        .filter((s) => s.year === year && s.monthIndex === monthIndex)
+        .sort((a, b) => a.day - b.day),
+    [sessions, year, monthIndex],
   );
 
   const monthName = month.toLocaleDateString("en-US", { month: "long" });
 
-  const subtext =
-    sessionsInMonth.length === 0
+  const subtext = loading
+    ? "Loading appointments…"
+    : sessionsInMonth.length === 0
       ? `No sessions scheduled in ${monthName}.`
       : `You have ${sessionsInMonth.length} session${sessionsInMonth.length === 1 ? "" : "s"} scheduled in ${monthName}.`;
 
   function shiftMonth(delta) {
     setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center justify-center py-16 text-center">
+        <DashboardHeading text="UPCOMING SESSIONS" />
+        <p className="mt-3 text-sm text-zinc-600">
+          Log in to see consultations and sessions booked with experts.
+        </p>
+        <Button
+          type="button"
+          className="mt-8 rounded-xl bg-[#84cc16] px-8 py-3 font-semibold text-white hover:bg-[#6ca832]"
+          onClick={openLoginModal}
+        >
+          Log in
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -256,9 +350,16 @@ export default function SessionsPage() {
           <div>
             <DashboardHeading text="UPCOMING SESSIONS" />
             <p className="max-w-xl text-sm text-zinc-500">{subtext}</p>
+            {loadError ? (
+              <p className="mt-2 text-sm text-red-600">{loadError}</p>
+            ) : null}
           </div>
           <div className="space-y-4">
-            {sessionsInMonth.length === 0 ? (
+            {loading ? (
+              <p className="rounded-2xl border border-dashed border-zinc-200 bg-white/70 px-6 py-12 text-center text-sm text-zinc-500">
+                Loading…
+              </p>
+            ) : sessionsInMonth.length === 0 ? (
               <p className="rounded-2xl border border-dashed border-zinc-200 bg-white/70 px-6 py-12 text-center text-sm text-zinc-500">
                 No upcoming sessions in this month.
               </p>

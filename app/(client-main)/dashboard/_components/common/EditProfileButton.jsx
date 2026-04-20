@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import EditProfileModal from "./EditProfileModal";
 
-export default function EditProfileButton() {
+export default function EditProfileButton({ profile, onProfileSaved }) {
   const [open, setOpen] = React.useState(false);
+
+  if (!profile) {
+    return null;
+  }
 
   return (
     <>
@@ -18,7 +22,12 @@ export default function EditProfileButton() {
         <span>Edit Profile</span>
         <ChevronRight className="size-5 shrink-0" />
       </Button>
-      <EditProfileModal open={open} onOpenChange={setOpen} />
+      <EditProfileModal
+        open={open}
+        onOpenChange={setOpen}
+        profile={profile}
+        onProfileSaved={onProfileSaved}
+      />
     </>
   );
 }

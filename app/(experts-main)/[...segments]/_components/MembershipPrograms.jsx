@@ -219,8 +219,8 @@ export default function MembershipPrograms({
   const hasPrograms = Array.isArray(programs) && programs.length > 0;
 
   return (
-    <section className="w-full bg-[#034b1b]  text-white  py-7 sm:px-8 sm:py-9 lg:px-10 lg:py-10">
-      <div className="mx-auto w-full max-w-6xl px-6 sm:px-8">
+    <section className="w-full bg-[#034b1b] px-4 py-7 text-white sm:px-8 sm:py-9 lg:px-10 lg:py-10">
+      <div className="mx-auto w-full max-w-6xl">
         <p className="text-[10px] uppercase tracking-widest text-green-200">
           Membership Tiers
         </p>

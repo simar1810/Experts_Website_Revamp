@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, Filter } from "lucide-react";
 import { useValues } from "@/context/valuesContext";
 import { useExpertsListingSearch } from "@/hooks/useExpertsListingSearch";
+import { useIsMinLg } from "@/hooks/use-is-min-lg";
+import { availableSpecialities } from "@/lib/data/specialities";
 import HeroSearchBar from "./_components/hero/HeroSearchBar";
-import HeroCategoryRow from "./_components/hero/HeroCategoryRow";
+import MobileListingToolbar from "./_components/MobileListingToolbar";
 import TopExpertsSection from "./_components/top-experts/TopExpertsSection";
 import ExpertsFiltersSidebar from "./_components/filters/ExpertsFiltersSidebar";
+import ExpertsFiltersBottomSheet from "./_components/filters/ExpertsFiltersBottomSheet";
 import PopularExpertsSection from "./_components/popular/PopularExpertsSection";
 import ExpertsReviewsSection from "./_components/reviews/ExpertsReviewsSection";
 
@@ -20,26 +22,62 @@ function ExpertsPageInner() {
     specialityFromUrl ? [specialityFromUrl] : [],
   );
   const [locationQuery, setLocationQuery] = useState(locationFromUrl);
+  const [locationFilter, setLocationFilter] = useState(() =>
+    locationFromUrl
+      ? { mode: "city", city: locationFromUrl }
+      : { mode: "none" },
+  );
+  const [nameQuery, setNameQuery] = useState("");
+  const [certificationQuery, setCertificationQuery] = useState("");
   const [searchClientLocation, setSearchClientLocation] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const mobileFiltersRef = useRef(null);
+  const isMinLg = useIsMinLg();
   const { values } = useValues();
+
+  useEffect(() => {
+    if (!isMinLg) return;
+    // Viewport switched to `lg`: avoid sheet reopening after resize back to mobile.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional layout breakpoint sync
+    setIsMobileFiltersOpen(false);
+  }, [isMinLg]);
+
+  const specialityOptions = useMemo(() => {
+    const v = values?.expertise_categories;
+    if (Array.isArray(v) && v.length > 0) {
+      return [...new Set(v.filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" }),
+      );
+    }
+    return availableSpecialities;
+  }, [values?.expertise_categories]);
 
   useEffect(() => {
     setSelectedSpecialities(specialityFromUrl ? [specialityFromUrl] : []);
   }, [specialityFromUrl]);
 
   useEffect(() => {
-    setLocationQuery(locationFromUrl);
+    if (locationFromUrl) {
+      setLocationFilter({ mode: "city", city: locationFromUrl });
+      setLocationQuery(locationFromUrl);
+    } else {
+      setLocationFilter({ mode: "none" });
+      setLocationQuery("");
+    }
   }, [locationFromUrl]);
 
   const useGeo = searchClientLocation?.coordinates?.length === 2;
   const showDistanceFilter =
-    useGeo || (locationQuery || "").trim().length > 0;
+    useGeo ||
+    locationFilter.mode !== "none" ||
+    (locationQuery || "").trim().length > 0;
 
   const listing = useExpertsListingSearch({
     selectedSpecialities,
-    locationQuery,
+    locationFilter,
     searchClientLocation,
+    nameQuery,
+    certificationQuery,
   });
 
   const handleSearch = async () => {
@@ -53,18 +91,50 @@ function ExpertsPageInner() {
   const freeCountDisplay =
     listing.meta?.freeReturned ?? listing.free?.length ?? 0;
 
+  const mobileResultsCount =
+    listing.meta?.totalCount ??
+    listing.meta?.freeTotal ??
+    listing.meta?.total ??
+    (listing.paid?.length || 0) + (listing.free?.length || 0);
+
+  const handleMobileFilterSheetOpenChange = (open) => {
+    if (!open) {
+      mobileFiltersRef.current?.flushToParent?.();
+    }
+    setIsMobileFiltersOpen(open);
+  };
+
+  const filterSidebarProps = {
+    showDistanceFilter,
+    locationLabel,
+    freeCount: freeCountDisplay,
+    languages: listing.languages,
+    setLanguages: listing.setLanguages,
+    selectedSpecialities,
+    setSelectedSpecialities,
+    consultationMode: listing.consultationMode,
+    setConsultationMode: listing.setConsultationMode,
+    radiusKm: listing.radiusKm,
+    setRadiusKm: listing.setRadiusKm,
+    clientsRanges: listing.clientsRanges,
+    setClientsRanges: listing.setClientsRanges,
+    wzAssured: listing.wzAssured,
+    setWzAssured: listing.setWzAssured,
+  };
+
   return (
-    <main className="min-h-screen bg-white overflow-x-hidden font-sans">
-      <section className="relative w-full min-h-[380px] md:min-h-[480px] flex flex-col items-center justify-center text-center px-4 pb-10 md:pb-12">
+    <main className="min-h-screen bg-white overflow-x-clip font-lato">
+      {/* z-20: keep hero + search dropdowns above following sections (Top Experts paints later in DOM and would cover overflow otherwise) */}
+      <section className="relative z-20 w-full min-h-[380px] md:min-h-[480px] flex flex-col items-center justify-center text-center px-4 pb-10 md:pb-12 max-lg:hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 overflow-hidden"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 overflow-hidden max-lg:hidden"
           style={{
             backgroundImage: "url('/images/gym-bg.png')",
             filter: "blur(6px) brightness(0.4)",
           }}
         />
 
-        <div className="relative z-10 w-full max-w-5xl mx-auto space-y-3 sm:space-y-5 pt-8 md:pt-10">
+        <div className="relative z-10 w-full max-w-5xl mx-auto space-y-3 sm:space-y-5 pt-8 md:pt-10 max-lg:hidden">
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
             Find the right <span className="text-[#70C136]">Expert</span> for
             your Health
@@ -81,80 +151,75 @@ function ExpertsPageInner() {
             setSelectedSpecialities={setSelectedSpecialities}
             locationQuery={locationQuery}
             setLocationQuery={setLocationQuery}
+            setLocationFilter={setLocationFilter}
             clientLocation={searchClientLocation}
             setClientLocation={setSearchClientLocation}
+            specialityOptions={specialityOptions}
+            nameQuery={nameQuery}
+            setNameQuery={setNameQuery}
+            certificationQuery={certificationQuery}
+            setCertificationQuery={setCertificationQuery}
             onSearch={handleSearch}
           />
-
+          {/* 
           <HeroCategoryRow
             categories={values?.expertise_categories || []}
             selectedSpecialities={selectedSpecialities}
             setSelectedSpecialities={setSelectedSpecialities}
-          />
+          /> */}
         </div>
       </section>
+      {/* items-stretch: left column matches main column height so sticky aside can ride the full Top + Popular (incl. pagination) scroll range */}
+      <div className="flex items-stretch justify-between">
+        {isMinLg === true ? (
+          <div className="flex w-full shrink-0 flex-col px-6 lg:min-h-0 lg:w-[340px] lg:pl-6 lg:pr-0">
+            <div className="h-10 shrink-0 md:h-12" aria-hidden />
+            <aside className="sticky top-16 z-5 w-full md:top-5 lg:max-h-[calc(100dvh-12rem)] overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
+              <ExpertsFiltersSidebar {...filterSidebarProps} />
+            </aside>
+          </div>
+        ) : null}
 
-      <TopExpertsSection experts={listing.paid} loading={listing.loading} />
-
-      <section className="max-w-7xl mx-auto px-6 py-6 md:py-12 pb-16">
-        <div className="lg:hidden mb-6">
-          <button
-            type="button"
-            onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-            className="w-full flex items-center justify-between bg-white border border-gray-100 p-4 rounded-2xl shadow-sm active:scale-95 transition-transform"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#70C136] rounded-xl flex items-center justify-center shadow-lg shadow-lime-500/20">
-                <Filter className="w-5 h-5 text-white" />
-              </div>
-              <div className="text-left">
-                <h4 className="text-sm font-black text-gray-900 leading-none">
-                  Search Filters
-                </h4>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                  Adjust criteria
-                </p>
-              </div>
-            </div>
-            <ChevronDown
-              className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isMobileFiltersOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 relative">
-          <aside
-            className={`w-full lg:w-[340px] shrink-0 sticky top-0 ${isMobileFiltersOpen ? "block" : "hidden lg:block"}`}
+        {isMinLg !== true ? (
+          <ExpertsFiltersBottomSheet
+            open={isMobileFiltersOpen}
+            onOpenChange={handleMobileFilterSheetOpenChange}
           >
             <ExpertsFiltersSidebar
-              showDistanceFilter={showDistanceFilter}
-              locationLabel={locationLabel}
-              freeCount={freeCountDisplay}
-              languages={listing.languages}
-              setLanguages={listing.setLanguages}
-              consultationMode={listing.consultationMode}
-              setConsultationMode={listing.setConsultationMode}
-              radiusKm={listing.radiusKm}
-              setRadiusKm={listing.setRadiusKm}
-              clientsRanges={listing.clientsRanges}
-              setClientsRanges={listing.setClientsRanges}
-              wzAssured={listing.wzAssured}
-              setWzAssured={listing.setWzAssured}
-              onClose={() => setIsMobileFiltersOpen(false)}
+              ref={mobileFiltersRef}
+              {...filterSidebarProps}
+              embedInSheet
+              onClose={() => handleMobileFilterSheetOpenChange(false)}
             />
-          </aside>
+          </ExpertsFiltersBottomSheet>
+        ) : null}
 
-          <PopularExpertsSection
-            experts={listing.displayFree}
-            loading={listing.loading}
-            page={listing.page}
-            onPageChange={listing.setPage}
-            hasNextPage={listing.hasNextPage}
-            hasPrevPage={listing.hasPrevPage}
-            totalPages={listing.totalPages}
+        <div className="min-h-0 min-w-0 flex-1">
+          <MobileListingToolbar
+            resultsCount={mobileResultsCount}
+            locationQuery={locationQuery}
+            setLocationQuery={setLocationQuery}
+            setLocationFilter={setLocationFilter}
+            setClientLocation={setSearchClientLocation}
+            onSearch={handleSearch}
+            onOpenFilters={() => setIsMobileFiltersOpen(true)}
           />
+          <TopExpertsSection experts={listing.paid} loading={listing.loading} />
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12 pb-16">
+            <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 relative">
+              <PopularExpertsSection
+                experts={listing.displayFree}
+                loading={listing.loading}
+                page={listing.page}
+                onPageChange={listing.setPage}
+                hasNextPage={listing.hasNextPage}
+                hasPrevPage={listing.hasPrevPage}
+                totalPages={listing.totalPages}
+              />
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
 
       <ExpertsReviewsSection />
     </main>
@@ -165,7 +230,7 @@ export default function ExpertsPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-white overflow-x-hidden font-sans animate-pulse">
+        <main className="min-h-screen bg-white font-sans animate-pulse">
           <div className="h-[380px] md:h-[480px] bg-gray-200" />
           <div className="max-w-7xl mx-auto px-6 py-12 space-y-4">
             <div className="h-8 bg-gray-100 rounded w-1/3" />

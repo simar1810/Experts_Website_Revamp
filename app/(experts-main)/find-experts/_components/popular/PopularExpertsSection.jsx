@@ -77,13 +77,14 @@ export default function PopularExpertsSection({
     <div className="flex-1 min-w-0">
       <div
         ref={sectionTopRef}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 text-center sm:text-left"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 text-left"
       >
         <div>
-          <h2 className="text-xl sm:text-3xl font-black text-gray-900 tracking-tight">
-            Popular Experts
+          <h2 className="text-lg sm:text-3xl font-black text-gray-900 tracking-tight md:text-left">
+            <span className="md:hidden">Top Experts</span>
+            <span className="hidden md:inline">Popular Experts</span>
           </h2>
-          <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold">
+          <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold hidden sm:block">
             Top rated wellness experts available for you
           </p>
         </div>
