@@ -85,51 +85,6 @@ export const plans = [
     },
   },
   {
-    id: 3,
-    // code: "sales",
-    code: "iosBranded",
-    title: "OWN YOUR COACHING APP",
-    description: "For established coaches building a long-term brand",
-    bestFor:
-      "Coaches with 50+ active clients, clinics, or hybrid online + offline practices. This is not an app upgrade. This is ownership of your coaching business.",
-    buttonText: (renewal) => (renewal ? "Renew Now" : "Start your 14 day free trial"),
-    billingText: (months) =>
-      months === 1 ? "Billed Monthly" : "Billed Yearly",
-    features: [
-      "All Pro plan features",
-      "Your app name on Play Store / App Store",
-      "Your logo, colors, and brand identity",
-      "Zero WellnessZ branding for clients",
-      "Complete web panel",
-      "Higher client trust & retention",
-      "Strong switching cost for clients",
-    ],
-    buttonText: () => "Start your 14 day free trial",
-    discountedPrice: (months, currency) => {
-      if (months === 1 && currency === "INR") {
-        return 3_999;
-      } else if (months === 12 && currency === "INR") {
-        return 23_990;
-      } else if (months === 1 && currency === "USD") {
-        return 69;
-      } else if (months === 12 && currency === "USD") {
-        return 599;
-      }
-    },
-    originalPrice: (months, currency) => {
-      if (months === 1 && currency === "INR") {
-        return 3_999;
-      } else if (months === 12 && currency === "INR") {
-        return 47_988;
-      } else if (months === 1 && currency === "USD") {
-        return 69;
-      } else if (months === 12 && currency === "USD") {
-        return 828;
-      }
-    },
-    // nestedPlans: [enterprisePlanBrandedAndroid, enterprisePlanBrandedIOS],
-  },
-  {
     id: 2,
     code: "pro",
     title: "PRO",
@@ -174,6 +129,51 @@ export const plans = [
         return (279 - (279 * discountPercentage * 0.01)).toFixed(0);;
       }
     },
+  },
+  {
+    id: 3,
+    // code: "sales",
+    code: "iosBranded",
+    title: "OWN YOUR COACHING APP",
+    description: "For established coaches building a long-term brand",
+    bestFor:
+      "Coaches with 50+ active clients, clinics, or hybrid online + offline practices. This is not an app upgrade. This is ownership of your coaching business.",
+    buttonText: (renewal) => (renewal ? "Renew Now" : "Start your 14 day free trial"),
+    billingText: (months) =>
+      months === 1 ? "Billed Monthly" : "Billed Yearly",
+    features: [
+      "All Pro plan features",
+      "Your app name on Play Store / App Store",
+      "Your logo, colors, and brand identity",
+      "Zero WellnessZ branding for clients",
+      "Complete web panel",
+      "Higher client trust & retention",
+      "Strong switching cost for clients",
+    ],
+    buttonText: () => "Start your 14 day free trial",
+    discountedPrice: (months, currency) => {
+      if (months === 1 && currency === "INR") {
+        return 3_999;
+      } else if (months === 12 && currency === "INR") {
+        return 23_990;
+      } else if (months === 1 && currency === "USD") {
+        return 69;
+      } else if (months === 12 && currency === "USD") {
+        return 599;
+      }
+    },
+    originalPrice: (months, currency) => {
+      if (months === 1 && currency === "INR") {
+        return 3_999;
+      } else if (months === 12 && currency === "INR") {
+        return 47_988;
+      } else if (months === 1 && currency === "USD") {
+        return 69;
+      } else if (months === 12 && currency === "USD") {
+        return 828;
+      }
+    },
+    // nestedPlans: [enterprisePlanBrandedAndroid, enterprisePlanBrandedIOS],
   },
 ];
 
@@ -222,3 +222,24 @@ export const freeTier = {
     "WhatsApp Reminders (Limited)"
   ]
 }
+
+export const partnerLogos = [
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+  "/experts-logo.png",
+]

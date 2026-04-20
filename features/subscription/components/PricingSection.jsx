@@ -17,7 +17,7 @@ export default function PricingSection({ skipPlan, currentPlanCode }) {
   return (
     <Suspense>
       <PricingSectionContext skipPlan={skipPlan} currentPlanCode={currentPlanCode}>
-        <div className="max-w-[1480px] mx-auto px-4 md:px-0">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
           <Container />
         </div>
       </PricingSectionContext>

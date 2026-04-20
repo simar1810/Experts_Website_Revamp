@@ -53,7 +53,7 @@ function ExpertsPageInner() {
   }, [values?.expertise_categories]);
 
   useEffect(() => {
-    setSelectedSpecialities(specialityFromUrl ? [specialityFromUrl] : []);
+    setSelectedSpecialities(specialityFromUrl ? specialityFromUrl.split(",") : []);
   }, [specialityFromUrl]);
 
   useEffect(() => {

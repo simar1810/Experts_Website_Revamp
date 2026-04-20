@@ -78,9 +78,6 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
 
   const { values } = useValues();
 
-  useEffect(() => {
-    console.log("VALUES UPDATED:", values);
-  }, [values]);
 
   const [localWz, setLocalWz] = useState(wzAssured);
   const [localConsultation, setLocalConsultation] = useState(consultationMode);

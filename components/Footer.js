@@ -5,14 +5,16 @@ import { useRouter } from "next/navigation";
 import { footerSections } from "@/lib/data/footerCities";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
 import WellnessZLogoLink from "@/components/WellnessZLogoLink";
+import Link from "next/link";
 
 export default function Footer() {
   const legalLinks = [
-    { label: "User Terms", href: "#" },
-    { label: "Bussiness Terms", href: "#" },
-    { label: "Privacy Policy", href: "#" },
-    { label: "Cookie Policy", href: "#" },
-    { label: "Cookie Settings", href: "#" },
+    // { label: "User Terms", href: "#" },
+    // { label: "Bussiness Terms", href: "#" },
+    { label: "Privacy Policy", href: "https://wellnessz.in/privacy-policy" },
+    { label: "Terms & Conditions", href: "https://wellnessz.in/terms-and-conditions" },
+    // { label: "Cookie Policy", href: "#" },
+    // { label: "Cookie Settings", href: "#" },
   ];
 
   const router = useRouter();
@@ -43,10 +45,9 @@ export default function Footer() {
             </div> */}
           </div>
 
-          <div className=" order-2 lg:order-1 grid grid-cols-3 gap-10 pl-3 pr-3 text-left md:col-span-6">
+          <div className="order-2 lg:order-1 grid grid-cols-2 gap-10 pl-3 pr-3 text-left md:col-span-6">
             {footerSections.map((section) => (
               <div key={section.title} className="space-y-4">
-                {/* Title */}
                 <h4 className="text-sm font-black text-white/70 uppercase tracking-wide">
                   {section.title}
                 </h4>
@@ -54,12 +55,14 @@ export default function Footer() {
                 {/* Items */}
                 <div className="space-y-2">
                   {section.items.map((item) => (
-                    <p
-                      key={item}
-                      className="text-xs sm:text-sm text-white/40 hover:text-white transition-colors cursor-pointer"
+                    <Link
+                      target="_blank"
+                      href={item.location}
+                      key={item.id}
+                      className="block text-xs sm:text-sm text-white/40 hover:text-white transition-colors cursor-pointer"
                     >
-                      {item}
-                    </p>
+                      {item.label}
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -86,13 +89,13 @@ export default function Footer() {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             {/* LEFT: Social Icons */}
             <div className="hidden sm:flex items-center justify-center sm:justify-start gap-5 text-white/70">
-              <a href="#" className="hover:text-white transition-colors">
+              <a target="_blank" href="https://www.facebook.com/profile.php?id=61553253021745&mibextid=ZbWKwL/" className="hover:text-white transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="hover:text-white transition-colors">
+              <a target="_blank" href="https://instagram.com/wellnessz_official?igshid=MzMyNGUyNmU2YQ==" className="hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="hover:text-white transition-colors">
+              <a target="_blank" href="https://www.linkedin.com/company/wellnessz/" className="hover:text-white transition-colors">
                 <Linkedin size={20} />
               </a>
             </div>
@@ -101,6 +104,7 @@ export default function Footer() {
             <div className="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2">
               {legalLinks.map((link) => (
                 <a
+                  target="_blank"
                   key={link.label}
                   href={link.href}
                   className="text-xs sm:text-sm text-white/50 hover:text-white transition-colors"

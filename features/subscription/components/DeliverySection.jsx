@@ -1,53 +1,103 @@
-import React from "react";
-import { mockups } from "../utils/config";
+"use client";
 
-const DeliverySection = function () {
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const faqs = [
+  {
+    q: "Why do I need WellnessZ as a coach?",
+    a: "Managing clients manually takes too much time and effort. WellnessZ automates meal planning, client tracking, progress reporting, and reminders—helping you scale your business effortlessly.",
+  },
+  {
+    q: "How will WellnessZ help me grow my coaching business?",
+    a: "With automation, analytics, and better client engagement tools, you can handle more clients while maintaining quality.",
+  },
+  {
+    q: "What makes WellnessZ different from other tools?",
+    a: "It’s built specifically for health coaches with features like diet planning, progress tracking, and habit monitoring in one place.",
+  },
+  {
+    q: "Can I create personalized diet plans?",
+    a: "Yes, you can fully customize plans based on your clients' goals, preferences, and restrictions.",
+  },
+  {
+    q: "How does progress tracking work?",
+    a: "Clients update their data, and you get visual insights, reports, and trends automatically.",
+  },
+];
+
+export default function DeliverySection() {
+  const [openIndex, setOpenIndex] = useState(0);
+
   return (
-    <section className="relative w-full bg-[#F8F9FA] py-16 md:py-24 overflow-hidden">
-      <div className="absolute inset-0 z-0 opacity-[0.03]" 
-           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', size: '40px 40px', backgroundSize: '40px 40px' }} 
-      />
+    <section className="w-full bg-white py-20">
+      <div className="mx-auto max-w-[1200px] px-4">
+        <div className="grid items-center gap-12 md:grid-cols-2">
+          
+          <div className="relative flex justify-center">
+            <div className="absolute left-10 top-10 h-[420px] w-[220px] rounded-[32px] bg-black shadow-2xl rotate-[-8deg]" />
 
-      <div className="container relative z-10 mx-auto px-4">
-        <h2 className="mb-16 text-center text-3xl font-bold tracking-tight text-[#1A1A1A] md:mb-24 md:text-5xl">
-          How you deliver your services
-        </h2>
+            <div className="relative z-10 h-[460px] w-[240px] rounded-[36px] bg-gradient-to-br from-gray-200 to-gray-300 shadow-2xl border border-gray-200" />
+          </div>
 
-        <div className="relative flex h-[400px] items-center justify-center md:h-[600px]">
-          {mockups.map((phone) => (
-            <div
-              key={phone.id}
-              className={`absolute transition-all duration-700 ease-in-out ${phone.scale} ${phone.zIndex} ${phone.opacity} ${phone.translate}`}
-            >
-              <div className="relative h-[350px] w-[170px] rounded-[2.5rem] border-[6px] border-[#1A1A1A] bg-black shadow-2xl md:h-[500px] md:w-[240px] md:border-[8px]">
-                <div className="absolute top-0 left-1/2 h-5 w-24 -translate-x-1/2 rounded-b-xl bg-[#1A1A1A] md:h-6 md:w-32" />
-                
-                {phone.id === 3 ? (
-                  <div className="h-full w-full overflow-hidden rounded-[1.8rem]">
-                    <img 
-                      src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop" 
-                      alt="Service Delivery"
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/20" />
-                    <div className="absolute bottom-10 left-0 w-full px-4 text-center text-white">
-                        <span className="mb-2 inline-block rounded-full border border-white/40 px-3 py-0.5 text-[8px] uppercase tracking-widest md:text-[10px]">Free</span>
-                        <p className="text-xs font-bold md:text-lg">iPhone 12 Pro Mockup</p>
+          <div className="rounded-2xl bg-gray-50 p-8 md:p-10">
+            <h2 className="text-3xl font-semibold mb-6">
+              Do you have questions?
+            </h2>
+
+            <div className="space-y-4">
+              {faqs.map((faq, i) => {
+                const isOpen = i === openIndex;
+
+                return (
+                  <div
+                    key={i}
+                    className="border-b border-gray-200 pb-4"
+                  >
+                    <button
+                      onClick={() =>
+                        setOpenIndex(isOpen ? -1 : i)
+                      }
+                      className="flex w-full items-center justify-between text-left"
+                    >
+                      <span className="text-base font-medium text-black">
+                        {faq.q}
+                      </span>
+
+                      <ChevronDown
+                        className={`h-5 w-5 transition-transform ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ${
+                        isOpen ? "mt-3 max-h-40" : "max-h-0"
+                      }`}
+                    >
+                      <p className="text-sm text-gray-500 leading-relaxed">
+                        {faq.a}
+                      </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-end pb-10 text-center text-white">
-                    <span className="mb-2 inline-block rounded-full border border-white/20 px-3 py-0.5 text-[8px] uppercase tracking-widest md:text-[10px]">Free</span>
-                    <p className="px-4 text-[10px] font-bold md:text-base">iPhone 12 Pro Mockup</p>
-                  </div>
-                )}
-              </div>
+                );
+              })}
             </div>
-          ))}
+
+            <div className="mt-8 flex items-center justify-between">
+              <p className="text-sm text-gray-500">
+                My question is not here.
+              </p>
+
+              <Button className="bg-black text-white hover:bg-black/90">
+                CONNECT US ↗
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default DeliverySection;
+}

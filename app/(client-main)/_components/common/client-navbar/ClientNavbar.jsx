@@ -14,7 +14,13 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import WellnessZLogoLink from "@/components/WellnessZLogoLink";
 import Image from "next/image";
 
-export default function ClientNavbar({ isDashboard = false }) {
+export default function ClientNavbar({ isDashboard }) {
+  const pathname = usePathname()
+  if (["/experts"].includes(pathname)) return <></>
+  return <Container isDashboard={isDashboard} />
+}
+
+function Container({ isDashboard = false }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
