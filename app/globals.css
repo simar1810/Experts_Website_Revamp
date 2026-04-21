@@ -337,3 +337,16 @@ html {
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
   border: 2px solid #fff;
 }
+
+@keyframes marquees {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marqueex {
+  animation: marquees linear infinite;
+}

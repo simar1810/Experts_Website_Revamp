@@ -677,11 +677,9 @@ export const LocationSearchField = forwardRef(function LocationSearchField(
             setCoordinateLocation({ latitude, longitude });
           },
           (err) => {
-            console.log("failed to fetch location", err);
+            // console.log("failed to fetch location", err);
           },
         );
-      } else {
-        console.log("failed to fetch location");
       }
     }
     getLocation();
@@ -725,7 +723,6 @@ export const LocationSearchField = forwardRef(function LocationSearchField(
           await finishWithCoordinates({ latitude, longitude });
         },
         (err) => {
-          console.log("failed to fetch location", err);
           setShowLocationDropdown(false);
         },
       );
@@ -1026,7 +1023,6 @@ export default function SearchFilters({
   };
 
   const runSearch = useCallback(() => {
-    locationFieldRef.current?.syncBeforeSearch?.();
     setTimeout(() => {
       if (typeof onSearch === "function") {
         onSearch();
