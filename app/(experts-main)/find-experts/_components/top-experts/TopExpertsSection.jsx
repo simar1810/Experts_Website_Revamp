@@ -75,7 +75,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
       <section className="relative z-0 max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
         <div>
           <h2 className="text-lg sm:text-3xl font-black text-gray-900 tracking-tight">
-            Top Experts
+            {/* Top Experts */}
           </h2>
         </div>
         <div className="flex gap-4 overflow-hidden animate-pulse">

@@ -1,33 +1,41 @@
 "use client";
 
 import ExpertsReviewCard from "./ExpertsReviewCard";
+import { testimonials } from "@/lib/data/landingContent"
 
 export default function ExpertsReviewsSection() {
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden bg-gradient-to-b from-[#6eb832] via-[#5a9e28] to-[#2d5016] mt-20">
-      <div className="max-w-7xl mx-auto px-6 mb-10 sm:mb-14 text-center text-white relative z-10">
-        <h2 className="text-2xl sm:text-3xl md:text-5xl font-black mb-4 tracking-tight">
-          Our Reviews Speaks for Itself
+    <section className="relative py-20 md:py-28 overflow-hidden bg-gradient-to-b from-[#6eb832] via-[#5a9e28] to-[#2d5016] mt-20">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-lime-400/20 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 mb-12 text-center text-white relative z-10">
+        <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter">
+          Our Reviews Speak <span className="text-lime-200">For Themselves</span>
         </h2>
-        <p className="text-lime-50/95 text-[10px] sm:text-sm max-w-2xl mx-auto font-medium tracking-wide leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        <p className="text-lime-50/80 text-sm md:text-base max-w-2xl mx-auto font-medium leading-relaxed">
+          Join hundreds of professionals who have leveled up their careers through our 
+          curated elite coaching network.
         </p>
       </div>
 
-      <div className="flex justify-start sm:justify-center gap-4 sm:gap-6 px-6 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide pb-4 md:pb-0">
-        <ExpertsReviewCard />
-        <ExpertsReviewCard />
-        <ExpertsReviewCard />
-        <ExpertsReviewCard />
-        <ExpertsReviewCard />
+      <div className="flex gap-6 px-6 mb-8 overflow-x-auto scrollbar-hide pb-4 snap-x">
+        {[...testimonials, ...testimonials].map((review, idx) => (
+          <ExpertsReviewCard 
+            key={idx} 
+            {...review} 
+            className="snap-center"
+          />
+        ))}
       </div>
-      <div className="flex justify-start sm:justify-center gap-4 sm:gap-6 px-6 overflow-x-auto scrollbar-hide pb-4 md:pb-0">
-        <ExpertsReviewCard className="opacity-40" />
-        <ExpertsReviewCard />
-        <ExpertsReviewCard />
-        <ExpertsReviewCard />
-        <ExpertsReviewCard className="opacity-40" />
+
+      <div className="animate-marqueex flex gap-6 px-6 overflow-x-auto scrollbar-hide pb-4 snap-x ml-12">
+        {[...testimonials, ...testimonials].reverse().map((review, idx) => (
+          <ExpertsReviewCard 
+            key={idx} 
+            {...review} 
+            className="opacity-60 hover:opacity-100 snap-center"
+          />
+        ))}
       </div>
     </section>
   );

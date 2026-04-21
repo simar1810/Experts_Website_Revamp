@@ -1,142 +1,56 @@
 "use client";
-
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { curatedContent } from "@/lib/data/landingContent";
-import { getCuratedVerticalMarqueeDurationSecFromColumns } from "@/lib/curatedMarqueeDuration";
-import {
-  interleaveCoachColumns,
-  partitionCoachPropsIntoColumns,
-} from "@/lib/curatedShowcaseFromListing";
-import { Marquee } from "@/components/ui/marquee";
+import { curatedContent, expertsList } from "@/lib/data/landingContent";
 import { SectionHeading } from "./SectionHeading";
 import { CoachShowcaseCard } from "./CoachShowcaseCard";
 
-const COLUMN_COUNT = 3;
-
-/** Scroll directions: outer cols up, middle down. */
-const COLUMN_SCROLL = [
-  { reverse: false },
-  { reverse: true },
-  { reverse: false },
-];
-
-/**
- * @param {{ coachColumns?: Array<Array<Record<string, unknown>>> | null }} props
- * Each inner array is one marquee column (no duplicate expert within a column).
- * When null/empty, falls back to static coaches from `curatedContent`.
- */
-export function CuratedEliteSection({
-  coachColumns: coachColumnsFromApi = null,
-}) {
+export function CuratedEliteSection({ coachColumns: coachColumnsFromApi = null }) {
   const c = curatedContent;
 
-  const columns = useMemo(() => {
-    const hasApi =
-      Array.isArray(coachColumnsFromApi) &&
-      coachColumnsFromApi.length === COLUMN_COUNT &&
-      coachColumnsFromApi.some((col) => col.length > 0);
-    if (hasApi) return coachColumnsFromApi;
-    return partitionCoachPropsIntoColumns(c.coaches, COLUMN_COUNT);
-  }, [coachColumnsFromApi, c.coaches]);
-
-  const mobileCoaches = useMemo(
-    () => interleaveCoachColumns(columns),
-    [columns],
-  );
-
-  const [index, setIndex] = useState(0);
-  const n = mobileCoaches.length;
-
-  const go = (dir) => {
-    if (n === 0) return;
-    setIndex((i) => (i + dir + n) % n);
-  };
-
-  const marqueeDurationSec =
-    getCuratedVerticalMarqueeDurationSecFromColumns(columns);
-
   return (
-    <section
-      id="curated"
-      className="scroll-mt-24 bg-wz-top-cream py-14 sm:py-20"
-    >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl text-left">
-            <SectionHeading
-              title={c.titleBefore}
-              titleHighlight={c.titleHighlight}
-              subtitle={c.description}
-              align="left"
-              className="max-w-none space-y-4"
-              headingClassName="!text-neutral-900"
-              highlightClassName="!text-wz-top-green"
-              subtitleClassName="!text-wz-top-subtitle max-w-xl font-medium"
-            />
-          </div>
+    <section id="curated" className="relative scroll-mt-24 bg-wz-top-cream py-20 sm:py-28 overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-wz-top-green/5 via-transparent to-transparent pointer-events-none" />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center text-center mb-16">
+          <SectionHeading
+            title={c.titleBefore}
+            titleHighlight={c.titleHighlight}
+            subtitle={c.description}
+            align="center"
+            className="max-w-3xl"
+            headingClassName="text-4xl md:text-5xl font-black tracking-tight text-neutral-900"
+            highlightClassName="text-wz-top-green"
+            subtitleClassName="mt-6 text-lg text-neutral-600 font-medium leading-relaxed"
+          />
         </div>
 
-        <div className="mt-10 md:hidden">
-          <div className="mx-auto w-full max-w-[min(100%,420px)] px-1">
-            {/* {n > 0 ? <CoachShowcaseCard {...mobileCoaches[index]} /> : null} */}
-            {mobileCoaches.slice(index, index + 3).map((coach, i) => (
-              <div key={coach.id} className={i !== 0 ? "mt-4" : ""}>
-                <CoachShowcaseCard key={coach.id} {...coach} />
+        <div className="mt-10 space-y-6 md:hidden">
+          {expertsList.slice(0, 3).map((coach) => (
+            <div key={coach.id} className="mx-auto max-w-[340px] transform transition-transform active:scale-95">
+              <CoachShowcaseCard {...coach} />
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block mt-12">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {expertsList.map((coach) => (
+              <div
+                key={coach.id}
+                className="group/item transition-all duration-300 hover:-translate-y-2"
+              >
+                <CoachShowcaseCard {...coach} />
               </div>
             ))}
           </div>
-        </div>
 
-        <div className="mt-10 hidden h-[min(34rem,calc(100vh-12rem))] gap-3 overflow-hidden md:flex md:gap-6 lg:h-[min(50rem,calc(100vh-10rem))]">
-          {columns.map((columnCoaches, colIndex) => {
-            if (columnCoaches.length === 0) return null;
-            const { reverse } = COLUMN_SCROLL[colIndex] ?? { reverse: false };
-            return (
-              <div
-                key={`marquee-col-${colIndex}`}
-                className="relative isolate min-h-0 min-w-0 flex-1 overflow-hidden"
-              >
-                <Marquee
-                  vertical
-                  reverse={reverse}
-                  pauseOnHover
-                  className="relative z-0 h-full p-0 [--gap:1.5rem]"
-                  style={{
-                    ["--duration"]: `${marqueeDurationSec}s`,
-                  }}
-                >
-                  {columnCoaches.map((coach) => (
-                    <div
-                      key={coach.id}
-                      className="flex w-full min-w-0 shrink-0"
-                    >
-                      <CoachShowcaseCard {...coach} />
-                    </div>
-                  ))}
-                </Marquee>
-                {/* Solid gradients (not mask-image): masks often drop out when children use transform (marquee). */}
-                <div
-                  className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[min(28%,8rem)] bg-gradient-to-b from-wz-top-cream from-30% to-transparent"
-                  aria-hidden
-                />
-                <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[min(28%,8rem)] bg-gradient-to-t from-wz-top-cream from-30% to-transparent"
-                  aria-hidden
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-12 flex justify-center">
-          <Link
-            href={c.seeMoreHref}
-            className="rounded-xl bg-wz-see-more-bg px-10 py-3 text-[0.9375rem] font-semibold text-wz-see-more-text transition-colors hover:bg-wz-see-more-bg/85"
-          >
-            See More
-          </Link>
+          {expertsList.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <p className="text-lg font-medium text-neutral-500">
+                No experts found in this category.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </section>
