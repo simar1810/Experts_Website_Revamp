@@ -6,81 +6,13 @@ import { User2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { prettyExpertProfileUrlFromListingLike } from "@/lib/prettyExpertProfileUrl";
+import { FEATURED_EXPERTS_STATIC, getFeaturedExpertsBlurb } from "@/lib/data/featuredExpertsStatic";
 
 /**
- * Manual featured experts (swap URLs / `_id` values while the home API is off).
+ * Manual featured experts — data lives in `@/lib/data/featuredExpertsStatic` (shared with client landing).
  * Optional `websiteLink`: opens in a new tab (http/https) or via router (paths starting with `/`).
  * If `websiteLink` is missing/empty, logged-in users go to the slug profile URL (login modal if guest).
  */
-const MOCK_FEATURED_EXPERTS = [
-  {
-    _id: "replace-with-real-listing-id-1",
-    websiteLink: "http://www.fitbodyculture.in",
-    coach: {
-      name: "Ankush",
-      profilePhoto: "/images/ankush-s-bhaskar.png",
-    },
-    specializations: ["Fitness Trainer"],
-    city: "Mumbai",
-    state: "Maharashtra",
-    ratingAgg: { overall: { avg: 4.9 } },
-    reviewAgg: { totalReviews: 48 },
-  },
-  {
-    _id: "replace-with-real-listing-id-2",
-    websiteLink: "https://dietitiananubha.com/",
-    coach: {
-      name: "Anubha",
-      profilePhoto: "/images/anubha-taparia.png",
-    },
-    specializations: ["Dietitian"],
-    city: "Bengaluru",
-    state: "Karnataka",
-    ratingAgg: { overall: { avg: 4.8 } },
-    reviewAgg: { totalReviews: 32 },
-  },
-
-  {
-    _id: "replace-with-real-listing-id-23",
-    websiteLink: "https://fitlydietclinic.com/",
-    coach: {
-      name: "Onkar Singh",
-      profilePhoto: "",
-    },
-    specializations: ["Nutritionist"],
-    city: "Bengaluru",
-    state: "Karnataka",
-    ratingAgg: { overall: { avg: 4.8 } },
-    reviewAgg: { totalReviews: 32 },
-  },
-  {
-    _id: "replace-with-real-listing-id-24",
-    websiteLink: "http://www.NutridatewithPriyanka.com",
-    coach: {
-      name: "Priyanka Shah",
-      profilePhoto: "",
-    },
-    specializations: ["Dietitian"],
-    city: "Bengaluru",
-    state: "Karnataka",
-    ratingAgg: { overall: { avg: 4.8 } },
-    reviewAgg: { totalReviews: 32 },
-  },
-  {
-    _id: "anuja",
-    websiteLink: "",
-    coach: {
-      name: "Anuja",
-      profilePhoto: "/images/anuja.png",
-    },
-    specializations: ["Dietitian"],
-    city: "Bengaluru",
-    state: "Karnataka",
-    ratingAgg: { overall: { avg: 4.8 } },
-    reviewAgg: { totalReviews: 32 },
-  },
-];
-
 function ExpertPhoto({ src, name }) {
   const [failed, setFailed] = useState(false);
   const trimmed =
@@ -108,7 +40,7 @@ function ExpertPhoto({ src, name }) {
     <img
       src={trimmed}
       alt={name}
-      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
       onError={() => setFailed(true)}
     />
   );
@@ -122,47 +54,17 @@ function formatRating(expert) {
   return n.toFixed(1);
 }
 
-function blurbFromExperts(experts) {
-  if (!experts.length) {
-    return "Verified wellness coaches on our platform, ranked by ratings and real client reviews. Explore profiles and find your match.";
-  }
-  const reviewSum = experts.reduce(
-    (acc, e) => acc + (Number(e.reviewAgg?.totalReviews) || 0),
-    0,
-  );
-  const primarySpecs = [
-    ...new Set(
-      experts
-        .map((e) =>
-          Array.isArray(e.specializations) ? e.specializations[0] : null,
-        )
-        .filter((s) => typeof s === "string" && s.trim()),
-    ),
-  ].slice(0, 4);
-
-  let text =
-    "These coaches are selected from active listings and ordered by rating quality, review volume, and profile strength on our platform.";
-  if (reviewSum > 0) {
-    text += ` Together, they have ${reviewSum.toLocaleString()} client reviews recorded.`;
-  }
-  if (primarySpecs.length) {
-    const tail = primarySpecs.length >= 4 ? ", and more" : "";
-    text += ` Featured focus areas include ${primarySpecs.slice(0, 3).join(", ")}${primarySpecs.length > 3 ? tail : ""}.`;
-  }
-  return text;
-}
-
 function trimmedWebsiteLink(expert) {
   const raw = expert?.websiteLink;
   return typeof raw === "string" && raw.trim().length > 0 ? raw.trim() : "";
 }
 
 export default function FeaturedExperts() {
-  const experts = MOCK_FEATURED_EXPERTS;
+  const experts = FEATURED_EXPERTS_STATIC;
   const { isAuthenticated, openLoginModal } = useAuth();
   const router = useRouter();
 
-  const sectionBlurb = useMemo(() => blurbFromExperts(experts), [experts]);
+  const sectionBlurb = useMemo(() => getFeaturedExpertsBlurb(experts), [experts]);
 
   const handleExpertClick = (expert) => {
     const site = trimmedWebsiteLink(expert);

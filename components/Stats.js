@@ -1,8 +1,8 @@
 export default function Stats() {
   const stats = [
     { number: "7K+", label: "Wellness Experts on the platform" },
-    { number: "20K+", label: "Satisfied Clients" },
-    { number: "100K+", label: "New Inquiries" },
+    { number: "25K+", label: "Satisfied Clients" },
+    { number: "25+", label: "Collaborations" },
   ];
 
   return (

@@ -9,12 +9,11 @@ import Link from "next/link";
 
 export default function Footer() {
   const legalLinks = [
-    // { label: "User Terms", href: "#" },
-    // { label: "Bussiness Terms", href: "#" },
-    { label: "Privacy Policy", href: "https://wellnessz.in/privacy-policy" },
-    { label: "Terms & Conditions", href: "https://wellnessz.in/terms-and-conditions" },
-    // { label: "Cookie Policy", href: "#" },
-    // { label: "Cookie Settings", href: "#" },
+    { label: "User Terms", href: "/legal/user-terms" },
+    { label: "Business Terms", href: "/legal/business-terms" },
+    { label: "Privacy Policy", href: "/legal/privacy-policy" },
+    { label: "Cookie Policy", href: "/legal/cookie-policy" },
+    { label: "Cookie Settings", href: "/legal/cookie-settings" },
   ];
 
   const router = useRouter();
@@ -89,13 +88,25 @@ export default function Footer() {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             {/* LEFT: Social Icons */}
             <div className="hidden sm:flex items-center justify-center sm:justify-start gap-5 text-white/70">
-              <a target="_blank" href="https://www.facebook.com/profile.php?id=61553253021745&mibextid=ZbWKwL/" className="hover:text-white transition-colors">
+              <a
+                target="_blank"
+                href="https://www.facebook.com/profile.php?id=61553253021745&mibextid=ZbWKwL/"
+                className="hover:text-white transition-colors"
+              >
                 <Facebook size={20} />
               </a>
-              <a target="_blank" href="https://instagram.com/wellnessz_official?igshid=MzMyNGUyNmU2YQ==" className="hover:text-white transition-colors">
+              <a
+                target="_blank"
+                href="https://instagram.com/wellnessz_official?igshid=MzMyNGUyNmU2YQ=="
+                className="hover:text-white transition-colors"
+              >
                 <Instagram size={20} />
               </a>
-              <a target="_blank" href="https://www.linkedin.com/company/wellnessz/" className="hover:text-white transition-colors">
+              <a
+                target="_blank"
+                href="https://www.linkedin.com/company/wellnessz/"
+                className="hover:text-white transition-colors"
+              >
                 <Linkedin size={20} />
               </a>
             </div>
@@ -103,14 +114,13 @@ export default function Footer() {
             {/* RIGHT: Legal Links */}
             <div className="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-2">
               {legalLinks.map((link) => (
-                <a
-                  target="_blank"
+                <Link
                   key={link.label}
                   href={link.href}
-                  className="text-xs sm:text-sm text-white/50 hover:text-white transition-colors"
+                  className="text-xs sm:text-sm text-white/50 transition-colors hover:text-white"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

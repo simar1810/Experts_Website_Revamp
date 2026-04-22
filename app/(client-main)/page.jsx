@@ -1,5 +1,4 @@
-import { searchListings } from "@/lib/services/listingSearch.service";
-import { paidListingsToCoachColumns } from "@/lib/curatedShowcaseFromListing";
+import { getDiscoverProgramsForTopCards } from "@/lib/discoverProgramsApi";
 import {
   CuratedEliteSection,
   FinalCtaSection,
@@ -16,26 +15,20 @@ export const metadata = {
     "The curated marketplace connecting high-performance athletes with elite-level coaches. Dynamic, editorial-grade training.",
 };
 
-/** Refresh curated experts from search API periodically (not only at build). */
+/** Revalidate ISR (programs block uses getDiscoverProgramsForTopCards with same interval). */
 export const revalidate = 600;
 
 export default async function ClientLandingPage() {
-  let curatedCoachColumns = null;
-  try {
-    const { paid } = await searchListings({ page: 1 });
-    if (Array.isArray(paid) && paid.length > 0) {
-      curatedCoachColumns = paidListingsToCoachColumns(paid, 3);
-    }
-  } catch {
-    curatedCoachColumns = null;
-  }
+  const topPrograms =
+    (await getDiscoverProgramsForTopCards({ limit: 6, revalidate: 600 })) ??
+    null;
 
   return (
     <main className="min-h-screen bg-white font-lato text-neutral-900">
       <HeroSection />
       <PrecisionSelectionSection />
-      <TopProgramsSection />
-      <CuratedEliteSection coachColumns={curatedCoachColumns} />
+      <TopProgramsSection programs={topPrograms} />
+      <CuratedEliteSection />
       <MomentumSection />
       <ClientResultsSection />
       <FinalCtaSection />

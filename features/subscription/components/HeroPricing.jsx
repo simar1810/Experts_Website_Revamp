@@ -1,12 +1,14 @@
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const HeroPricing = function () {
   return (
-    <section className="relative w-full bg-white px-4 relative">
+    <section className="relative w-full bg-white p-4 relative">
       <div className="relative mx-auto max-w-[1400px] rounded-[40px] bg-gradient-to-br pb-0 pt-16 text-center text-white rounded-[20px] md:pt-24">
         <Image
           fill
+          priority
           src="/images/pricing-hero.svg"
           className="z-[0] object-cover rounded-[20px]"
           alt=""
@@ -28,11 +30,15 @@ const HeroPricing = function () {
           </div>
 
           <div className="mb-6 flex items-center justify-center gap-4 flex-row">
-            <Button
-              className="h-12 lg:w-full rounded-xl bg-white px-8 text-sm font-semibold text-[#1B5E20] hover:bg-white/90 sm:w-auto md:h-14 md:text-base"
+            <a
+              href="#pricing-plans"
+              className={cn(
+                buttonVariants({ variant: "default", size: "default" }),
+                "h-12 rounded-xl bg-white px-8 text-sm font-semibold text-[#1B5E20] hover:bg-white/90 hover:text-[#1B5E20] sm:w-auto md:h-14 md:text-base lg:w-full"
+              )}
             >
               Start your 14-day trial
-            </Button>
+            </a>
             <Button
               variant="outline"
               className="h-12 lg:w-full rounded-xl border-none bg-[#76C733] px-8 text-sm font-semibold text-white hover:bg-[#68b12d] sm:w-auto md:h-14 md:text-base"

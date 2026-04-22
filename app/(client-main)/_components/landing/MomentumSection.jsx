@@ -64,7 +64,7 @@ export function MomentumSection() {
                     className="text-[clamp(1.75rem,3.2vw,2.25rem)] font-semibold leading-none text-[#9AF45D]"
                   />
                   <p className="text-[clamp(1.75rem,3.2vw,2.25rem)] font-semibold leading-none text-[#9AF45D]">
-                    %
+                    %+
                   </p>
                 </div>
                 <p className="mt-2 text-[10px] font-bold uppercase leading-snug tracking-[0.12em] text-white sm:text-[11px]">

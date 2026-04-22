@@ -10,14 +10,7 @@ import {
   useImperativeHandle,
 } from "react";
 import { cn } from "@/lib/utils";
-import {
-  Search,
-  MapPin,
-  X,
-  ChevronDown,
-  User,
-  GraduationCap,
-} from "lucide-react";
+import { Search, MapPin, X, ChevronDown, User } from "lucide-react";
 import { EXPERTS_FILTER_DEBOUNCE_MS } from "@/lib/constants/filters";
 import { availableSpecialities } from "@/lib/data/specialities";
 import {
@@ -749,7 +742,7 @@ export const LocationSearchField = forwardRef(function LocationSearchField(
     <div
       ref={locationFieldRootRef}
       className={cn(
-        "relative flex min-h-11 min-w-0 flex-1 items-center px-3 py-1",
+        "relative flex min-h-11 min-w-0 flex-1 basis-0 items-center px-3 py-1",
         showLocationDropdown ? "z-[200] isolate" : "z-[2]",
         className,
       )}
@@ -937,8 +930,6 @@ export default function SearchFilters({
   placeholderLocation = "Location",
   nameQuery,
   setNameQuery,
-  certificationQuery,
-  setCertificationQuery,
   /** Options for speciality autocomplete; defaults to static list when omitted */
   specialityOptions: specialityOptionsProp,
   /** Shown above each field on small screens only (stacked layout). */
@@ -1007,9 +998,7 @@ export default function SearchFilters({
       document.removeEventListener("pointerdown", handlePointerDown, true);
   }, [showSpecialityDropdown, cancelSpecialityBlur]);
 
-  const extendedSearch =
-    typeof setNameQuery === "function" &&
-    typeof setCertificationQuery === "function";
+  const extendedSearch = typeof setNameQuery === "function";
 
   const addSpeciality = (spec) => {
     if (!selectedSpecialities.includes(spec)) {
@@ -1023,6 +1012,7 @@ export default function SearchFilters({
   };
 
   const runSearch = useCallback(() => {
+    locationFieldRef.current?.syncBeforeSearch?.();
     setTimeout(() => {
       if (typeof onSearch === "function") {
         onSearch();
@@ -1053,7 +1043,7 @@ export default function SearchFilters({
         ) : null}
         <div
           ref={specialityRootRef}
-          className={`relative flex min-h-11 min-w-0 flex-1 items-center px-3 py-1 ${
+          className={`relative flex min-h-11 min-w-0 flex-1 basis-0 items-center px-3 py-1 ${
             showSpecialityDropdown ? "z-[200] isolate" : "z-[2]"
           } ${inputWrapperClassName}`}
           onMouseDown={(e) => {
@@ -1134,50 +1124,24 @@ export default function SearchFilters({
       </div>
 
       {extendedSearch && (
-        <>
-          <div
-            className={`relative z-[2] flex min-h-11 shrink-0 items-center px-3 py-1 min-w-[9rem] flex-1 lg:max-w-[12rem] ${inputWrapperClassName}`}
-          >
-            <User className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`} />
-            <input
-              type="text"
-              placeholder="Expert name"
-              value={nameQuery ?? ""}
-              onChange={(e) => setNameQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  runSearch();
-                }
-              }}
-              className={`bg-transparent border-none outline-none w-full text-sm min-w-0 text-black`}
-            />
-          </div>
-          <div
-            className={`relative z-[2] flex min-h-11 shrink-0 items-center px-3 py-1 min-w-[9rem] flex-1 lg:max-w-[12rem] ${inputWrapperClassName}`}
-          >
-            <GraduationCap
-              className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`}
-            />
-            <input
-              type="text"
-              placeholder="Certification"
-              value={certificationQuery ?? ""}
-              onChange={(e) => setCertificationQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  runSearch();
-                }
-              }}
-              className={`bg-transparent border-none outline-none w-full text-sm min-w-0 ${
-                isDark
-                  ? "text-white placeholder-gray-500"
-                  : "text-gray-700 placeholder-gray-400"
-              }`}
-            />
-          </div>
-        </>
+        <div
+          className={`relative z-[2] flex min-h-11 min-w-0 flex-1 basis-0 items-center px-3 py-1 ${inputWrapperClassName}`}
+        >
+          <User className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`} />
+          <input
+            type="text"
+            placeholder="Expert name"
+            value={nameQuery ?? ""}
+            onChange={(e) => setNameQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                runSearch();
+              }
+            }}
+            className={`bg-transparent border-none outline-none w-full text-sm min-w-0 text-black`}
+          />
+        </div>
       )}
 
       {/* Location — pick-only when setLocationFilter is provided */}

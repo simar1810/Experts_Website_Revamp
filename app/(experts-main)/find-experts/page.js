@@ -14,12 +14,22 @@ import ExpertsFiltersBottomSheet from "./_components/filters/ExpertsFiltersBotto
 import PopularExpertsSection from "./_components/popular/PopularExpertsSection";
 import ExpertsReviewsSection from "./_components/reviews/ExpertsReviewsSection";
 
+/** Multiple landing / filter flows pass `speciality=a,b,c` (comma-separated). */
+function parseSpecialitiesFromSearchParam(value) {
+  const raw = (value ?? "").trim();
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function ExpertsPageInner() {
   const searchParams = useSearchParams();
   const specialityFromUrl = searchParams.get("speciality")?.trim() ?? "";
   const locationFromUrl = searchParams.get("location")?.trim() ?? "";
   const [selectedSpecialities, setSelectedSpecialities] = useState(() =>
-    specialityFromUrl ? [specialityFromUrl] : [],
+    parseSpecialitiesFromSearchParam(specialityFromUrl),
   );
   const [locationQuery, setLocationQuery] = useState(locationFromUrl);
   const [locationFilter, setLocationFilter] = useState(() =>
@@ -28,7 +38,6 @@ function ExpertsPageInner() {
       : { mode: "none" },
   );
   const [nameQuery, setNameQuery] = useState("");
-  const [certificationQuery, setCertificationQuery] = useState("");
   const [searchClientLocation, setSearchClientLocation] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const mobileFiltersRef = useRef(null);
@@ -53,7 +62,9 @@ function ExpertsPageInner() {
   }, [values?.expertise_categories]);
 
   useEffect(() => {
-    setSelectedSpecialities(specialityFromUrl ? specialityFromUrl.split(",") : []);
+    setSelectedSpecialities(
+      parseSpecialitiesFromSearchParam(specialityFromUrl),
+    );
   }, [specialityFromUrl]);
 
   useEffect(() => {
@@ -77,7 +88,6 @@ function ExpertsPageInner() {
     locationFilter,
     searchClientLocation,
     nameQuery,
-    certificationQuery,
   });
 
   const handleSearch = async () => {
@@ -157,16 +167,8 @@ function ExpertsPageInner() {
             specialityOptions={specialityOptions}
             nameQuery={nameQuery}
             setNameQuery={setNameQuery}
-            certificationQuery={certificationQuery}
-            setCertificationQuery={setCertificationQuery}
             onSearch={handleSearch}
           />
-          {/* 
-          <HeroCategoryRow
-            categories={values?.expertise_categories || []}
-            selectedSpecialities={selectedSpecialities}
-            setSelectedSpecialities={setSelectedSpecialities}
-          /> */}
         </div>
       </section>
       {/* items-stretch: left column matches main column height so sticky aside can ride the full Top + Popular (incl. pagination) scroll range */}

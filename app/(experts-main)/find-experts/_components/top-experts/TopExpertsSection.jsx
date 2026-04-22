@@ -132,7 +132,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
               key={String(
                 expert._id ?? expert.coach?._id ?? expert.id ?? `ex-${i}`,
               )}
-              className="snap-start shrink-0 w-[min(88vw,420px)] sm:w-[min(92vw,490px)] md:w-[752px]"
+              className="snap-start shrink-0 w-[min(88vw,24rem)] sm:w-[min(92vw,28rem)] md:w-[min(92vw,32rem)]"
             >
               <ExpertCard
                 expert={expert}

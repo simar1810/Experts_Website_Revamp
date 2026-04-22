@@ -45,7 +45,11 @@ export default function PlanEnterprise({ plan }) {
         </div>
 
         {/* Right Section: Button */}
-        <div className="shrink-0">
+        <div
+          className="shrink-0"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
           <SalesContactForm
             plans={[plan]}
             trigger={

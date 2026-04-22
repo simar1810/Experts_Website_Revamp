@@ -7,8 +7,12 @@ import { topProgramsContent } from "@/lib/data/landingContent";
 import { TopProgramCard } from "./TopProgramCard";
 
 /** Horizontal “TOP PROGRAMS” strip (forest panel) — separate from THE TOP EXPERTS. */
-export function TopProgramsSection() {
+export function TopProgramsSection({ programs: programsFromApi = null }) {
   const c = topProgramsContent;
+  const programs =
+    Array.isArray(programsFromApi) && programsFromApi.length > 0
+      ? programsFromApi
+      : c.programs;
   const stripRef = useRef(null);
 
   const scrollStrip = (dir) => {
@@ -56,7 +60,7 @@ export function TopProgramsSection() {
           // className="scrollbar-hide mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
           className=" scrollbar-hide mt-10 flex flex-col gap-6 sm:flex-row sm:snap-x sm:snap-mandatory sm:overflow-x-auto sm:pb-2 sm:pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
         >
-          {c.programs.map((p) => (
+          {programs.map((p) => (
             <TopProgramCard key={p.id} {...p} />
           ))}
         </div>

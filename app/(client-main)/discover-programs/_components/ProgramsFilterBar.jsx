@@ -62,11 +62,25 @@ function FilterDropdown({ options, value, onChange, ariaLabel }) {
   );
 }
 
-export function ProgramsFilterBar({ className }) {
+export function ProgramsFilterBar({
+  className,
+  searchValue,
+  onSearchChange,
+  onFilterApply,
+}) {
   const f = discoverFilterContent;
   const [specialty, setSpecialty] = useState("");
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
+
+  const isSearchControlled =
+    typeof searchValue === "string" && typeof onSearchChange === "function";
+  const [localSearch, setLocalSearch] = useState("");
+
+  const displaySearch = isSearchControlled ? searchValue : localSearch;
+  const setSearch = isSearchControlled
+    ? (v) => onSearchChange(v)
+    : (v) => setLocalSearch(v);
 
   return (
     <div
@@ -89,7 +103,10 @@ export function ProgramsFilterBar({ className }) {
             id="discover-program-search"
             type="search"
             name="program-search"
+            value={displaySearch}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder={f.searchPlaceholder}
+            autoComplete="off"
             className="font-lato h-10 w-full rounded-full border-0 bg-white py-2 pl-9 pr-3 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#9AF45D] focus-visible:ring-offset-2 sm:h-11 sm:pl-11 sm:pr-4"
           />
         </div>
@@ -117,6 +134,7 @@ export function ProgramsFilterBar({ className }) {
 
           <button
             type="button"
+            onClick={() => onFilterApply?.()}
             className="font-lato h-10 shrink-0 rounded-full bg-[#03632C] px-3 text-[0.6875rem] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#024d23] sm:h-11 sm:px-7 sm:text-sm"
           >
             {f.filterButtonLabel}
