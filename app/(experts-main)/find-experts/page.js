@@ -14,12 +14,22 @@ import ExpertsFiltersBottomSheet from "./_components/filters/ExpertsFiltersBotto
 import PopularExpertsSection from "./_components/popular/PopularExpertsSection";
 import ExpertsReviewsSection from "./_components/reviews/ExpertsReviewsSection";
 
+/** Multiple landing / filter flows pass `speciality=a,b,c` (comma-separated). */
+function parseSpecialitiesFromSearchParam(value) {
+  const raw = (value ?? "").trim();
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 function ExpertsPageInner() {
   const searchParams = useSearchParams();
   const specialityFromUrl = searchParams.get("speciality")?.trim() ?? "";
   const locationFromUrl = searchParams.get("location")?.trim() ?? "";
   const [selectedSpecialities, setSelectedSpecialities] = useState(() =>
-    specialityFromUrl ? [specialityFromUrl] : [],
+    parseSpecialitiesFromSearchParam(specialityFromUrl),
   );
   const [locationQuery, setLocationQuery] = useState(locationFromUrl);
   const [locationFilter, setLocationFilter] = useState(() =>
@@ -53,7 +63,9 @@ function ExpertsPageInner() {
   }, [values?.expertise_categories]);
 
   useEffect(() => {
-    setSelectedSpecialities(specialityFromUrl ? specialityFromUrl.split(",") : []);
+    setSelectedSpecialities(
+      parseSpecialitiesFromSearchParam(specialityFromUrl),
+    );
   }, [specialityFromUrl]);
 
   useEffect(() => {
