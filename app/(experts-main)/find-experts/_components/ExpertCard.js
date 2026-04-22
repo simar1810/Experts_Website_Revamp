@@ -139,7 +139,6 @@ export default function ExpertCard({
 
   return (
     <div
-      onClick={handleCardClick}
       className={cn(
         "block cursor-pointer h-full",
         isTopExpert && "w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto",
