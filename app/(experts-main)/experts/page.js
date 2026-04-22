@@ -15,7 +15,7 @@ export default function Home() {
       <ExpertCategories />
       <FeaturedExperts />
       <PromoSection />
-      <LatestArticles />
+      {/* <LatestArticles /> */}
       <PaymentsSection />
       {/* <AsSeenIn /> */}
     </main>

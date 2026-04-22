@@ -38,7 +38,6 @@ function ExpertsPageInner() {
       : { mode: "none" },
   );
   const [nameQuery, setNameQuery] = useState("");
-  const [certificationQuery, setCertificationQuery] = useState("");
   const [searchClientLocation, setSearchClientLocation] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const mobileFiltersRef = useRef(null);
@@ -89,7 +88,6 @@ function ExpertsPageInner() {
     locationFilter,
     searchClientLocation,
     nameQuery,
-    certificationQuery,
   });
 
   const handleSearch = async () => {
@@ -169,16 +167,8 @@ function ExpertsPageInner() {
             specialityOptions={specialityOptions}
             nameQuery={nameQuery}
             setNameQuery={setNameQuery}
-            certificationQuery={certificationQuery}
-            setCertificationQuery={setCertificationQuery}
             onSearch={handleSearch}
           />
-          {/* 
-          <HeroCategoryRow
-            categories={values?.expertise_categories || []}
-            selectedSpecialities={selectedSpecialities}
-            setSelectedSpecialities={setSelectedSpecialities}
-          /> */}
         </div>
       </section>
       {/* items-stretch: left column matches main column height so sticky aside can ride the full Top + Popular (incl. pagination) scroll range */}

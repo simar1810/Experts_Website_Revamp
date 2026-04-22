@@ -31,6 +31,78 @@ const emptyLocation = () => ({
   pincode: "",
 });
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** @returns {string | null} error message, or null if valid */
+function getPincodeError(pincode, countryCode) {
+  const p = (pincode || "").trim();
+  if (!p) return "Required";
+  const code = (countryCode || "").toUpperCase();
+  if (code === "IN" && !/^\d{6}$/.test(p)) return "Enter a 6-digit PIN";
+  if (code === "US" && !/^\d{5}(-\d{4})?$/.test(p)) {
+    return "Enter a valid ZIP code";
+  }
+  if (p.length < 2 || p.length > 12) return "Enter a valid postal code";
+  if (!/^[A-Za-z0-9][A-Za-z0-9\s-]{0,11}$/u.test(p)) {
+    return "Enter a valid postal code";
+  }
+  return null;
+}
+
+/**
+ * @param {object} params
+ * @returns {Record<string, string>}
+ */
+function validateGetStartedForm({
+  name,
+  email,
+  phone,
+  location,
+  agreeTerms,
+  hasStateList,
+}) {
+  const errors = {};
+  const nameT = (name || "").trim();
+  if (!nameT) errors.name = "Required";
+  else if (nameT.length < 2) errors.name = "Enter at least 2 characters";
+
+  const emailT = (email || "").trim();
+  if (!emailT) errors.email = "Required";
+  else if (!EMAIL_RE.test(emailT)) {
+    errors.email = "Enter a valid email address";
+  }
+
+  const phoneT = (phone || "").trim();
+  const digits = phoneT.replace(/\D/g, "");
+  if (!phoneT) errors.phone = "Required";
+  else if (digits.length < 8 || digits.length > 15) {
+    errors.phone = "Enter a valid phone number (8–15 digits)";
+  }
+
+  if (!location.countryCode?.trim() || !location.country?.trim()) {
+    errors.country = "Select a country";
+  }
+
+  if (hasStateList) {
+    if (!location.stateCode?.trim()) {
+      errors.state = "Select state / region";
+    }
+  } else if (!location.state?.trim()) {
+    errors.state = "Required";
+  }
+
+  if (!location.city?.trim()) errors.city = "Required";
+
+  const pc = getPincodeError(location.pincode, location.countryCode);
+  if (pc) errors.pincode = pc;
+
+  if (!agreeTerms) {
+    errors.terms = "Please accept the terms to continue.";
+  }
+
+  return errors;
+}
+
 const selectClass = (hasError) =>
   `w-full px-4 py-3.5 bg-white border text-sm font-medium text-gray-900 rounded-xl focus:outline-none transition-all appearance-none cursor-pointer bg-[length:1rem] bg-[right_1rem_center] bg-no-repeat pr-10 ${
     hasError
@@ -69,11 +141,19 @@ export default function GetStartedModal({ isOpen, onClose }) {
   const [location, setLocation] = useState(emptyLocation);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", ""]);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
 
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [blurred, setBlurred] = useState({
+    name: false,
+    email: false,
+    phone: false,
+    country: false,
+    state: false,
+    city: false,
+    pincode: false,
+  });
 
   const locationRef = useRef(location);
   locationRef.current = location;
@@ -94,6 +174,35 @@ export default function GetStartedModal({ isOpen, onClose }) {
   }, [location.countryCode, location.stateCode]);
 
   const hasStateList = states.length > 0;
+
+  const fieldErrors = useMemo(
+    () =>
+      validateGetStartedForm({
+        name,
+        email,
+        phone,
+        location,
+        agreeTerms,
+        hasStateList,
+      }),
+    [name, email, phone, location, agreeTerms, hasStateList],
+  );
+
+  const visibleError = useCallback(
+    (key) => {
+      if (key === "terms") {
+        return submitAttempted && fieldErrors.terms ? fieldErrors.terms : "";
+      }
+      if (!submitAttempted && !blurred[key]) return "";
+      return fieldErrors[key] || "";
+    },
+    [blurred, fieldErrors, submitAttempted],
+  );
+
+  const markBlurred = useCallback((key) => {
+    setBlurred((b) => (b[key] ? b : { ...b, [key]: true }));
+  }, []);
+
   const useCitySelect =
     Boolean(location.countryCode && location.stateCode && hasStateList) &&
     cities.length > 0 &&
@@ -171,28 +280,32 @@ export default function GetStartedModal({ isOpen, onClose }) {
       setLocation(emptyLocation());
       setAgreeTerms(false);
       setNewsletter(false);
-      setOtp(["", "", "", "", "", ""]);
-      setErrors({});
-      setTouched(false);
+      setOtp(["", "", "", ""]);
+      setSubmitAttempted(false);
+      setBlurred({
+        name: false,
+        email: false,
+        phone: false,
+        country: false,
+        state: false,
+        city: false,
+        pincode: false,
+      });
       setVerifyingOtp(false);
     }
   }, [isOpen]);
 
   const handleSendOtp = async () => {
-    setTouched(true);
-    const newErrors = {};
-    if (!name.trim()) newErrors.name = true;
-    if (!phone.trim()) newErrors.phone = true;
-    if (!email.trim()) newErrors.email = true;
-    if (!location.city.trim()) newErrors.city = true;
-    if (!location.state.trim()) newErrors.state = true;
-    if (!location.country.trim()) newErrors.country = true;
-    if (!location.pincode.trim()) newErrors.pincode = true;
-    if (!agreeTerms) newErrors.terms = true;
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) {
+    setSubmitAttempted(true);
+    const e = validateGetStartedForm({
+      name,
+      email,
+      phone,
+      location,
+      agreeTerms,
+      hasStateList,
+    });
+    if (Object.keys(e).length > 0) {
       return;
     }
 
@@ -248,13 +361,18 @@ export default function GetStartedModal({ isOpen, onClose }) {
   };
 
   const handleVerifyOtp = async () => {
+    const code = otp.join("").replace(/\D/g, "");
+    if (code.length !== 4) {
+      toast.error("Please enter the complete 4-digit OTP");
+      return;
+    }
     setVerifyingOtp(true);
     try {
       const response = await fetchAPI(
         "/experts/client/verify-otp",
         {
           mobileNumber: phone,
-          otp: otp.join(""),
+          otp: code,
           countryCode: location.countryCode || "IN",
         },
         "POST",
@@ -314,6 +432,15 @@ export default function GetStartedModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const nameErr = visibleError("name");
+  const emailErr = visibleError("email");
+  const phoneErr = visibleError("phone");
+  const countryErr = visibleError("country");
+  const stateErr = visibleError("state");
+  const cityErr = visibleError("city");
+  const pincodeErr = visibleError("pincode");
+  const termsErr = visibleError("terms");
+
   return (
     <div className="font-lato fixed inset-0 z-9999 flex items-center justify-center overflow-hidden p-6">
       <div
@@ -351,22 +478,20 @@ export default function GetStartedModal({ isOpen, onClose }) {
                       <label className="text-sm font-bold text-gray-900">
                         Name
                       </label>
-                      {touched && errors.name && (
+                      {nameErr && (
                         <span className="text-xs font-semibold text-red-500">
-                          Required
+                          {nameErr}
                         </span>
                       )}
                     </div>
                     <input
                       type="text"
                       value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        if (touched && e.target.value)
-                          setErrors((prev) => ({ ...prev, name: false }));
-                      }}
+                      onChange={(e) => setName(e.target.value)}
+                      onBlur={() => markBlurred("name")}
                       placeholder="Enter your name"
-                      className={inputClass(touched && errors.name)}
+                      className={inputClass(!!nameErr)}
+                      aria-invalid={!!nameErr}
                     />
                   </div>
 
@@ -375,22 +500,20 @@ export default function GetStartedModal({ isOpen, onClose }) {
                       <label className="text-sm font-bold text-gray-900">
                         Email ID
                       </label>
-                      {touched && errors.email && (
+                      {emailErr && (
                         <span className="text-xs font-semibold text-red-500">
-                          Required
+                          {emailErr}
                         </span>
                       )}
                     </div>
                     <input
                       type="email"
                       value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        if (touched && e.target.value)
-                          setErrors((prev) => ({ ...prev, email: false }));
-                      }}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onBlur={() => markBlurred("email")}
                       placeholder="example@gmail.com"
-                      className={inputClass(touched && errors.email)}
+                      className={inputClass(!!emailErr)}
+                      aria-invalid={!!emailErr}
                     />
                   </div>
 
@@ -399,9 +522,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
                       <label className="text-sm font-bold text-gray-900">
                         Phone Number
                       </label>
-                      {touched && errors.phone && (
+                      {phoneErr && (
                         <span className="text-xs font-semibold text-red-500">
-                          Required
+                          {phoneErr}
                         </span>
                       )}
                     </div>
@@ -409,13 +532,11 @@ export default function GetStartedModal({ isOpen, onClose }) {
                       type="text"
                       inputMode="tel"
                       value={phone}
-                      onChange={(e) => {
-                        setPhone(e.target.value);
-                        if (touched && e.target.value)
-                          setErrors((prev) => ({ ...prev, phone: false }));
-                      }}
+                      onChange={(e) => setPhone(e.target.value)}
+                      onBlur={() => markBlurred("phone")}
                       placeholder="+91 9876543210"
-                      className={inputClass(touched && errors.phone)}
+                      className={inputClass(!!phoneErr)}
+                      aria-invalid={!!phoneErr}
                     />
                   </div>
 
@@ -425,9 +546,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         <label className="text-sm font-bold text-gray-900">
                           Country
                         </label>
-                        {touched && errors.country && (
+                        {countryErr && (
                           <span className="text-xs font-semibold text-red-500">
-                            Required
+                            {countryErr}
                           </span>
                         )}
                       </div>
@@ -446,11 +567,11 @@ export default function GetStartedModal({ isOpen, onClose }) {
                             city: "",
                             pincode: "",
                           });
-                          if (touched && code)
-                            setErrors((prev) => ({ ...prev, country: false }));
                         }}
-                        className={selectClass(touched && errors.country)}
+                        onBlur={() => markBlurred("country")}
+                        className={selectClass(!!countryErr)}
                         style={{ backgroundImage: SELECT_CHEVRON_BG }}
+                        aria-invalid={!!countryErr}
                       >
                         <option value="">Select country</option>
                         {countries.map((c) => (
@@ -465,9 +586,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         <label className="text-sm font-bold text-gray-900">
                           State / Region
                         </label>
-                        {touched && errors.state && (
+                        {stateErr && (
                           <span className="text-xs font-semibold text-red-500">
-                            Required
+                            {stateErr}
                           </span>
                         )}
                       </div>
@@ -485,11 +606,11 @@ export default function GetStartedModal({ isOpen, onClose }) {
                               city: "",
                               pincode: "",
                             }));
-                            if (touched && code)
-                              setErrors((prev) => ({ ...prev, state: false }));
                           }}
-                          className={`${selectClass(touched && errors.state)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          onBlur={() => markBlurred("state")}
+                          className={`${selectClass(!!stateErr)} disabled:cursor-not-allowed disabled:opacity-50`}
                           style={{ backgroundImage: SELECT_CHEVRON_BG }}
+                          aria-invalid={!!stateErr}
                         >
                           <option value="">
                             {location.countryCode
@@ -516,15 +637,15 @@ export default function GetStartedModal({ isOpen, onClose }) {
                               city: "",
                               pincode: "",
                             }));
-                            if (touched && v)
-                              setErrors((prev) => ({ ...prev, state: false }));
                           }}
+                          onBlur={() => markBlurred("state")}
                           placeholder={
                             location.countryCode
                               ? "Region / province (if applicable)"
                               : "Select country first"
                           }
-                          className={`${inputClass(touched && errors.state)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          className={`${inputClass(!!stateErr)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          aria-invalid={!!stateErr}
                         />
                       )}
                     </div>
@@ -536,9 +657,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         <label className="text-sm font-bold text-gray-900">
                           City
                         </label>
-                        {touched && errors.city && (
+                        {cityErr && (
                           <span className="text-xs font-semibold text-red-500">
-                            Required
+                            {cityErr}
                           </span>
                         )}
                       </div>
@@ -553,8 +674,6 @@ export default function GetStartedModal({ isOpen, onClose }) {
                               city: value,
                               pincode: value.trim() ? "" : "",
                             }));
-                            if (touched && value)
-                              setErrors((prev) => ({ ...prev, city: false }));
                             if (value.trim()) {
                               queueMicrotask(() => {
                                 const snap = {
@@ -565,8 +684,10 @@ export default function GetStartedModal({ isOpen, onClose }) {
                               });
                             }
                           }}
-                          className={`${selectClass(touched && errors.city)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          onBlur={() => markBlurred("city")}
+                          className={`${selectClass(!!cityErr)} disabled:cursor-not-allowed disabled:opacity-50`}
                           style={{ backgroundImage: SELECT_CHEVRON_BG }}
+                          aria-invalid={!!cityErr}
                         >
                           <option value="">
                             {location.stateCode
@@ -605,10 +726,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
                               city: v,
                               pincode: v.trim() ? prev.pincode : "",
                             }));
-                            if (touched && v)
-                              setErrors((prev) => ({ ...prev, city: false }));
                           }}
                           onBlur={() => {
+                            markBlurred("city");
                             const snap = locationRef.current;
                             if (
                               snap.city?.trim() &&
@@ -623,7 +743,8 @@ export default function GetStartedModal({ isOpen, onClose }) {
                             !location.countryCode ||
                             (hasStateList && !location.stateCode)
                           }
-                          className={`${inputClass(touched && errors.city)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          className={`${inputClass(!!cityErr)} disabled:cursor-not-allowed disabled:opacity-50`}
+                          aria-invalid={!!cityErr}
                         />
                       ) : null}
                     </div>
@@ -633,9 +754,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         <label className="text-sm font-bold text-gray-900">
                           Pincode
                         </label>
-                        {touched && errors.pincode && (
+                        {pincodeErr && (
                           <span className="text-xs font-semibold text-red-500">
-                            Required
+                            {pincodeErr}
                           </span>
                         )}
                       </div>
@@ -646,11 +767,11 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         onChange={(e) => {
                           const v = e.target.value;
                           setLocation((prev) => ({ ...prev, pincode: v }));
-                          if (touched && v)
-                            setErrors((prev) => ({ ...prev, pincode: false }));
                         }}
+                        onBlur={() => markBlurred("pincode")}
                         placeholder="Pincode"
-                        className={inputClass(touched && errors.pincode)}
+                        className={inputClass(!!pincodeErr)}
+                        aria-invalid={!!pincodeErr}
                       />
                     </div>
                   </div>
@@ -660,11 +781,7 @@ export default function GetStartedModal({ isOpen, onClose }) {
                       <input
                         type="checkbox"
                         checked={agreeTerms}
-                        onChange={(e) => {
-                          setAgreeTerms(e.target.checked);
-                          if (touched && e.target.checked)
-                            setErrors((prev) => ({ ...prev, terms: false }));
-                        }}
+                        onChange={(e) => setAgreeTerms(e.target.checked)}
                         className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 accent-[#84cc16]"
                       />
                       <span>
@@ -678,9 +795,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
                         </a>
                       </span>
                     </label>
-                    {touched && errors.terms && (
+                    {termsErr && (
                       <p className="text-xs font-semibold text-red-500">
-                        Please accept the terms to continue.
+                        {termsErr}
                       </p>
                     )}
                     <label className="flex cursor-pointer items-start gap-3 text-sm text-gray-500">

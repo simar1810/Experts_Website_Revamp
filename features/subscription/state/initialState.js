@@ -30,12 +30,10 @@ const buildPlans = function (coachId, skipPlan) {
 };
 
 const detectCurrency = function () {
-  const currentLocationStr =
+  const href =
     typeof window !== "undefined" ? window.location.href : "";
-  if (
-    currentLocationStr.includes("expert") ||
-    currentLocationStr.includes("intl")
-  ) {
+  // USD only on explicit international routes — "expert" appears in many INR pages (e.g. /experts/pricing, find-experts).
+  if (/\/intl(\/|$|\?|#)/i.test(href) || /\bcurrency=usd\b/i.test(href)) {
     return "USD";
   }
   return "INR";

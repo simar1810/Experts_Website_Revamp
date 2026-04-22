@@ -67,6 +67,8 @@ export default function RootLayout({ children }) {
           <Toaster
             position="bottom-right"
             reverseOrder={false}
+            // Above full-screen modals (e.g. z-9999 in GetStartedModal / LoginModal)
+            containerStyle={{ zIndex: 10000 }}
             toastOptions={{
               duration: 4000,
               style: {

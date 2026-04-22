@@ -45,7 +45,6 @@ export function useExpertsListingSearch({
   locationFilter: locationFilterProp = EMPTY_LOCATION,
   searchClientLocation = null,
   nameQuery = "",
-  certificationQuery = "",
 }) {
   const [page, setPageState] = useState(1);
   const [paid, setPaid] = useState([]);
@@ -100,7 +99,6 @@ export function useExpertsListingSearch({
       radiusKm: useRadius ? radiusKm : "",
       languages,
       nameQuery: (nameQuery || "").trim(),
-      certificationQuery: (certificationQuery || "").trim(),
     }),
     [
       useGeo,
@@ -112,7 +110,6 @@ export function useExpertsListingSearch({
       radiusKm,
       languages,
       nameQuery,
-      certificationQuery,
     ],
   );
 
@@ -134,7 +131,6 @@ export function useExpertsListingSearch({
         page: pageNum,
         languages: filters.languages,
         nameQuery: filters.nameQuery,
-        certificationQuery: filters.certificationQuery,
       };
     },
     [debouncedFilters],

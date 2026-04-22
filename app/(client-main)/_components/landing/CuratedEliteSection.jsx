@@ -1,10 +1,22 @@
 "use client";
-import { curatedContent, expertsList } from "@/lib/data/landingContent";
+import { useMemo } from "react";
+import { FEATURED_EXPERTS_STATIC } from "@/lib/data/featuredExpertsStatic";
+import { featuredStaticExpertToCoachShowcase } from "@/lib/featuredExpertToShowcase";
+import { curatedContent } from "@/lib/data/landingContent";
 import { SectionHeading } from "./SectionHeading";
 import { CoachShowcaseCard } from "./CoachShowcaseCard";
 
-export function CuratedEliteSection({ coachColumns: coachColumnsFromApi = null }) {
+/** Same experts as `/experts` static list; original section layout/typography unchanged. */
+export function CuratedEliteSection() {
   const c = curatedContent;
+
+  const coachesToShow = useMemo(
+    () =>
+      FEATURED_EXPERTS_STATIC.map((e, i) =>
+        featuredStaticExpertToCoachShowcase(e, i),
+      ),
+    [],
+  );
 
   return (
     <section id="curated" className="relative scroll-mt-24 bg-wz-top-cream py-20 sm:py-28 overflow-hidden">
@@ -25,7 +37,7 @@ export function CuratedEliteSection({ coachColumns: coachColumnsFromApi = null }
         </div>
 
         <div className="mt-10 space-y-6 md:hidden">
-          {expertsList.slice(0, 3).map((coach) => (
+          {coachesToShow.slice(0, 3).map((coach) => (
             <div key={coach.id} className="mx-auto max-w-[340px] transform transition-transform active:scale-95">
               <CoachShowcaseCard {...coach} />
             </div>
@@ -34,7 +46,7 @@ export function CuratedEliteSection({ coachColumns: coachColumnsFromApi = null }
 
         <div className="hidden md:block mt-12">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {expertsList.map((coach) => (
+            {coachesToShow.map((coach) => (
               <div
                 key={coach.id}
                 className="group/item transition-all duration-300 hover:-translate-y-2"
@@ -44,7 +56,7 @@ export function CuratedEliteSection({ coachColumns: coachColumnsFromApi = null }
             ))}
           </div>
 
-          {expertsList.length === 0 && (
+          {coachesToShow.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <p className="text-lg font-medium text-neutral-500">
                 No experts found in this category.

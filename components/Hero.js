@@ -26,7 +26,7 @@ export default function Hero() {
 
           <div className="max-w-xl mx-auto md:mx-0">
             <Link
-              href="/pricing"
+              href="/experts/pricing"
               className="inline-flex w-full items-center justify-center rounded-lg bg-lime-500 px-8 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-lime-600 sm:w-auto"
             >
               Register now
@@ -50,7 +50,7 @@ export default function Hero() {
             <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
               <div className="w-8 h-8 md:w-12 md:h-12 bg-gray-300 rounded-lg md:rounded-2xl overflow-hidden shrink-0 border border-white/20">
                 <img
-                  src="https://randomuser.me/api/portraits/men/32.jpg"
+                  src="/images/man-123abc.png"
                   alt="Simarpreet Singh"
                   className="w-full h-full object-cover"
                 />

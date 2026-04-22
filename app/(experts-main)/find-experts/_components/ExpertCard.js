@@ -128,8 +128,8 @@ export default function ExpertCard({
         "cursor-pointer text-white font-bold transition-all active:scale-[0.98]",
         "px-5 py-3 text-sm",
         isTopExpert
-          ? "bg-[#7CB342] hover:bg-[#6fad3a] rounded-xl"
-          : "bg-[#66BB6A] hover:bg-[#5cb85c] rounded-xl px-5 py-2.5 text-xs sm:text-sm",
+          ? "bg-[#67BC2A] hover:bg-[#67bc2adf] rounded-xl"
+          : "bg-[#67BC2A] hover:bg-[#67bc2adf] rounded-xl w-xs",
         className,
       )}
     >
@@ -138,12 +138,18 @@ export default function ExpertCard({
   );
 
   return (
-    <div onClick={handleCardClick} className="block cursor-pointer h-full">
+    <div
+      onClick={handleCardClick}
+      className={cn(
+        "block cursor-pointer h-full",
+        isTopExpert && "w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto",
+      )}
+    >
       <div
         className={cn(
           "rounded-2xl border transition-all duration-300 relative group overflow-hidden h-full",
           isTopExpert &&
-            "flex flex-col items-stretch text-left gap-0 md:flex-row md:items-start md:gap-10 p-4 sm:p-5 md:p-6 bg-[#F7FAF5] border-gray-200/90 shadow-sm hover:shadow-md",
+            "flex flex-col items-stretch text-left gap-0 md:flex-row md:items-start md:gap-10 p-4 sm:p-5 md:p-6 bg-[#67BC2A1A] border-gray-200/90 shadow-sm hover:shadow-md",
           !isTopExpert &&
             "flex flex-row items-start gap-3 md:gap-10 p-4 sm:p-5 md:p-6 bg-white border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 rounded-[14px]",
         )}
@@ -245,17 +251,17 @@ export default function ExpertCard({
               </div>
             </>
           ) : (
-            <div className="mt-3 pt-3 border-t border-dashed border-gray-300 space-y-2">
-              {expert.responseTime ? (
-                <p className="text-[#66BB6A] text-xs sm:text-sm font-bold leading-none">
-                  Responds in {expert.responseTime}
-                </p>
-              ) : null}
-              <div className="flex flex-row items-center justify-between gap-2">
-                <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-wrap">
-                  {ratingBadge}
-                  {patientStories}
-                </div>
+            <div className="mt-3 pt-3 border-t border-dashed border-gray-300 space-y-3">
+              <div className="flex flex-row items-center gap-3 flex-wrap">
+                {ratingBadge}
+                {patientStories}
+              </div>
+              <div className="flex flex-row items-center justify-end gap-3 w-full min-w-0">
+                {expert.responseTime ? (
+                  <p className="text-[#66BB6A] text-xs sm:text-sm font-semibold shrink-0 leading-tight text-right">
+                    Responds in {expert.responseTime}
+                  </p>
+                ) : null}
                 {messageButton("shrink-0")}
               </div>
             </div>

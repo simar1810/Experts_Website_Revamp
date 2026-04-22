@@ -20,7 +20,7 @@ function MarqueeCard({ src, alt }) {
         loading="lazy"
         decoding="async"
         draggable={false}
-        className="h-full w-full scale-105 object-cover blur-sm contrast-[0.97]"
+        className="h-full w-full max-h-full max-w-full object-contain object-center blur-sm contrast-[0.97]"
       />
     </div>
   );
@@ -113,7 +113,7 @@ export function ClientResultsSection() {
                     alt={item.alt}
                     fill
                     sizes="(max-width: 640px) 46vw, (max-width: 1024px) 288px, 320px"
-                    className="object-cover"
+                    className="rounded-3xl object-contain object-center"
                     priority={i === 1}
                   />
                 </div>

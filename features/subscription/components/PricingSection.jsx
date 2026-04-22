@@ -30,11 +30,11 @@ function Container() {
   return (
     <div>
       {/* <CouponCode /> */}
-      <div id="pricing-plans">
+      <div id="pricing-plans" className="scroll-mt-6 md:scroll-mt-10">
         <PlanDurationSelection />
       <div
         className={cn(
-          "grid grid-cols-1 gap-2 mb-8",
+          "mb-8 grid grid-cols-1 items-stretch gap-6 md:gap-6",
           plans.length === 2 ? "md:grid-cols-3" : "md:grid-cols-4",
         )}
       >

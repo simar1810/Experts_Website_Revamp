@@ -5,8 +5,15 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { TopProgramCard } from "../../_components/landing/TopProgramCard";
 import { discoverTopSellingContent } from "@/lib/data/discoverProgramsContent";
 import { ProgramsFilterBar } from "./ProgramsFilterBar";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import {
+  fetchDiscoverProgramsList,
+  programDocumentToTopCard,
+} from "@/lib/discoverProgramsApi";
 
 const CARDS_PER_PAGE = 4;
+const SEARCH_DEBOUNCE_MS = 400;
+const API_PAGE_LIMIT = 24;
 
 function chunkPrograms(items, size) {
   const pages = [];
@@ -19,12 +26,62 @@ function chunkPrograms(items, size) {
 const gridCardClassName =
   "w-full min-w-0 max-h-none max-w-none overflow-visible sm:w-full lg:w-full";
 
+function useClientProgramsFromApi() {
+  const [programs, setPrograms] = useState(() => []);
+  const [loadState, setLoadState] = useState({
+    status: "loading",
+    error: null,
+  });
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
+
+  const load = useCallback(async (searchText) => {
+    setLoadState((s) => ({ ...s, status: "loading", error: null }));
+    try {
+      const res = await fetchDiscoverProgramsList({
+        search: searchText,
+        page: 1,
+        limit: API_PAGE_LIMIT,
+        whitelabel: "wellnessz",
+      });
+      const raw = Array.isArray(res.data) ? res.data : [];
+      const forClients = raw.filter(
+        (p) => p.person === "client" || p.person == null,
+      );
+      const useList = forClients.length ? forClients : raw;
+      setPrograms(useList.map(programDocumentToTopCard));
+      setLoadState({ status: "ok", error: null });
+    } catch (e) {
+      setPrograms(discoverTopSellingContent.programs);
+      setLoadState({
+        status: "error",
+        error: e instanceof Error ? e.message : "Could not load programs",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    load(debouncedSearch);
+  }, [load, debouncedSearch]);
+
+  return {
+    programs,
+    loadState,
+    search,
+    setSearch,
+    refresh: () => load(debouncedSearch),
+  };
+}
+
 export function TopSellingProgramsSection() {
   const c = discoverTopSellingContent;
   const scrollRef = useRef(null);
+  const { programs, loadState, search, setSearch, refresh } =
+    useClientProgramsFromApi();
+
   const pages = useMemo(
-    () => chunkPrograms(c.programs, CARDS_PER_PAGE),
-    [c.programs],
+    () => chunkPrograms(programs, CARDS_PER_PAGE),
+    [programs],
   );
   const pageCount = pages.length;
 
@@ -48,6 +105,11 @@ export function TopSellingProgramsSection() {
   useEffect(() => {
     syncArrows();
   }, [syncArrows, pageCount]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ left: 0, behavior: "auto" });
+  }, [programs]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -77,41 +139,65 @@ export function TopSellingProgramsSection() {
         </h2>
 
         <div className="mt-6 sm:mt-10">
-          <ProgramsFilterBar />
+          <ProgramsFilterBar
+            searchValue={search}
+            onSearchChange={setSearch}
+            onFilterApply={refresh}
+          />
         </div>
+
+        {loadState.status === "error" && loadState.error ? (
+          <p className="mt-4 text-center text-sm text-white/80" role="status">
+            {loadState.error} Showing sample programs below.
+          </p>
+        ) : null}
 
         <div
           ref={scrollRef}
           onScroll={syncArrows}
-          className="scrollbar-hide -mx-4 mt-6 flex snap-x snap-mandatory overflow-x-auto pb-2 sm:mx-0 sm:mt-10"
+          className="scrollbar-hide -mx-4 mt-6 flex min-h-48 snap-x snap-mandatory overflow-x-auto pb-2 sm:mx-0 sm:mt-10"
         >
-          {pages.map((pagePrograms) => (
-            <div
-              key={pagePrograms[0].id}
-              className="w-full min-w-full shrink-0 snap-center px-4 sm:px-0"
-            >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-                {pagePrograms.map((p) => (
-                  <TopProgramCard
-                    key={p.id}
-                    className={gridCardClassName}
-                    badgeLabel={p.badgeLabel}
-                    name={p.name}
-                    features={p.features}
-                    price={p.price}
-                    enrollLabel={p.enrollLabel}
-                    enrollHref={p.enrollHref}
-                    deliveryTags={p.deliveryTags}
-                    authorName={p.authorName}
-                    enrollmentLine={p.enrollmentLine}
-                    authorAvatarSrc={p.authorAvatarSrc}
-                    imageSrc={p.imageSrc}
-                    imageAlt={p.imageAlt}
-                  />
-                ))}
-              </div>
+          {loadState.status === "loading" && programs.length === 0 ? (
+            <div className="flex w-full min-w-full items-center justify-center px-4 py-16 sm:px-0">
+              <p className="text-sm font-medium text-white/90">
+                Loading programs…
+              </p>
             </div>
-          ))}
+          ) : programs.length === 0 ? (
+            <div className="flex w-full min-w-full items-center justify-center px-4 py-16 sm:px-0">
+              <p className="text-center text-sm text-white/90">
+                No programs match your search. Try different keywords.
+              </p>
+            </div>
+          ) : (
+            pages.map((pagePrograms) => (
+              <div
+                key={pagePrograms[0].id}
+                className="w-full min-w-full shrink-0 snap-center px-4 sm:px-0"
+              >
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                  {pagePrograms.map((p) => (
+                    <TopProgramCard
+                      key={p.id}
+                      className={gridCardClassName}
+                      badgeLabel={p.badgeLabel}
+                      name={p.name}
+                      features={p.features}
+                      price={p.price}
+                      enrollLabel={p.enrollLabel}
+                      enrollHref={p.enrollHref}
+                      deliveryTags={p.deliveryTags}
+                      authorName={p.authorName}
+                      enrollmentLine={p.enrollmentLine}
+                      authorAvatarSrc={p.authorAvatarSrc}
+                      imageSrc={p.imageSrc}
+                      imageAlt={p.imageAlt}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {pageCount > 1 ? (

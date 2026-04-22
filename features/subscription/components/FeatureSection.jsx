@@ -11,7 +11,7 @@ export default function FeatureSection() {
         <h2 className="py-20 text-center text-3xl font-semibold tracking-tight md:py-28 md:text-5xl">
           Why do{" "}
           <span className="bg-gradient-to-r from-[#76C733] to-[#4CAF50] bg-clip-text text-transparent">
-            6000+ Health Coaches
+            7000+ Health Coaches
           </span>{" "}
           use WellnessZ App?
         </h2>
@@ -69,8 +69,11 @@ export default function FeatureSection() {
                   </div>
 
                   <div className="pt-6">
-                    <Button className="rounded-lg bg-[#2E7D32] px-6 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628]">
-                      Start your 14-day trial
+                    <Button
+                      asChild
+                      className="rounded-lg bg-[#2E7D32] px-6 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628]"
+                    >
+                      <a href="#pricing-plans">Start your 14-day trial</a>
                     </Button>
                   </div>
                 </div>

@@ -31,6 +31,7 @@ export default function TestimonialShowcase({
               }`}
             >
               <video
+                suppressHydrationWarning
                 src={video.src}
                 className="h-full w-full object-cover rounded-xl"
                 muted
