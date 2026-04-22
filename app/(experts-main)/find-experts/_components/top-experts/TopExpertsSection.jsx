@@ -4,12 +4,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { resolveListingId } from "@/lib/curatedShowcaseFromListing";
 import ExpertCard from "../ExpertCard";
+import { useRouter } from "next/navigation";
+import { generateNavigationLink } from "@/lib/helpers"
+
+
 
 export default function TopExpertsSection({ experts = [], loading }) {
   const [profilePaths, setProfilePaths] = useState({});
   const scrollerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const router = useRouter()
 
   const profilePathIdsKey = useMemo(
     () =>
@@ -133,6 +138,11 @@ export default function TopExpertsSection({ experts = [], loading }) {
                 expert._id ?? expert.coach?._id ?? expert.id ?? `ex-${i}`,
               )}
               className="snap-start shrink-0 w-[min(88vw,24rem)] sm:w-[min(92vw,28rem)] md:w-[min(92vw,32rem)]"
+              onClick={() => router.push(generateNavigationLink({
+                coachName: expert?.coach?.name?.split("_")?.join("-"),
+                category: expert?.specializations?.at(0),
+                location: expert?.coach?.city
+              }))}
             >
               <ExpertCard
                 expert={expert}
