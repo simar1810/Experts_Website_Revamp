@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, ThumbsUp, ArrowRight } from 'lucide-react';
+import { ThumbsUp, ArrowRight } from 'lucide-react';
 
 const DUMMY = {
     role: 'Medical Director',
@@ -10,11 +10,10 @@ const DUMMY = {
     patientServed: '10k+',
     proceduresDone: '1.2k+',
     recommendedScore: 99,
-    isVerified: true,
     photo: '/images/coach.png',
 };
 
-export default function CoachHero({ coachData, onBookConsultation, onSendEnquiry }) {
+export default function CoachHero({ coachData, onBookConsultation }) {
     // Use real data if passed, else fall back to dummy
     const coachInfo = coachData?.coach;
     const details = coachData?.expertDetails;
@@ -28,7 +27,6 @@ export default function CoachHero({ coachData, onBookConsultation, onSendEnquiry
     const score = details?.recommendedScoreFinal
         ? Math.round(details.recommendedScoreFinal * 100)
         : DUMMY.recommendedScore;
-    const isVerified = details?.isVerified ?? DUMMY.isVerified;
     const photo = coachInfo?.profilePhoto || details?.profilePhoto || DUMMY.photo;
 
     // Format numbers nicely
@@ -69,26 +67,13 @@ export default function CoachHero({ coachData, onBookConsultation, onSendEnquiry
                             onClick={onBookConsultation}
                             className="flex items-center gap-3 bg-[#0D3B1E] hover:bg-[#0b3019] text-white px-6 py-3 rounded-2xl font-black text-sm transition-all shadow-xl shadow-emerald-900/30 active:scale-95 group"
                         >
-                            <span>Book Consultation</span>
+                            <span>Location & hours</span>
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
-                        </button>
-
-                        <button
-                            onClick={onSendEnquiry}
-                            className="text-gray-700 font-black text-sm hover:text-[#0D3B1E] transition-colors tracking-wide underline underline-offset-4 decoration-gray-200"
-                        >
-                            Send Enquiry
                         </button>
                     </div>
 
                     {/* Trust badges */}
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                        {isVerified && (
-                            <span className="flex items-center gap-1.5 bg-[#D9F5A0] text-[#2a6b04] text-[10px] font-black px-3 py-1.5 rounded-full">
-                                <CheckCircle2 className="w-3 h-3 shrink-0" />
-                                WellnessZ verified Expert
-                            </span>
-                        )}
                         <span className="flex items-center gap-1.5 bg-[#D9F5A0] text-[#2a6b04] text-[10px] font-black px-3 py-1.5 rounded-full">
                             <ThumbsUp className="w-3 h-3 shrink-0" />
                             {score}% Recommended

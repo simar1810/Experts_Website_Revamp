@@ -27,7 +27,12 @@ function sendSocketLeave(socket) {
   }
 }
 
-export default function ClientChatbox({ selectedThreadId, onClearSelection }) {
+export default function ClientChatbox({
+  selectedThreadId,
+  onClearSelection,
+  composerDraftText = "",
+  onComposerDraftConsumed,
+}) {
   const { hasError, errorMessage, dispatch, socket } = useClientChatContext();
   const activeId = normalizeThreadId(selectedThreadId);
 
@@ -101,12 +106,20 @@ export default function ClientChatbox({ selectedThreadId, onClearSelection }) {
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       {mobileBack}
-      <ChatThreadPanel threadId={activeId} />
+      <ChatThreadPanel
+        threadId={activeId}
+        composerDraftText={composerDraftText}
+        onComposerDraftConsumed={onComposerDraftConsumed}
+      />
     </div>
   );
 }
 
-function ChatThreadPanel({ threadId }) {
+function ChatThreadPanel({
+  threadId,
+  composerDraftText = "",
+  onComposerDraftConsumed,
+}) {
   const { threads, threadXMessages, dispatch, socket } = useClientChatContext();
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
@@ -259,7 +272,11 @@ function ChatThreadPanel({ threadId }) {
             <div ref={bottomRef} />
           </div>
         </div>
-        <ClientMessageBox activeThreadId={tid} />
+        <ClientMessageBox
+          activeThreadId={tid}
+          initialComposerText={composerDraftText}
+          onComposerPrefillApplied={onComposerDraftConsumed}
+        />
       </div>
     </div>
   );

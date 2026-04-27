@@ -1,4 +1,3 @@
-import { BestSellersSection } from "./_components/BestSellersSection";
 import { DiscoverHero } from "./_components/DiscoverHero";
 import { TopSellingProgramsSection } from "./_components/TopSellingProgramsSection";
 
@@ -13,7 +12,6 @@ export default function DiscoverProgramsPage() {
     <main className="min-h-screen bg-white font-lato text-neutral-900">
       <DiscoverHero />
       <TopSellingProgramsSection />
-      <BestSellersSection />
     </main>
   );
 }

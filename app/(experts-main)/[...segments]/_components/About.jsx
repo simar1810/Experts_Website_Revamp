@@ -1,4 +1,4 @@
-const DUMMY_BIO =
+const DUMMY_ABOUT =
   "I focus on practical, measurable care outcomes with personalized plans. My approach combines strong clinical foundations with preventive strategies to improve long-term quality of life.";
 
 export default function About({ details, coachInfo }) {
@@ -27,7 +27,7 @@ export default function About({ details, coachInfo }) {
         <div>
           <h2 className="text-3xl font-extrabold text-[#0d3b1f]">About Me</h2>
           <p className="mt-4 text-sm leading-7 text-[#5d6d65]">
-            {details?.bio || DUMMY_BIO}
+            {details?.about || DUMMY_ABOUT}
           </p>
         </div>
       </div>

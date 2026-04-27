@@ -1,10 +1,9 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, CircleStar } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ArrowRight, CircleStar } from "lucide-react";
 
-function scrollToQuickEnquiry() {
-  document.getElementById("quick-enquiry")?.scrollIntoView({
+function scrollToTransformationPrograms() {
+  document.getElementById("expert-programs")?.scrollIntoView({
     behavior: "smooth",
     block: "start",
   });
@@ -22,8 +21,12 @@ function formatRecommendedPercent(scoreFinal) {
   return Math.round(pct);
 }
 
-export default function Hero({ coachInfo, details, recommendedScoreFinal }) {
-  const router = useRouter();
+export default function Hero({
+  coachInfo,
+  details,
+  recommendedScoreFinal,
+  onSendEnquiry,
+}) {
   const recommendedPct = formatRecommendedPercent(
     recommendedScoreFinal ??
       details?.recommendedScoreFinal ??
@@ -56,13 +59,15 @@ export default function Hero({ coachInfo, details, recommendedScoreFinal }) {
             {coachInfo?.name || "Expert"}
           </h1>
           <p className="mt-4 max-w-[430px] text-md leading-6 text-[#64756b]">
-            {details?.bio || DUMMY_BIO}
+            {details?.bio?.trim() ||
+              details?.about?.trim() ||
+              DUMMY_BIO}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-5">
             <button
               type="button"
-              onClick={scrollToQuickEnquiry}
+              onClick={onSendEnquiry}
               className="inline-flex items-center gap-2 rounded-[10px] bg-[#0b5c2a] px-8 py-2.5 text-left  font-semibold text-white transition-colors hover:bg-[#084a22] cursor-pointer"
             >
               <span className="leading-tight text-sm flex flex-col justify-center items-center gap-y-[2px]">
@@ -74,23 +79,20 @@ export default function Hero({ coachInfo, details, recommendedScoreFinal }) {
             </button>
             <button
               type="button"
-              onClick={() => router.push("/discover-programs")}
+              onClick={scrollToTransformationPrograms}
               className="text-sm font-semibold text-[#0f5e2b] transition-colors hover:text-[#0b5c2a] cursor-pointer hover:underline decoration-2 underline-offset-2"
             >
               View Programs
             </button>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-[10px] font-semibold ">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#C3EEBB] text-[#486D45] px-2.5 py-1">
-              <CheckCircle2 className="h-3 w-3" /> Wellness Verified Expert
-            </span>
-            {recommendedPct != null && (
+          {recommendedPct != null && (
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-[10px] font-semibold">
               <span className="inline-flex items-center gap-1 rounded-full text-[#002204] px-2.5 py-1 text-[12px]">
                 <CircleStar className="h-4 w-4" /> {recommendedPct}% Recommended
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="relative mx-auto w-full max-w-[390px]">

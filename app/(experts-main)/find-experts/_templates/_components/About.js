@@ -3,6 +3,7 @@
 export default function About({ details, coachInfo }) {
   const name = coachInfo?.name || "This expert";
   const bio =
+    details?.about ||
     details?.bio ||
     "Learn more about their background, approach, and how they support clients.";
 

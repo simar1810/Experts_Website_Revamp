@@ -10,6 +10,7 @@ import React, {
 import { X } from "lucide-react";
 import { Country, State, City } from "country-state-city";
 import { clientProfileFromVerifyResponse, fetchAPI } from "@/lib/api";
+import { submitPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -130,7 +131,7 @@ function GymIllustration() {
 }
 
 export default function GetStartedModal({ isOpen, onClose }) {
-  const { login, openLoginModal } = useAuth();
+  const { login, openLoginModal, consumeReturnPathAfterAuth } = useAuth();
   const router = useRouter();
 
   const [showOtp, setShowOtp] = useState(false);
@@ -397,8 +398,25 @@ export default function GetStartedModal({ isOpen, onClose }) {
         mobileNumber: phone,
       });
       login(token, profile);
+      const returnTo = consumeReturnPathAfterAuth();
       onClose();
-      router.push("/");
+      const pending = await submitPendingExpertEnquiry(fetchAPI);
+      if (pending && !pending.skip && "threadId" in pending) {
+        const q = new URLSearchParams();
+        q.set("thread", String(pending.threadId));
+        if (
+          typeof pending.composerDraft === "string" &&
+          pending.composerDraft.trim() !== ""
+        ) {
+          q.set("draft", pending.composerDraft);
+        }
+        router.push(`/dashboard/enquiries?${q.toString()}`);
+        return;
+      }
+      if (pending && "error" in pending && pending.error) {
+        toast.error(pending.error);
+      }
+      router.push(returnTo);
     } catch (error) {
       const message =
         error instanceof Error && error.message
