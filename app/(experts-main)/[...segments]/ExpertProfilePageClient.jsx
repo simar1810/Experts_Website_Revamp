@@ -136,11 +136,7 @@ export default function ExpertProfilePageClient({ listingId }) {
           openLoginModal={openLoginModal}
           user={user}
         />
-        <StoriesContact
-          details={details}
-          reviews={reviews}
-          coachRefDoc={coachInfo?.coachRefDoc ?? null}
-        />
+        <StoriesContact details={details} reviews={reviews} />
       </div>
     </main>
   );
