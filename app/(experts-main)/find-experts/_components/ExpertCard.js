@@ -5,7 +5,10 @@ import { toast } from "react-hot-toast";
 import { fetchAPI } from "@/lib/api";
 import { BadgeCheck, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ensureClientThreadForListing } from "@/lib/expertListingChat";
+import {
+  buildSubmitEnquiryComposerPrefill,
+  ensureClientThreadForListing,
+} from "@/lib/expertListingChat";
 import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 
 export default function ExpertCard({
@@ -13,7 +16,8 @@ export default function ExpertCard({
   isTopExpert = false,
   profileHref,
 }) {
-  const { isAuthenticated, openLoginModal, openRegisterModal } = useAuth();
+  const { isAuthenticated, openLoginModal, openRegisterModal, user } =
+    useAuth();
   const router = useRouter();
   const resolvedName = expert.coach?.name || expert.name || "Expert";
   const resolvedPhoto =
@@ -94,6 +98,7 @@ export default function ExpertCard({
       setPendingExpertEnquiry({
         listingId: String(resolvedListingId),
         consultationMode: consultationModeForPending,
+        submitEnquiryComposer: true,
       });
       openRegisterModal();
       return;
@@ -106,9 +111,10 @@ export default function ExpertCard({
         offersOnline: Boolean(offersOnlineRaw),
       });
       toast.dismiss(dismiss);
-      router.push(
-        `/dashboard/enquiries?thread=${encodeURIComponent(threadId)}`,
-      );
+      const q = new URLSearchParams();
+      q.set("thread", String(threadId));
+      q.set("draft", buildSubmitEnquiryComposerPrefill(user));
+      router.push(`/dashboard/enquiries?${q.toString()}`);
     } catch (err) {
       toast.dismiss(dismiss);
       toast.error(

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowRightIcon, X } from "lucide-react";
 import { clientProfileFromVerifyResponse, fetchAPI } from "@/lib/api";
+import { resolvePostAuthEnquiryDraftText } from "@/lib/expertListingChat";
 import { submitPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -124,12 +125,12 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       if (pending && !pending.skip && "threadId" in pending) {
         const q = new URLSearchParams();
         q.set("thread", String(pending.threadId));
-        if (
-          typeof pending.composerDraft === "string" &&
-          pending.composerDraft.trim() !== ""
-        ) {
-          q.set("draft", pending.composerDraft);
-        }
+        const draftText = resolvePostAuthEnquiryDraftText(
+          pending,
+          profile,
+          phone.trim(),
+        );
+        if (draftText.trim()) q.set("draft", draftText);
         router.push(`/dashboard/enquiries?${q.toString()}`);
         return;
       }

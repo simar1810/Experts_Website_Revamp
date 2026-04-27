@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { fetchAPI } from "@/lib/api";
 import {
-  SUBMIT_ENQUIRY_COMPOSER_PREFILL,
+  buildSubmitEnquiryComposerPrefill,
   ensureClientThreadForListing,
 } from "@/lib/expertListingChat";
 import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
@@ -77,7 +77,7 @@ export default function ExpertProfilePageClient({ listingId }) {
       setPendingExpertEnquiry({
         listingId: String(listingId),
         consultationMode: details?.offersOnline ? "online" : "in_person",
-        composerDraft: SUBMIT_ENQUIRY_COMPOSER_PREFILL,
+        submitEnquiryComposer: true,
       });
       openRegisterModal();
       return;
@@ -92,7 +92,7 @@ export default function ExpertProfilePageClient({ listingId }) {
       toast.dismiss(dismiss);
       const q = new URLSearchParams();
       q.set("thread", String(threadId));
-      q.set("draft", SUBMIT_ENQUIRY_COMPOSER_PREFILL);
+      q.set("draft", buildSubmitEnquiryComposerPrefill(user));
       router.push(`/dashboard/enquiries?${q.toString()}`);
     } catch (e) {
       toast.dismiss(dismiss);
@@ -136,7 +136,11 @@ export default function ExpertProfilePageClient({ listingId }) {
           openLoginModal={openLoginModal}
           user={user}
         />
-        <StoriesContact details={details} reviews={reviews} />
+        <StoriesContact
+          details={details}
+          reviews={reviews}
+          coachRefDoc={coachInfo?.coachRefDoc ?? null}
+        />
       </div>
     </main>
   );
