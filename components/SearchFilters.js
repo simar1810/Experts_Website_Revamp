@@ -928,6 +928,7 @@ export default function SearchFilters({
   locationIconColor = "text-gray-300",
   placeholderSpeciality = "Speciality",
   placeholderLocation = "Location",
+  placeholderName = "Expert Name",
   nameQuery,
   setNameQuery,
   /** Options for speciality autocomplete; defaults to static list when omitted */
@@ -1130,7 +1131,7 @@ export default function SearchFilters({
           <User className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`} />
           <input
             type="text"
-            placeholder="Expert name"
+            placeholder={placeholderName}
             value={nameQuery ?? ""}
             onChange={(e) => setNameQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -1165,16 +1166,16 @@ export default function SearchFilters({
         />
       </div>
 
-      <button
-        type="button"
-        onClick={runSearch}
-        className={`shrink-0 transition-all active:scale-[0.98] whitespace-nowrap ${buttonClassName}`}
-      >
-        {buttonText === "Search" && (
-          <Search className="w-4 h-4 inline-block mr-2" />
-        )}
-        {buttonText}
-      </button>
+        <button
+          type="button"
+          onClick={runSearch}
+          className={`shrink-0 transition-all active:scale-[0.98] whitespace-nowrap ${buttonClassName}`}
+        >
+          {buttonText === "Search" && (
+            <Search className="w-4 h-4 inline-block mr-2" />
+          )}
+          {buttonText}
+        </button>
     </div>
   );
 }

@@ -199,10 +199,16 @@ function ExpertsPageInner() {
         <div className="min-h-0 min-w-0 flex-1">
           <MobileListingToolbar
             resultsCount={mobileResultsCount}
+            selectedSpecialities={selectedSpecialities}
+            setSelectedSpecialities={setSelectedSpecialities}
             locationQuery={locationQuery}
             setLocationQuery={setLocationQuery}
             setLocationFilter={setLocationFilter}
+            clientLocation={searchClientLocation}
             setClientLocation={setSearchClientLocation}
+            specialityOptions={specialityOptions}
+            nameQuery={nameQuery}
+            setNameQuery={setNameQuery}
             onSearch={handleSearch}
             onOpenFilters={() => setIsMobileFiltersOpen(true)}
           />
