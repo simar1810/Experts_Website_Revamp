@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Search, Loader } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -139,6 +146,23 @@ function ChatShellWithUrl({ threads }) {
     }
   }, [draftParam]);
 
+  /**
+   * Capture the first `draft` we see (sync) so it survives stripping `draft` from the URL
+   * before a useEffect can run; reset when `thread` in the URL changes.
+   */
+  const draftCaptureRef = useRef({ thread: "", text: "" });
+  if (draftCaptureRef.current.thread !== threadFromUrl) {
+    draftCaptureRef.current = { thread: threadFromUrl, text: "" };
+  }
+  if (draftDecoded.trim() && !draftCaptureRef.current.text) {
+    draftCaptureRef.current = {
+      thread: threadFromUrl,
+      text: draftDecoded,
+    };
+  }
+  const composerDraftForShell =
+    draftCaptureRef.current.text || draftDecoded;
+
   const stripDraftFromUrl = useCallback(() => {
     if (typeof window === "undefined") return;
     const u = new URLSearchParams(window.location.search);
@@ -155,7 +179,7 @@ function ChatShellWithUrl({ threads }) {
       threads={threads}
       initialThreadId={threadFromUrl}
       draftTargetThreadId={threadFromUrl}
-      composerDraftText={draftDecoded}
+      composerDraftText={composerDraftForShell}
       onComposerDraftConsumed={stripDraftFromUrl}
     />
   );

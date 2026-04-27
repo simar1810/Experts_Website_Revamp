@@ -5,10 +5,7 @@ import { toast } from "react-hot-toast";
 import { fetchAPI } from "@/lib/api";
 import { BadgeCheck, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  DEFAULT_PROFILE_ENQUIRY_MESSAGE,
-  ensureClientThreadForListing,
-} from "@/lib/expertListingChat";
+import { ensureClientThreadForListing } from "@/lib/expertListingChat";
 import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 
 export default function ExpertCard({
@@ -109,9 +106,8 @@ export default function ExpertCard({
         offersOnline: Boolean(offersOnlineRaw),
       });
       toast.dismiss(dismiss);
-      const draft = encodeURIComponent(DEFAULT_PROFILE_ENQUIRY_MESSAGE);
       router.push(
-        `/dashboard/enquiries?thread=${encodeURIComponent(threadId)}&draft=${draft}`,
+        `/dashboard/enquiries?thread=${encodeURIComponent(threadId)}`,
       );
     } catch (err) {
       toast.dismiss(dismiss);
