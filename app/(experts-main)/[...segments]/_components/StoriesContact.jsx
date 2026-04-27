@@ -1,93 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import { MapPin, Clock3 } from "lucide-react";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export default function StoriesContact({ details, reviews = [] }) {
+  const locationLine = useMemo(() => {
+    const addr = (details?.address || "").trim();
+    if (addr) return addr;
+    return [details?.city, details?.state, details?.country]
+      .filter(Boolean)
+      .join(", ");
+  }, [details]);
 
-function validateEnquiryForm(state) {
-  const errors = { name: "", email: "", contact: "", message: "" };
-
-  const name = state.name?.trim() || "";
-  if (!name) errors.name = "Full name is required";
-  else if (name.length < 2) errors.name = "Please enter at least 2 characters";
-
-  const email = state.email?.trim() || "";
-  if (!email) errors.email = "Email is required";
-  else if (!EMAIL_RE.test(email)) errors.email = "Enter a valid email address";
-
-  const contact = state.contact?.trim() || "";
-  const digits = contact.replace(/\D/g, "");
-  if (!contact) errors.contact = "Phone is required";
-  else if (digits.length < 8 || digits.length > 15)
-    errors.contact = "Enter a valid phone number (8–15 digits)";
-
-  const message = state.message?.trim() || "";
-  if (!message) errors.message = "Please describe your enquiry";
-  else if (message.length < 10)
-    errors.message = "Please add a bit more detail (at least 10 characters)";
-
-  return errors;
-}
-
-const inputClass = (hasError) =>
-  [
-    "h-11 w-full rounded-lg border px-3 text-sm outline-none transition-colors",
-    "focus:ring-2 focus:ring-[#065a23]/25",
-    hasError
-      ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-      : "border-[#e7ece8] focus:border-[#0d3b1f]",
-  ].join(" ");
-
-const textareaClass = (hasError) =>
-  [
-    "h-24 w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none transition-colors",
-    "focus:ring-2 focus:ring-[#065a23]/25",
-    hasError
-      ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-      : "border-[#e7ece8] focus:border-[#0d3b1f]",
-  ].join(" ");
-
-function FieldError({ id, message }) {
-  if (!message) return null;
-  return (
-    <p id={id} className="mt-1 text-xs text-red-600" role="alert">
-      {message}
-    </p>
-  );
-}
-
-export default function StoriesContact({
-  details,
-  reviews = [],
-  formState,
-  onFormChange,
-  onSubmit,
-}) {
-  const [fieldErrors, setFieldErrors] = useState({
-    name: "",
-    email: "",
-    contact: "",
-    message: "",
-  });
-
-  const mapQuery = encodeURIComponent(formState.location || "Mumbai, India");
+  const mapQuery = encodeURIComponent(locationLine || "Mumbai, India");
   const mapEmbedUrl = `https://www.google.com/maps?q=${mapQuery}&output=embed`;
   const mapOpenUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
-
-  const handleFieldChange = (event) => {
-    const { name } = event.target;
-    setFieldErrors((prev) => ({ ...prev, [name]: "" }));
-    onFormChange(event);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const next = validateEnquiryForm(formState);
-    setFieldErrors(next);
-    if (Object.values(next).some(Boolean)) return;
-    await Promise.resolve(onSubmit(event));
-  };
 
   return (
     <section className="w-full px-4 sm:px-8 lg:px-10">
@@ -104,7 +31,9 @@ export default function StoriesContact({
                   className="rounded-2xl border border-[#e8ece9] bg-white p-4"
                 >
                   <p className="text-xs leading-5 text-[#5c6d64]">
-                    "{review.text}"
+                    <span className="text-[#5c6d64]">&ldquo;</span>
+                    {review.text}
+                    <span className="text-[#5c6d64]">&rdquo;</span>
                   </p>
                   <p className="mt-3 text-xs font-bold text-[#0d3b1f]">
                     {review.clientName || "Patient"}
@@ -115,103 +44,7 @@ export default function StoriesContact({
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <form
-            id="quick-enquiry"
-            onSubmit={handleSubmit}
-            className="space-y-3 rounded-2xl border border-[#e8ece9] bg-white p-5 scroll-mt-24"
-            noValidate
-          >
-            <h3 className="text-2xl font-extrabold text-[#0d3b1f]">
-              Quick Enquiry
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <input
-                  name="name"
-                  value={formState.name}
-                  onChange={handleFieldChange}
-                  placeholder="Full name"
-                  autoComplete="name"
-                  aria-invalid={Boolean(fieldErrors.name)}
-                  aria-describedby={
-                    fieldErrors.name ? "quick-enquiry-name-error" : undefined
-                  }
-                  className={inputClass(!!fieldErrors.name)}
-                />
-                <FieldError
-                  message={fieldErrors.name}
-                  id="quick-enquiry-name-error"
-                />
-              </div>
-              <div>
-                <input
-                  name="email"
-                  type="email"
-                  value={formState.email}
-                  onChange={handleFieldChange}
-                  placeholder="email@example.com"
-                  autoComplete="email"
-                  aria-invalid={Boolean(fieldErrors.email)}
-                  aria-describedby={
-                    fieldErrors.email ? "quick-enquiry-email-error" : undefined
-                  }
-                  className={inputClass(!!fieldErrors.email)}
-                />
-                <FieldError
-                  message={fieldErrors.email}
-                  id="quick-enquiry-email-error"
-                />
-              </div>
-            </div>
-            <div>
-              <input
-                name="contact"
-                type="tel"
-                value={formState.contact}
-                onChange={handleFieldChange}
-                placeholder="Phone"
-                autoComplete="tel"
-                aria-invalid={Boolean(fieldErrors.contact)}
-                aria-describedby={
-                  fieldErrors.contact
-                    ? "quick-enquiry-contact-error"
-                    : undefined
-                }
-                className={inputClass(!!fieldErrors.contact)}
-              />
-              <FieldError
-                message={fieldErrors.contact}
-                id="quick-enquiry-contact-error"
-              />
-            </div>
-            <div>
-              <textarea
-                name="message"
-                value={formState.message}
-                onChange={handleFieldChange}
-                placeholder="Briefly describe your condition"
-                aria-invalid={Boolean(fieldErrors.message)}
-                aria-describedby={
-                  fieldErrors.message
-                    ? "quick-enquiry-message-error"
-                    : undefined
-                }
-                className={textareaClass(!!fieldErrors.message)}
-              />
-              <FieldError
-                message={fieldErrors.message}
-                id="quick-enquiry-message-error"
-              />
-            </div>
-            <button
-              type="submit"
-              className="h-11 w-full rounded-lg bg-[#065a23] text-sm font-semibold text-white transition-colors hover:bg-[#04481c]"
-            >
-              Submit Secure Enquiry
-            </button>
-          </form>
-
+        <div className="mx-auto w-full max-w-2xl">
           <aside className="relative flex min-h-[300px] flex-col justify-between overflow-hidden rounded-[1.75rem] bg-[#004F11] p-7 text-white sm:p-8">
             <div
               className="pointer-events-none absolute -right-12 -top-12 h-52 w-52 rounded-full bg-[#8fd97a]/30 blur-3xl"
@@ -256,7 +89,10 @@ export default function StoriesContact({
           </aside>
         </div>
 
-        <article className="mb-6 grid grid-cols-1 items-center gap-5 rounded-[1.8rem] bg-[#f2f4f3] p-8 sm:p-10 lg:grid-cols-2">
+        <article
+          id="expert-visit"
+          className="mb-6 scroll-mt-24 grid grid-cols-1 items-center gap-5 rounded-[1.8rem] bg-[#f2f4f3] p-8 sm:p-10 lg:grid-cols-2"
+        >
           <div>
             <h3 className="text-4xl font-extrabold text-[#0d3b1f]">
               Visit the Sanctuary
@@ -274,8 +110,8 @@ export default function StoriesContact({
                   <p className=" text-xs leading-6 text-[#65746c] whitespace-pre-line">
                     {(
                       details?.address ||
-                      formState.location ||
-                      "Address shared on enquiry"
+                      locationLine ||
+                      "Address available on request"
                     ).trim()}
                   </p>
                 </div>
@@ -290,7 +126,7 @@ export default function StoriesContact({
                     Operating Hours
                   </h4>
                   <p className="text-xs leading-6 text-[#65746c] whitespace-pre-line">
-                    {details?.availabilityHours || "Hours shared on enquiry"}
+                    {details?.availabilityHours || "Hours available on request"}
                   </p>
                 </div>
               </div>

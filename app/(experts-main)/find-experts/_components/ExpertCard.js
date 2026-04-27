@@ -1,15 +1,22 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { fetchAPI } from "@/lib/api";
 import { BadgeCheck, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_PROFILE_ENQUIRY_MESSAGE,
+  ensureClientThreadForListing,
+} from "@/lib/expertListingChat";
+import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 
 export default function ExpertCard({
   expert,
   isTopExpert = false,
   profileHref,
 }) {
-  const { isAuthenticated, openLoginModal } = useAuth();
+  const { isAuthenticated, openLoginModal, openRegisterModal } = useAuth();
   const router = useRouter();
   const resolvedName = expert.coach?.name || expert.name || "Expert";
   const resolvedPhoto =
@@ -72,6 +79,50 @@ export default function ExpertCard({
 
   const locationLine = [expert.city, expert.state].filter(Boolean).join(", ");
 
+  const offersOnlineRaw =
+    expert.offersOnline ??
+    expert.expertDetails?.offersOnline ??
+    expert.listing?.expertDetails?.offersOnline;
+  const consultationModeForPending = offersOnlineRaw
+    ? "online"
+    : "in_person";
+
+  const handleMessageCoach = async (e) => {
+    e.stopPropagation();
+    if (!resolvedListingId) {
+      toast.error("Could not open chat for this expert.");
+      return;
+    }
+    if (!isAuthenticated) {
+      setPendingExpertEnquiry({
+        listingId: String(resolvedListingId),
+        consultationMode: consultationModeForPending,
+      });
+      openRegisterModal();
+      return;
+    }
+    const dismiss = toast.loading("Opening chat…");
+    try {
+      const { threadId } = await ensureClientThreadForListing({
+        fetchAPI,
+        listingId: String(resolvedListingId),
+        offersOnline: Boolean(offersOnlineRaw),
+      });
+      toast.dismiss(dismiss);
+      const draft = encodeURIComponent(DEFAULT_PROFILE_ENQUIRY_MESSAGE);
+      router.push(
+        `/dashboard/enquiries?thread=${encodeURIComponent(threadId)}&draft=${draft}`,
+      );
+    } catch (err) {
+      toast.dismiss(dismiss);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Could not open chat. Please try again.",
+      );
+    }
+  };
+
   const handleCardClick = () => {
     if (!resolvedListingId) return;
 
@@ -120,10 +171,7 @@ export default function ExpertCard({
   const messageButton = (className) => (
     <button
       type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        handleCardClick();
-      }}
+      onClick={handleMessageCoach}
       className={cn(
         "cursor-pointer text-white font-bold transition-all active:scale-[0.98]",
         "px-5 py-3 text-sm",

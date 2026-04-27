@@ -3,8 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { fetchAPI } from "@/lib/api";
+import {
+  DEFAULT_PROFILE_ENQUIRY_MESSAGE,
+  ensureClientThreadForListing,
+} from "@/lib/expertListingChat";
+import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 import { useAuth } from "@/context/AuthContext";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Hero from "./_components/Hero";
 import About from "./_components/About";
 import Services from "./_components/Services";
@@ -12,7 +17,9 @@ import MembershipPrograms from "./_components/MembershipPrograms";
 import StoriesContact from "./_components/StoriesContact";
 
 export default function ExpertProfilePageClient({ listingId }) {
-  const { isAuthenticated, openLoginModal, user } = useAuth();
+  const { isAuthenticated, openLoginModal, openRegisterModal, user } =
+    useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const previewData = useMemo(() => {
@@ -30,22 +37,6 @@ export default function ExpertProfilePageClient({ listingId }) {
   const [isLoading, setIsLoading] = useState(!previewData);
   const [reviews, setReviews] = useState(previewData?.reviews || []);
   const [programs, setPrograms] = useState(previewData?.programs || []);
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    contact: "",
-    message: "",
-    location: "Ujice Leardin, CA",
-    mapImage: "",
-  });
-
-  useEffect(() => {
-    setFormState((prev) => ({
-      ...prev,
-      name: user?.name || prev.name,
-      email: user?.email || prev.email,
-    }));
-  }, [user]);
 
   useEffect(() => {
     const getCoachDetails = async () => {
@@ -70,16 +61,6 @@ export default function ExpertProfilePageClient({ listingId }) {
     getCoachDetails();
   }, [listingId]);
 
-  useEffect(() => {
-    const details = coachData?.expertDetails;
-    if (!details) return;
-    const location = [details.city, details.state, details.country]
-      .filter(Boolean)
-      .join(", ");
-    if (!location) return;
-    setFormState((prev) => ({ ...prev, location }));
-  }, [coachData]);
-
   const coachInfo = useMemo(() => coachData?.coach || {}, [coachData]);
   const details = useMemo(() => coachData?.expertDetails || {}, [coachData]);
   const recommendedScoreFinal = useMemo(
@@ -91,66 +72,32 @@ export default function ExpertProfilePageClient({ listingId }) {
     [coachData],
   );
 
-  const onFormChange = (event) => {
-    const { name, value } = event.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const submitEnquiry = async (event) => {
-    event.preventDefault();
-
+  const onSendEnquiry = async () => {
     if (!isAuthenticated) {
-      openLoginModal();
-      return;
-    }
-
-    if (!formState.message.trim()) {
-      toast.error("Please add your enquiry message");
-      return;
-    }
-
-    const consultationMode = details?.offersOnline ? "online" : "in_person";
-    const meta = [formState.name, formState.email, formState.contact]
-      .filter(Boolean)
-      .join(" | ");
-    const finalMessage = meta
-      ? `${formState.message}\n\nContact: ${meta}`
-      : formState.message;
-
-    try {
-      const data = await fetchAPI("/experts/inquiry/create", {
+      setPendingExpertEnquiry({
         listingId: String(listingId),
-        message: finalMessage,
-        consultationMode,
+        consultationMode: details?.offersOnline ? "online" : "in_person",
       });
-
-      const inquiryId = data?.inquiry?._id;
-      if (!inquiryId) {
-        const msg =
-          typeof data?.message === "string" && data.message.trim()
-            ? data.message
-            : "Could not send enquiry. Please try again.";
-        toast.error(msg);
-        return;
-      }
-
-      try {
-        await fetchAPI("/experts/chat/thread-client", {
-          inquiryId: String(inquiryId),
-        });
-      } catch (threadErr) {
-        console.error("Chat thread after inquiry:", threadErr);
-        toast.error(
-          threadErr?.message ||
-            "Your enquiry was delivered, but chat could not be opened. Refresh the page or try again shortly.",
-        );
-      }
-
-      toast.success("Enquiry sent successfully");
-      setFormState((prev) => ({ ...prev, message: "" }));
-    } catch (error) {
-      console.error(error);
-      toast.error(error?.message || "Could not send enquiry");
+      openRegisterModal();
+      return;
+    }
+    const dismiss = toast.loading("Opening chat…");
+    try {
+      const { threadId } = await ensureClientThreadForListing({
+        fetchAPI,
+        listingId,
+        offersOnline: Boolean(details?.offersOnline),
+      });
+      toast.dismiss(dismiss);
+      const draft = encodeURIComponent(DEFAULT_PROFILE_ENQUIRY_MESSAGE);
+      router.push(
+        `/dashboard/enquiries?thread=${encodeURIComponent(threadId)}&draft=${draft}`,
+      );
+    } catch (e) {
+      toast.dismiss(dismiss);
+      toast.error(
+        e instanceof Error ? e.message : "Could not open chat. Try again.",
+      );
     }
   };
 
@@ -177,6 +124,7 @@ export default function ExpertProfilePageClient({ listingId }) {
           coachInfo={coachInfo}
           details={details}
           recommendedScoreFinal={recommendedScoreFinal}
+          onSendEnquiry={onSendEnquiry}
         />
         <About details={details} coachInfo={coachInfo} />
         <Services details={details} />
@@ -187,13 +135,7 @@ export default function ExpertProfilePageClient({ listingId }) {
           openLoginModal={openLoginModal}
           user={user}
         />
-        <StoriesContact
-          details={details}
-          reviews={reviews}
-          formState={formState}
-          onFormChange={onFormChange}
-          onSubmit={submitEnquiry}
-        />
+        <StoriesContact details={details} reviews={reviews} />
       </div>
     </main>
   );

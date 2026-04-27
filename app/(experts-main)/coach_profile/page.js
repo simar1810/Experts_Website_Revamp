@@ -5,12 +5,11 @@ import AboutMe from '@/components/coach_profile/AboutMe';
 import ServicesOffered from '@/components/coach_profile/ServicesOffered';
 import TransformativePrograms from '@/components/coach_profile/TransformativePrograms';
 import PatientStories from '@/components/coach_profile/PatientStories';
-import EnquirySection from '@/components/coach_profile/EnquirySection';
 import LocationBlock from '@/components/coach_profile/LocationBlock';
 
 export default function CoachProfilePage() {
-    const scrollToEnquiry = () => {
-        document.getElementById('enquiry-box')?.scrollIntoView({ behavior: 'smooth' });
+    const scrollToLocation = () => {
+        document.getElementById('coach-location')?.scrollIntoView({ behavior: 'smooth' });
     };
 
     return (
@@ -19,15 +18,13 @@ export default function CoachProfilePage() {
             {/* Hero */}
             <CoachHero
                 coachData={null}          /* pass real coachData here when ready */
-                onBookConsultation={scrollToEnquiry}
-                onSendEnquiry={scrollToEnquiry}
+                onBookConsultation={scrollToLocation}
             />
 
             <AboutMe coachData={null} />
             <ServicesOffered coachData={null} />
             <TransformativePrograms coachData={null} />
             <PatientStories coachData={null} />
-            <EnquirySection coachData={null} />
             <LocationBlock coachData={null} />
         </main>
     );
