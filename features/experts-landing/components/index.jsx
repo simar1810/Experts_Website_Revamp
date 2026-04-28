@@ -7,14 +7,24 @@ import Footer from "./footer"
 import { Button } from "@/components/ui/button";
 
 export default async function ExpertsListing({ partner }) {
-  const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/experts/public/config", {
+  const apiUrl =
+    `${(process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api").replace(/\/$/, "")}/experts/public/config`;
+
+  const response = await fetch(apiUrl, {
     headers: {
-      'xhost': "acme"
-    }
-  })
+      "X-Tenant": partner,
+      xhost: partner,
+    },
+    cache: "no-store",
+  });
   const brand = await response.json();
 
-  const brandInfo = brand?.x || {}
+  const brandInfo = brand?.x || {};
+
+  const listingId = brandInfo?._id ?? brandInfo?.id;
+  /** When omitted, still show programs so GET /listing/programs/:id runs; set `allowPublicPrograms: false` to hide. */
+  const showProgramsSection =
+    Boolean(listingId) && brandInfo?.settings?.allowPublicPrograms !== false;
   
   return (
     <main
@@ -60,9 +70,10 @@ export default async function ExpertsListing({ partner }) {
         </div>
       </section>
       {brandInfo?.settings?.showOnlyAssignedExperts && <ExpertSection partner={partner} />}
-      {brandInfo?.settings?.allowPublicPrograms && <ProgramsSection partner={partner} listingId={brandInfo._id} />}
+      {showProgramsSection && (
+        <ProgramsSection partner={partner} listingId={listingId} />
+      )}
       <Footer brand={brandInfo} />
-      {console.log({_id: brandInfo._id})}
     </main>
   )
 }

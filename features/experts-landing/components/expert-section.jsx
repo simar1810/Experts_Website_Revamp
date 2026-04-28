@@ -1,9 +1,32 @@
 "use client";
-import { AlertCircle, RefreshCw, Star} from 'lucide-react';
+import { AlertCircle, RefreshCw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
-import { useMemo } from 'react';
-import { expertsItems } from "@/features/experts-landing/helpers/mock"
+import { expertsItems } from "@/features/experts-landing/helpers/mock";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+
+async function listingSearchFetcher([_, partner]) {
+  const url = `${API_BASE.replace(/\/$/, "")}/experts/listing/search`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...(partner ? { "X-Tenant": String(partner) } : {}),
+    },
+    body: "{}",
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (typeof json.message === "string" && json.message) ||
+        `Search failed (${res.status})`,
+    );
+  }
+  return json;
+}
 
 function ExpertCard({ expert }) {
   const name = expert.coach?.name || "Expert Coach";
@@ -79,8 +102,12 @@ function ExpertCard({ expert }) {
 }
 
 export default function ExpertSection({ partner, experts = expertsItems }) {
-  const endpoint = useMemo(() => `http://${partner}.wellness.in/api/experts/listing/search`, [partner])
-  const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetch(endpoint, { method: "POST" }));
+  const swrKey = partner ? ["listing-search", String(partner)] : null;
+  const { isLoading, isValidating, error, data, mutate } = useSWR(
+    swrKey,
+    listingSearchFetcher,
+    { revalidateOnFocus: false },
+  );
 
   if (isLoading || isValidating) return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-6 py-16 max-w-7xl mx-auto">
