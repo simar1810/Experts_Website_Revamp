@@ -99,18 +99,38 @@ function ExpertsPageInner() {
     : (locationQuery || "").trim() || "All Cities";
 
   const freeCountDisplay =
-    listing.meta?.freeReturned ?? listing.free?.length ?? 0;
+    listing.filteredTotal ??
+    listing.meta?.freeReturned ??
+    listing.free?.length ??
+    0;
 
   const mobileResultsCount =
     listing.meta?.totalCount ??
     listing.meta?.freeTotal ??
     listing.meta?.total ??
-    (listing.paid?.length || 0) + (listing.free?.length || 0);
+    (listing.paid?.length || 0) +
+      (listing.filteredTotal ?? listing.free?.length ?? 0);
+
+  const appliedFiltersCount = useMemo(() => {
+    let n = selectedSpecialities.length + (listing.languages?.length || 0);
+    n += Object.keys(listing.clientsRanges || {}).filter(
+      (k) => listing.clientsRanges[k],
+    ).length;
+    if ((listing.consultationMode || "").trim()) n += 1;
+    if (listing.wzAssured) n += 1;
+    if (showDistanceFilter && Number(listing.radiusKm) !== 20) n += 1;
+    return n;
+  }, [
+    selectedSpecialities,
+    listing.languages,
+    listing.clientsRanges,
+    listing.consultationMode,
+    listing.wzAssured,
+    listing.radiusKm,
+    showDistanceFilter,
+  ]);
 
   const handleMobileFilterSheetOpenChange = (open) => {
-    if (!open) {
-      mobileFiltersRef.current?.flushToParent?.();
-    }
     setIsMobileFiltersOpen(open);
   };
 
@@ -191,6 +211,7 @@ function ExpertsPageInner() {
               ref={mobileFiltersRef}
               {...filterSidebarProps}
               embedInSheet
+              sheetOpen={isMobileFiltersOpen}
               onClose={() => handleMobileFilterSheetOpenChange(false)}
             />
           </ExpertsFiltersBottomSheet>
@@ -199,6 +220,7 @@ function ExpertsPageInner() {
         <div className="min-h-0 min-w-0 flex-1">
           <MobileListingToolbar
             resultsCount={mobileResultsCount}
+            appliedFiltersCount={appliedFiltersCount}
             locationQuery={locationQuery}
             setLocationQuery={setLocationQuery}
             setLocationFilter={setLocationFilter}
@@ -217,6 +239,8 @@ function ExpertsPageInner() {
                 hasNextPage={listing.hasNextPage}
                 hasPrevPage={listing.hasPrevPage}
                 totalPages={listing.totalPages}
+                pageSize={listing.pageSize}
+                onPageSizeChange={listing.setPageSize}
               />
             </div>
           </section>

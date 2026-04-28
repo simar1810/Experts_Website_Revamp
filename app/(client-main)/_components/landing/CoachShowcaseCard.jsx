@@ -16,12 +16,20 @@ export function CoachShowcaseCard({
   imageSrc,
   imageAlt,
   bioPreview,
+  websiteLink,
   /** Use when `imageSrc` is not covered by `next.config` remotePatterns (e.g. API/CDN). */
   imageUnoptimized = false,
 }) {
   const summaryText =
     (bioPreview || "").trim() ||
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+  const websiteHref = (() => {
+    const raw = (websiteLink || "").trim();
+    if (!raw) return "";
+    if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+    return `https://${raw}`;
+  })();
 
   return (
     <article className="group/card relative aspect-[3/4] w-full min-w-0 max-w-none [perspective:1200px]">
@@ -31,7 +39,8 @@ export function CoachShowcaseCard({
           "group-hover/card:[transform:rotateY(180deg)] group-focus-within/card:[transform:rotateY(180deg)]",
         )}
       >
-        <div className="absolute inset-0 overflow-hidden rounded-[22px] [backface-visibility:hidden] md:rounded-3xl">
+        {/* When flipped (hover), disable pointer events on front so the back face + link receive clicks */}
+        <div className="absolute inset-0 overflow-hidden rounded-[22px] [backface-visibility:hidden] pointer-events-auto group-hover/card:pointer-events-none group-focus-within/card:pointer-events-none md:rounded-3xl">
           <Image
             src={imageSrc}
             alt={imageAlt}
@@ -76,7 +85,7 @@ export function CoachShowcaseCard({
           </div>
         </div>
 
-        <div className="absolute inset-0 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#edf9df] via-[#f7fff0] to-[#dbf3c8] p-4 [backface-visibility:hidden] [transform:rotateY(180deg)] md:rounded-3xl md:p-5">
+        <div className="absolute inset-0 z-[2] overflow-hidden rounded-[22px] bg-gradient-to-br from-[#edf9df] via-[#f7fff0] to-[#dbf3c8] p-4 [backface-visibility:hidden] [transform:rotateY(180deg)] pointer-events-none group-hover/card:pointer-events-auto group-focus-within/card:pointer-events-auto md:rounded-3xl md:p-5">
           <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#84cc16]/20 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -left-10 h-40 w-40 rounded-full bg-[#4ca848]/16 blur-2xl" />
 
@@ -128,6 +137,16 @@ export function CoachShowcaseCard({
             <p className="mt-4 text-center text-sm leading-relaxed text-neutral-600 sm:text-[0.9375rem]">
               {summaryText}
             </p>
+            {websiteHref ? (
+              <a
+                href={websiteHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative z-[3] mt-4 block cursor-pointer text-center text-[11px] font-bold uppercase tracking-[0.08em] text-[#03632C] underline decoration-[#84cc16]/60 underline-offset-4 hover:decoration-[#84cc16]"
+              >
+                Visit Website
+              </a>
+            ) : null}
           </div>
         </div>
       </div>

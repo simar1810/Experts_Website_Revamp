@@ -5,8 +5,6 @@ import { searchListings } from "@/lib/services/listingSearch.service";
 import { EXPERTS_FILTER_DEBOUNCE_MS } from "@/lib/constants/filters";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
-const FREE_PAGE_SIZE = 20;
-
 function applyClientFilters(experts, { clientsRanges, wzAssured }) {
   if (!Array.isArray(experts)) return [];
   let result = [...experts];
@@ -36,7 +34,8 @@ function applyClientFilters(experts, { clientsRanges, wzAssured }) {
 }
 
 /**
- * Listing search with paid/free split; free tier is paginated server-side.
+ * Listing search with paid/free split. UI page size is applied client-side
+ * (slice) because the listing API does not honor a configurable page size.
  */
 const EMPTY_LOCATION = { mode: "none" };
 
@@ -46,6 +45,7 @@ export function useExpertsListingSearch({
   searchClientLocation = null,
   nameQuery = "",
 }) {
+  const [pageSize, setPageSizeState] = useState(10);
   const [page, setPageState] = useState(1);
   const [paid, setPaid] = useState([]);
   const [free, setFree] = useState([]);
@@ -119,7 +119,7 @@ export function useExpertsListingSearch({
   );
 
   const buildApiParams = useCallback(
-    (pageNum, filters = debouncedFilters) => {
+    (filters = debouncedFilters) => {
       return {
         city: filters.city,
         state: filters.state,
@@ -128,7 +128,7 @@ export function useExpertsListingSearch({
         clientLocation: filters.clientLocation,
         consultationMode: filters.consultationMode,
         radiusKm: filters.radiusKm,
-        page: pageNum,
+        page: 1,
         languages: filters.languages,
         nameQuery: filters.nameQuery,
       };
@@ -202,12 +202,12 @@ export function useExpertsListingSearch({
   }, []);
 
   const fetchListings = useCallback(
-    async (pageNum, filters = debouncedFilters) => {
+    async (filters = debouncedFilters) => {
       setLoading(true);
       setError(null);
       try {
         const resolved = await resolveGeoFromCityText(filters);
-        const params = buildApiParams(pageNum, resolved);
+        const params = buildApiParams(resolved);
         const res = await searchListings(params);
         setPaid(res.paid);
         setFree(res.free);
@@ -224,50 +224,73 @@ export function useExpertsListingSearch({
     [buildApiParams, debouncedFilters, resolveGeoFromCityText],
   );
 
-  useEffect(() => {
-    setPageState(1);
-    fetchListings(1, debouncedFilters);
-  }, [
-    debouncedFilters,
-    fetchListings,
-  ]);
+  const setPageSize = useCallback((next) => {
+    const n = Number(next);
+    const clamped =
+      Number.isFinite(n) && n > 0 ? Math.min(100, Math.max(5, Math.floor(n))) : 10;
+    setPageSizeState(clamped);
+  }, []);
 
   useEffect(() => {
-    if (page <= 1) return;
-    fetchListings(page, debouncedFilters);
-  }, [page, fetchListings, debouncedFilters]);
+    setPageState(1);
+    fetchListings(debouncedFilters);
+  }, [debouncedFilters, fetchListings]);
+
+  useEffect(() => {
+    setPageState(1);
+  }, [pageSize]);
 
   const runSearch = useCallback(async () => {
     setPageState(1);
-    await fetchListings(1, immediateFilters);
+    await fetchListings(immediateFilters);
   }, [fetchListings, immediateFilters]);
 
   const setPage = useCallback((n) => {
     setPageState(Math.max(1, Number(n) || 1));
   }, []);
 
-  const displayFree = useMemo(
+  const filteredFreeFull = useMemo(
     () => applyClientFilters(free, { clientsRanges, wzAssured }),
     [free, clientsRanges, wzAssured],
   );
 
+  const filteredTotal = filteredFreeFull.length;
+  const clientTotalPages = useMemo(() => {
+    if (filteredTotal === 0) return 0;
+    return Math.max(1, Math.ceil(filteredTotal / pageSize));
+  }, [filteredTotal, pageSize]);
+
+  const activePage = useMemo(() => {
+    if (clientTotalPages === 0) return 1;
+    return Math.min(Math.max(1, page), clientTotalPages);
+  }, [page, clientTotalPages]);
+
+  const displayFree = useMemo(() => {
+    if (filteredTotal === 0) return [];
+    const start = (activePage - 1) * pageSize;
+    return filteredFreeFull.slice(start, start + pageSize);
+  }, [filteredFreeFull, filteredTotal, activePage, pageSize]);
+
   const hasNextPage =
-    (meta?.freeReturned ?? free?.length ?? 0) === FREE_PAGE_SIZE;
-  const hasPrevPage = page > 1;
-  const totalPages =
-    Number(meta?.freeTotalPages ?? meta?.totalPages ?? meta?.pages ?? 0) || 0;
+    clientTotalPages > 0 ? activePage < clientTotalPages : false;
+  const hasPrevPage = activePage > 1;
+
+  const freeReturned = meta?.freeReturned ?? filteredTotal;
 
   return {
     paid,
     free,
+    filteredTotal,
     displayFree,
     meta,
-    page,
+    page: activePage,
+    pageSize,
+    setPageSize,
     loading,
     error,
     hasNextPage,
     hasPrevPage,
-    totalPages,
+    totalPages: clientTotalPages,
     runSearch,
     setPage,
     languages,

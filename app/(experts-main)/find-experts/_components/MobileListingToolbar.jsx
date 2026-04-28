@@ -11,6 +11,7 @@ function formatResultCount(n) {
 
 export default function MobileListingToolbar({
   resultsCount = 0,
+  appliedFiltersCount = 0,
   locationQuery,
   setLocationQuery,
   setLocationFilter,
@@ -41,10 +42,20 @@ export default function MobileListingToolbar({
         <button
           type="button"
           onClick={onOpenFilters}
-          className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-[#1B5E20] text-white px-4 py-2.5 text-sm font-bold shadow-sm active:scale-[0.98] transition-transform"
+          aria-label={
+            appliedFiltersCount > 0
+              ? `Filters, ${appliedFiltersCount} applied`
+              : "Open filters"
+          }
+          className="relative shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-[#1B5E20] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-transform active:scale-[0.98]"
         >
-          <Filter className="w-4 h-4" aria-hidden />
-          Filter
+          <Filter className="w-4 h-4 shrink-0" aria-hidden />
+          <span className="whitespace-nowrap">Filters</span>
+          {appliedFiltersCount > 0 ? (
+            <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-[#70C136] text-[10px] font-black text-white ring-2 ring-[#F1F8E9] tabular-nums">
+              {appliedFiltersCount > 99 ? "99+" : appliedFiltersCount}
+            </span>
+          ) : null}
         </button>
       </div>
     </div>
