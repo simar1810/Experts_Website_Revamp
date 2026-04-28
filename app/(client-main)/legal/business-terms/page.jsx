@@ -2,7 +2,7 @@ import LegalDocumentPage from "@/app/(client-main)/_components/legal/LegalDocume
 import { getBusinessTermsText } from "@/lib/legal/getLegalContent";
 
 export const metadata = {
-  title: "Business terms | Zeefit
+  title: "Business terms | Zeefit",
   description:
     "Business terms and conditions for experts and partners on Zeefit.",
 };
