@@ -53,6 +53,8 @@ export function AuthProvider({ children }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const returnPathAfterAuthRef = useRef(null);
+  /** Passed from Login (number not registered) → GetStarted signup form pre-fill. Cleared after consume. */
+  const signupDraftRef = useRef(null);
 
   const refreshUser = useCallback(async () => {
     const storedToken = localStorage.getItem("client_token");
@@ -137,6 +139,18 @@ export function AuthProvider({ children }) {
 
   const closeRegisterModal = () => setIsRegisterModalOpen(false);
 
+  const presetSignupDraft = useCallback((phone, countryCode = "IN") => {
+    const p = typeof phone === "string" ? phone.trim() : "";
+    signupDraftRef.current =
+      p.length > 0 ? { phone: p, countryCode: countryCode || "IN" } : null;
+  }, []);
+
+  const consumeSignupDraft = useCallback(() => {
+    const v = signupDraftRef.current;
+    signupDraftRef.current = null;
+    return v;
+  }, []);
+
   const consumeReturnPathAfterAuth = useCallback(() => {
     const raw = returnPathAfterAuthRef.current;
     returnPathAfterAuthRef.current = null;
@@ -160,6 +174,8 @@ export function AuthProvider({ children }) {
         isRegisterModalOpen,
         refreshUser,
         consumeReturnPathAfterAuth,
+        presetSignupDraft,
+        consumeSignupDraft,
       }}
     >
       {children}

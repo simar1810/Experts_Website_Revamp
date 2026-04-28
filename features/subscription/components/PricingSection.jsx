@@ -31,6 +31,19 @@ function Container() {
     <div>
       {/* <CouponCode /> */}
       <div id="pricing-plans" className="scroll-mt-6 md:scroll-mt-10">
+        <div className="px-2 pb-6 text-center md:px-0 md:pb-10">
+          <h2 className="text-3xl font-bold tracking-tight text-[#0F1F26] md:text-4xl">
+            Pricing
+          </h2>
+          <p className="mt-3 max-w-2xl mx-auto text-base text-gray-600 md:text-lg">
+            Choose the plan that fits your coaching.{" "}
+            <a
+              className="font-semibold text-[#2E7D32] underline decoration-[#2E7D32]/30 underline-offset-2 hover:decoration-[#2E7D32]"
+              href="mailto:support@wellnessz.in?subject=ZeeFit%20Basic%20—%20question"
+            >
+            </a>
+          </p>
+        </div>
         <PlanDurationSelection />
       <div
         className={cn(

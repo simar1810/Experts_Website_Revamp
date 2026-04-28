@@ -42,13 +42,48 @@ const CONSULTATION_OPTIONS = [
   { value: "both", label: "Hybrid" },
 ];
 
-/** Mobile sheet distance slider matches design (desktop sidebar stays 0–200 km). */
-const SHEET_DISTANCE_MAX = 100;
-const SHEET_DISTANCE_STEP = 5;
+/** Distance slider range (desktop + sheet — same semantics). */
+const DISTANCE_SLIDER_MAX_KM = 200;
+const DISTANCE_SLIDER_STEP = 5;
+
+function countTruthy(obj) {
+  if (!obj || typeof obj !== "object") return 0;
+  return Object.keys(obj).filter((k) => obj[k]).length;
+}
+
+/** Flipkart-style “how many knobs are tuned” badge (facet selections). */
+function useActiveFacetCount({
+  specializationCount,
+  languageCount,
+  clientBucketCount,
+  consultationSet,
+  wzToggle,
+  distanceActive,
+}) {
+  return useMemo(() => {
+    let n =
+      specializationCount +
+      languageCount +
+      clientBucketCount +
+      (consultationSet ? 1 : 0) +
+      (wzToggle ? 1 : 0);
+    if (distanceActive) n += 1;
+    return n;
+  }, [
+    specializationCount,
+    languageCount,
+    clientBucketCount,
+    consultationSet,
+    wzToggle,
+    distanceActive,
+  ]);
+}
 
 const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
   {
     showDistanceFilter = false,
+    /** When embedding in bottom sheet: sync drafts when sheet opens; parent passes open state */
+    sheetOpen = undefined,
     locationLabel = "All Cities",
     freeCount = 0,
     languages = [],
@@ -90,6 +125,39 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
     ...selectedSpecialities,
   ]); //Specializations
   const radiusCommitTimerRef = useRef(null);
+  /** Latest applied (parent) filter snapshot — used to reset sheet draft when opening. */
+  const appliedSnapshotRef = useRef(null);
+  const sheetWasOpenRef = useRef(false);
+
+  appliedSnapshotRef.current = {
+    languages: [...(languages || [])],
+    selectedSpecialities: [...(selectedSpecialities || [])],
+    consultationMode,
+    wzAssured,
+    clientsRanges: { ...clientsRanges },
+    radiusKm,
+  };
+
+  useEffect(() => {
+    if (!embedInSheet || sheetOpen !== true) {
+      sheetWasOpenRef.current = false;
+      return;
+    }
+    if (sheetWasOpenRef.current) return;
+    sheetWasOpenRef.current = true;
+    const a = appliedSnapshotRef.current || {};
+    setLocalLanguages([...(a.languages ?? [])]);
+    setLocalSpecializations([...(a.selectedSpecialities ?? [])]);
+    setLocalConsultation(a.consultationMode ?? "");
+    setLocalWz(!!a.wzAssured);
+    setLocalClients(
+      typeof a.clientsRanges === "object" && a.clientsRanges
+        ? { ...a.clientsRanges }
+        : {},
+    );
+    const rk = Number(a.radiusKm);
+    setLocalRadius(Number.isFinite(rk) ? rk : 20);
+  }, [embedInSheet, sheetOpen]);
 
   useEffect(() => {
     setLocalWz(wzAssured);
@@ -267,16 +335,18 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
       clearTimeout(radiusCommitTimerRef.current);
       radiusCommitTimerRef.current = null;
     }
-    setLocalWz(false);
-    setLocalConsultation("");
-    setLocalRadius(20);
-    setLocalLanguages([]);
-    setSelectedSpecialities([]);
     const cleared = {};
     clients_options.forEach((c) => {
       cleared[c] = false;
     });
+    // Clear local drafts first so the debounced specialty effect cannot replay stale specials.
+    setLocalSpecializations([]);
+    setLocalWz(false);
+    setLocalConsultation("");
+    setLocalRadius(20);
+    setLocalLanguages([]);
     setLocalClients(cleared);
+    setSelectedSpecialities([]);
     setLanguages([]);
     setConsultationMode("");
     setRadiusKm(20);
@@ -288,11 +358,21 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const clientBucketsSelected = countTruthy(localClients);
+  const distanceDeviation =
+    showDistanceFilter && Number(localRadius) !== 20;
+  const activeFacetCount = useActiveFacetCount({
+    specializationCount: localSpecializations.length,
+    languageCount: localLanguages.length,
+    clientBucketCount: clientBucketsSelected,
+    consultationSet: Boolean((localConsultation || "").trim()),
+    wzToggle: localWz,
+    distanceActive: distanceDeviation,
+  });
+
   const checkboxClass = embedInSheet
     ? "size-4 shrink-0 rounded-sm border border-gray-300 text-[#70C136] focus:ring-[#70C136] accent-[#70C136]"
     : "w-4 h-4 accent-[#70C136]";
-
-  const sheetRadiusDisplay = Math.min(localRadius, SHEET_DISTANCE_MAX);
 
   const distanceSectionDesktop = showDistanceFilter && !embedInSheet && (
     <div className="space-y-3">
@@ -303,13 +383,13 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
         <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-2">
           <span>0</span>
           <span className="text-[#70C136]">{localRadius} km</span>
-          <span>200</span>
+          <span>{DISTANCE_SLIDER_MAX_KM}</span>
         </div>
         <input
           type="range"
           min={0}
-          max={200}
-          step={5}
+          max={DISTANCE_SLIDER_MAX_KM}
+          step={DISTANCE_SLIDER_STEP}
           value={localRadius}
           onChange={(e) => {
             const v = Number(e.target.value);
@@ -328,14 +408,20 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
 
   const distanceSectionSheet = showDistanceFilter && embedInSheet && (
     <section className="py-4">
-      <h3 className="font-bold text-base text-gray-900 mb-3">Distance Range</h3>
+      <div className="mb-3 flex items-end justify-between gap-2">
+        <h3 className="font-bold text-base text-gray-900">Distance</h3>
+        <span className="text-sm font-bold tabular-nums text-[#70C136]">
+          {Math.round(Number(localRadius) || 0)} km
+        </span>
+      </div>
       <div className="pt-1">
         <input
           type="range"
+          aria-label="Search radius in kilometers"
           min={0}
-          max={SHEET_DISTANCE_MAX}
-          step={SHEET_DISTANCE_STEP}
-          value={sheetRadiusDisplay}
+          max={DISTANCE_SLIDER_MAX_KM}
+          step={DISTANCE_SLIDER_STEP}
+          value={Math.min(Math.max(0, localRadius), DISTANCE_SLIDER_MAX_KM)}
           onChange={(e) => {
             const v = Number(e.target.value);
             setLocalRadius(v);
@@ -347,13 +433,12 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
           onPointerCancel={() => flushRadiusCommit(localRadius)}
           className="sheet-distance-slider w-full"
           style={{
-            "--range-fill": `${(sheetRadiusDisplay / SHEET_DISTANCE_MAX) * 100}%`,
+            "--range-fill": `${((Math.min(localRadius, DISTANCE_SLIDER_MAX_KM) || 0) / DISTANCE_SLIDER_MAX_KM) * 100}%`,
           }}
         />
-        <div className="flex justify-between text-xs text-gray-400 mt-3 px-0.5 tabular-nums">
-          {[20, 40, 60, 80, 100].map((n) => (
-            <span key={n}>{n}</span>
-          ))}
+        <div className="mt-2 flex justify-between text-[11px] text-gray-400 tabular-nums">
+          <span>0 km</span>
+          <span>{DISTANCE_SLIDER_MAX_KM} km</span>
         </div>
       </div>
     </section>
@@ -382,16 +467,23 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
 
       {embedInSheet ? (
         <>
-          <div className="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-5 py-4">
-            <h2 className="text-lg font-bold text-gray-900 tracking-tight">
-              Filter
-            </h2>
+          <div className="shrink-0 flex items-start justify-between gap-3 border-b border-gray-200 bg-white px-5 py-4">
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+                Filters
+              </h2>
+              <p className="mt-1 text-xs text-gray-500">
+                {activeFacetCount > 0
+                  ? `${activeFacetCount} filter${activeFacetCount === 1 ? "" : "s"} on`
+                  : "Refine by category, mode, and more"}
+              </p>
+            </div>
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-sm font-semibold text-[#70C136] active:opacity-80"
+              className="shrink-0 text-sm font-semibold text-[#70C136] active:opacity-80"
             >
-              Clear
+              Clear all
             </button>
           </div>
           <div className="min-h-0 flex-1 divide-y divide-gray-200 overflow-y-auto overscroll-y-contain bg-white px-5 [scrollbar-gutter:stable]">
@@ -432,12 +524,11 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                 Consultation Mode
               </h3>
               <div className="flex flex-wrap gap-2">
-                {CONSULTATION_OPTIONS.filter((o) => o.value !== "").map(
-                  (opt) => {
+                {CONSULTATION_OPTIONS.map((opt) => {
                     const selected = localConsultation === opt.value;
                     return (
                       <label
-                        key={opt.value}
+                        key={opt.value || "any"}
                         className={cn(
                           "inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors",
                           selected
@@ -482,19 +573,43 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                         </span>
                       </label>
                     );
-                  },
-                )}
+                  })}
               </div>
+            </section>
+
+            <section className="py-4">
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-3">
+                <input
+                  type="checkbox"
+                  checked={localWz}
+                  onChange={() => setLocalWz((v) => !v)}
+                  className={checkboxClass}
+                />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-gray-900">
+                    WZ Assured only
+                  </span>
+                  <span className="mt-0.5 block text-xs text-gray-500">
+                    Show experts with the WZ Assured badge
+                  </span>
+                </span>
+              </label>
             </section>
 
             <section className="py-4">
               <button
                 type="button"
+                aria-expanded={openSections.clients}
                 onClick={() => toggleSection("clients")}
                 className="flex w-full items-center justify-between text-left"
               >
                 <h3 className="font-bold text-base text-gray-900">
                   No. of Clients
+                  {clientBucketsSelected > 0 ? (
+                    <span className="ml-2 text-sm font-semibold text-[#70C136]">
+                      ({clientBucketsSelected})
+                    </span>
+                  ) : null}
                 </h3>
                 {openSections.clients ? (
                   <ChevronUp className="size-5 text-gray-400" />
@@ -527,10 +642,18 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
             <section className="py-4">
               <button
                 type="button"
+                aria-expanded={openSections.languages}
                 onClick={() => toggleSection("languages")}
                 className="flex w-full items-center justify-between text-left"
               >
-                <h3 className="font-bold text-base text-gray-900">Languages</h3>
+                <h3 className="font-bold text-base text-gray-900">
+                  Languages
+                  {localLanguages.length > 0 ? (
+                    <span className="ml-2 text-sm font-semibold text-[#70C136]">
+                      ({localLanguages.length})
+                    </span>
+                  ) : null}
+                </h3>
                 {openSections.languages ? (
                   <ChevronUp className="size-5 text-gray-400" />
                 ) : (
@@ -582,14 +705,23 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
       ) : (
         <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-y-contain bg-white p-5 lg:space-y-8 lg:p-7 [scrollbar-gutter:stable]">
           <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-xl">Filter</h3>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h3 className="font-bold text-xl tracking-tight text-gray-900">
+                  Filters
+                </h3>
+                <p className="mt-1 text-xs text-gray-500">
+                  {activeFacetCount > 0
+                    ? `${activeFacetCount} active — results update as you change`
+                    : "Refine by category, mode, and more"}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="cursor-pointer shrink-0 rounded-full bg-[#67BC2A] p-1 px-2 text-[10px] font-black uppercase tracking-widest text-white hover:shadow"
+                className="cursor-pointer shrink-0 rounded-full bg-[#67BC2A] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white hover:shadow"
               >
-                Clear
+                Clear all
               </button>
             </div>
           </div>
@@ -598,11 +730,17 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
           <div className="space-y-4 border-t border-gray-100 pt-6">
             <button
               type="button"
+              aria-expanded={openSections.specializations}
               onClick={() => toggleSection("specializations")}
               className="flex w-full items-center justify-between text-left"
             >
               <span className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
                 Specializations
+                {localSpecializations.length > 0 ? (
+                  <span className="ml-2 text-[13px] font-bold text-[#70C136]">
+                    ({localSpecializations.length})
+                  </span>
+                ) : null}
               </span>
               <ChevronUp
                 className={`size-4 text-gray-400 transition-transform ${
@@ -646,7 +784,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
             <div className="space-y-2 pl-1">
               {CONSULTATION_OPTIONS.map((opt) => (
                 <label
-                  key={opt.label}
+                  key={opt.value || "any"}
                   className="flex cursor-pointer items-center gap-3"
                 >
                   <input
@@ -664,13 +802,37 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
             </div>
           </div>
           <div className="space-y-4 border-t border-gray-100 pt-6">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/90 px-3 py-3">
+              <input
+                type="checkbox"
+                checked={localWz}
+                onChange={() => setLocalWz((v) => !v)}
+                className={checkboxClass}
+              />
+              <span className="min-w-0">
+                <span className="block text-sm font-bold text-gray-800">
+                  WZ Assured only
+                </span>
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  Verified WellnessZ experts
+                </span>
+              </span>
+            </label>
+          </div>
+          <div className="space-y-4 border-t border-gray-100 pt-6">
             <button
               type="button"
+              aria-expanded={openSections.clients}
               onClick={() => toggleSection("clients")}
               className="flex w-full items-center justify-between text-left"
             >
               <span className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
                 No. of Clients
+                {clientBucketsSelected > 0 ? (
+                  <span className="ml-2 text-[13px] font-bold text-[#70C136]">
+                    ({clientBucketsSelected})
+                  </span>
+                ) : null}
               </span>
               <ChevronUp
                 className={`size-4 text-gray-400 transition-transform ${
@@ -702,11 +864,17 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
           <div className="space-y-4 border-t border-gray-100 pt-6">
             <button
               type="button"
+              aria-expanded={openSections.languages}
               onClick={() => toggleSection("languages")}
               className="flex w-full items-center justify-between text-left"
             >
               <span className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
                 Languages
+                {localLanguages.length > 0 ? (
+                  <span className="ml-2 text-[13px] font-bold text-[#70C136]">
+                    ({localLanguages.length})
+                  </span>
+                ) : null}
               </span>
               <ChevronUp
                 className={`size-4 text-gray-400 transition-transform ${

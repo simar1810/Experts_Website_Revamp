@@ -5,6 +5,8 @@ import { resolveListingId } from "@/lib/curatedShowcaseFromListing";
 import ExpertList from "../ExpertList";
 import ExpertsPagination from "./ExpertsPagination";
 
+const DEFAULT_PAGE_SIZES = [10, 20, 50];
+
 export default function PopularExpertsSection({
   experts = [],
   loading = false,
@@ -13,6 +15,9 @@ export default function PopularExpertsSection({
   hasNextPage,
   hasPrevPage,
   totalPages = 0,
+  pageSize = 10,
+  onPageSizeChange,
+  pageSizeOptions = DEFAULT_PAGE_SIZES,
 }) {
   const [profilePaths, setProfilePaths] = useState({});
   const sectionTopRef = useRef(null);
@@ -77,7 +82,7 @@ export default function PopularExpertsSection({
     <div className="flex-1 min-w-0">
       <div
         ref={sectionTopRef}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 text-left"
+        className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6 sm:mb-8 text-left"
       >
         <div>
           <h2 className="text-lg sm:text-3xl font-black text-gray-900 tracking-tight md:text-left">
@@ -88,6 +93,29 @@ export default function PopularExpertsSection({
             Top rated wellness experts available for you
           </p>
         </div>
+        {typeof onPageSizeChange === "function" ? (
+          <label className="flex w-full shrink-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center">
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500 sm:text-xs">
+              Experts per page
+            </span>
+            <select
+              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm outline-none transition-colors hover:border-[#70C136] focus-visible:ring-2 focus-visible:ring-[#70C136]/35"
+              value={pageSize}
+              aria-label="Experts per page"
+              onChange={(e) => {
+                shouldScrollAfterPageChangeRef.current = true;
+                onPageSizeChange(Number(e.target.value));
+              }}
+              disabled={loading}
+            >
+              {pageSizeOptions.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
       </div>
 
       {loading && (

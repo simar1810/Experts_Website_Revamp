@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowRightIcon, X } from "lucide-react";
+import { ArrowRightIcon, Loader2, X } from "lucide-react";
 import { clientProfileFromVerifyResponse, fetchAPI } from "@/lib/api";
+import { probeClientSendOtp } from "@/lib/clientMobileStatus";
 import { submitPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ const inputClass = (hasError) =>
   }`;
 
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
-  const { login, consumeReturnPathAfterAuth } = useAuth();
+  const { login, consumeReturnPathAfterAuth, presetSignupDraft } = useAuth();
   const router = useRouter();
 
   const [showOtp, setShowOtp] = useState(false);
@@ -27,6 +28,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   const [error, setError] = useState(false);
   const [touched, setTouched] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [checkingMobile, setCheckingMobile] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -58,28 +60,62 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       setError(false);
       setTouched(false);
       setVerifying(false);
+      setCheckingMobile(false);
     }
   }, [isOpen]);
 
-  const handleSendOtp = async () => {
+  const digitsOnlyUpTo10 = (value) =>
+    String(value ?? "")
+      .replace(/\D/g, "")
+      .slice(0, 10);
+
+  const handlePhoneContinueLogin = async () => {
     setTouched(true);
-    if (!phone.trim()) {
+    const digitsOnly = digitsOnlyUpTo10(phone);
+
+    if (digitsOnly.length !== 10) {
       setError(true);
+      toast.error("Enter exactly 10 digits");
       return;
     }
+    setError(false);
+    setCheckingMobile(true);
 
     try {
-      await fetchAPI(
-        "/experts/client/send-otp",
-        {
-          mobileNumber: phone.trim(),
-        },
-        "POST",
+      const { branch } = await probeClientSendOtp(fetchAPI, {
+        mobileNumber: digitsOnly,
+        countryCode: "IN",
+      });
+
+      /** Unknown number (no SMS) → signup with this number prefilled */
+      if (branch === "signup") {
+        presetSignupDraft(digitsOnly, "IN");
+        onSwitchToRegister();
+        setCheckingMobile(false);
+        return;
+      }
+
+      /** Known number: send-otp already sent OTP (single call) */
+      if (branch === "login") {
+        setShowOtp(true);
+        return;
+      }
+
+      /** Ambiguous body — prefer signup to avoid duplicate send-otp */
+      toast.error(
+        "Could not confirm your number. Continuing to create an account—you can sign in if you already have one.",
       );
-      setShowOtp(true);
+      presetSignupDraft(digitsOnly, "IN");
+      onSwitchToRegister();
     } catch (err) {
-      console.error("Login OTP failed:", err);
-      setShowOtp(true);
+      console.error("Login OTP send failed:", err);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Could not send OTP. Try again shortly.",
+      );
+    } finally {
+      setCheckingMobile(false);
     }
   };
 
@@ -88,7 +124,8 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       await fetchAPI(
         "/experts/client/send-otp",
         {
-          mobileNumber: phone.trim(),
+          mobileNumber: digitsOnlyUpTo10(phone),
+          countryCode: "IN",
         },
         "POST",
       );
@@ -98,14 +135,19 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
     }
   };
 
-  const handleVerifyOtp = async () => {
+  const handleVerifyOtp = async (explicitCode) => {
+    const code = (explicitCode ?? otp.join("")).replace(/\D/g, "");
+    if (code.length !== 4) {
+      return;
+    }
+    if (verifying) return;
     setVerifying(true);
     try {
       const response = await fetchAPI(
         "/experts/client/verify-otp",
         {
-          mobileNumber: phone.trim(),
-          otp: otp.join(""),
+          mobileNumber: digitsOnlyUpTo10(phone),
+          otp: code,
         },
         "POST",
       );
@@ -115,7 +157,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
         return;
       }
       const profile = clientProfileFromVerifyResponse(response, {
-        mobileNumber: phone.trim(),
+        mobileNumber: digitsOnlyUpTo10(phone),
       });
       login(token, profile);
       const returnTo = consumeReturnPathAfterAuth();
@@ -145,14 +187,40 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   };
 
   const handleOtpChange = (index, value) => {
-    if (value !== "" && !/^\d$/.test(value)) return;
+    if (verifying) return;
+    const digits = String(value ?? "").replace(/\D/g, "");
+    if (digits.length > 1) {
+      const newOtp = [...otp];
+      for (let i = 0; i < digits.length && index + i < 4; i += 1) {
+        newOtp[index + i] = digits[i];
+      }
+      setOtp(newOtp);
+      const joined = newOtp.join("");
+      if (/^\d{4}$/.test(joined)) {
+        void handleVerifyOtp(joined);
+      } else {
+        const nextFocus = Math.min(index + digits.length, 3);
+        requestAnimationFrame(() =>
+          document.getElementById(`login-otp-${nextFocus}`)?.focus(),
+        );
+      }
+      return;
+    }
+
+    if (value !== "" && !/^\d$/.test(digits)) return;
     const newOtp = [...otp];
-    newOtp[index] = value.substring(value.length - 1);
+    newOtp[index] = digits.slice(-1);
     setOtp(newOtp);
 
-    if (value && index < otp.length - 1) {
+    if (digits && index < otp.length - 1) {
       const nextInput = document.getElementById(`login-otp-${index + 1}`);
       nextInput?.focus();
+      return;
+    }
+
+    const joined = newOtp.join("");
+    if (/^\d{4}$/.test(joined)) {
+      void handleVerifyOtp(joined);
     }
   };
 
@@ -191,8 +259,8 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
               Wellness Journey
             </h2>
             <p className="mx-auto mt-3 max-w-sm text-center text-[0.9375rem] leading-5 text-gray-500 ">
-              Log in to explore trusted experts, manage bookings, and continue
-              where you left off.
+              Enter your mobile number. We&apos;ll send a code to sign in—or
+              guide you to create an account if you&apos;re new.
             </p>
 
             <form
@@ -203,30 +271,38 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                 if (showOtp) {
                   void handleVerifyOtp();
                 } else {
-                  void handleSendOtp();
+                  void handlePhoneContinueLogin();
                 }
               }}
             >
               <div>
-                <div className="mb-1.5 flex items-center justify-between px-0.5">
+                <div className="mb-1.5 flex items-center justify-between gap-2 px-0.5">
                   <label className="text-sm font-bold text-gray-900">
                     Phone Number
                   </label>
-                  {touched && error && (
-                    <span className="text-xs font-semibold text-red-500">
-                      Required
-                    </span>
-                  )}
+                  <div className="flex shrink-0 items-center gap-2">
+                    {touched && error && (
+                      <span className="text-xs font-semibold text-red-500">
+                        10 digits
+                      </span>
+                    )}
+                    {!showOtp && (
+                      <span className="text-xs font-medium text-gray-400 tabular-nums">
+                        {digitsOnlyUpTo10(phone).length}/10
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <input
                   type="text"
-                  inputMode="tel"
+                  inputMode="numeric"
+                  maxLength={10}
                   value={phone}
                   onChange={(e) => {
-                    setPhone(e.target.value);
+                    setPhone(digitsOnlyUpTo10(e.target.value));
                     if (touched && e.target.value) setError(false);
                   }}
-                  placeholder="+91 9876543210"
+                  placeholder="9876543210"
                   disabled={showOtp}
                   readOnly={showOtp}
                   className={`${inputClass(touched && error)} ${showOtp ? "bg-gray-50 text-gray-600" : ""}`}
@@ -249,9 +325,10 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                           value={val}
                           onChange={(e) => handleOtpChange(idx, e.target.value)}
                           onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                          disabled={verifying}
                           inputMode="numeric"
                           autoComplete="one-time-code"
-                          className="h-12 w-10 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25 sm:h-12 sm:w-11"
+                          className="h-12 w-10 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:w-11"
                         />
                       ))}
                     </div>
@@ -279,27 +356,45 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
               <div className="flex flex-col gap-4 pt-1">
                 <button
                   type="submit"
-                  disabled={verifying}
+                  disabled={verifying || checkingMobile}
                   className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
                 >
                   {verifying ? (
-                    `Signing in…`
+                    "Signing in…"
+                  ) : checkingMobile ? (
+                    <>
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                      Checking…
+                    </>
                   ) : (
                     <div className="flex items-center space-x-1">
-                      <div>Continue</div> <ArrowRightIcon className="w-4 h-4" />
+                      {!showOtp ? (
+                        <>
+                          Continue
+                          <ArrowRightIcon className="w-4 h-4" />
+                        </>
+                      ) : (
+                        <>
+                          Verify & continue
+                          <ArrowRightIcon className="w-4 h-4" />
+                        </>
+                      )}
                     </div>
                   )}
                 </button>
 
                 {!showOtp && (
                   <p className="text-center text-sm text-gray-500">
-                    Don&apos;t have an account?{" "}
+                    Prefer to register first?{" "}
                     <button
                       type="button"
-                      onClick={onSwitchToRegister}
+                      onClick={() => {
+                        presetSignupDraft("");
+                        onSwitchToRegister();
+                      }}
                       className="font-bold text-[#84cc16] hover:underline"
                     >
-                      Register Now
+                      Get started
                     </button>
                   </p>
                 )}

@@ -699,9 +699,6 @@ export const LocationSearchField = forwardRef(function LocationSearchField(
         setLocationFilter({ mode: "none" });
       }
       setShowLocationDropdown(false);
-      setTimeout(() => {
-        if (typeof onSearch === "function") onSearch();
-      }, 0);
     };
 
     if (coordinateLocation) {
