@@ -1,5 +1,6 @@
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "react-hot-toast";
+import ExpertListing from "@/features/experts-landing/components/index"
 
 import {
   Geist,
@@ -15,6 +16,8 @@ import ClientMainLayoutShell from "./(client-main)/ClientMainLayoutShell";
 import { ValuesProvider } from "@/context/valuesContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner"
+import { SWRConfig } from "swr";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,7 +59,8 @@ export const metadata = {
   manifest: "/app.webmanifest",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const { success, partner } = await resolvePartner()
   return (
     <html lang="en" className="overflow-x-clip h-full" suppressHydrationWarning>
       <body
@@ -95,10 +99,13 @@ export default function RootLayout({ children }) {
               },
             }}
           />
-          <ValuesProvider>
-            {" "}
-            <ClientMainLayoutShell>{children}</ClientMainLayoutShell>
-          </ValuesProvider>
+          <SWRConfig value={{ revalidateOnFocus: false, revalidateIfStale: false }}>
+            {success && <ExpertListing partner={partner} />}
+            <ValuesProvider>
+              {" "}
+              {!success && <ClientMainLayoutShell>{children}</ClientMainLayoutShell>}
+            </ValuesProvider>
+          </SWRConfig>
         </AuthProvider>
       </body>
     </html>
