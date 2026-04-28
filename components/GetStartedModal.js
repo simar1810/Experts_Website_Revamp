@@ -7,9 +7,10 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Country, State, City } from "country-state-city";
 import { clientProfileFromVerifyResponse, fetchAPI } from "@/lib/api";
+import { probeClientSendOtp } from "@/lib/clientMobileStatus";
 import { submitPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -130,9 +131,26 @@ function GymIllustration() {
   );
 }
 
+const ENTRY_PHONE = "phone";
+const ENTRY_REGISTER = "register";
+const OTP_SIGNUP = "signup";
+const OTP_LOGIN = "login";
+
 export default function GetStartedModal({ isOpen, onClose }) {
-  const { login, openLoginModal, consumeReturnPathAfterAuth } = useAuth();
+  const { login, openLoginModal, consumeReturnPathAfterAuth, consumeSignupDraft } =
+    useAuth();
+
+  /** Close signup sheet, then open login (phone-first flow). */
+  const handleSwitchToLogin = useCallback(() => {
+    onClose();
+    openLoginModal();
+  }, [onClose, openLoginModal]);
+
   const router = useRouter();
+
+  const [entryPhase, setEntryPhase] = useState(ENTRY_PHONE);
+  const [otpPurpose, setOtpPurpose] = useState(OTP_SIGNUP);
+  const [checkingMobileStatus, setCheckingMobileStatus] = useState(false);
 
   const [showOtp, setShowOtp] = useState(false);
   const [timer, setTimer] = useState(23);
@@ -273,6 +291,9 @@ export default function GetStartedModal({ isOpen, onClose }) {
 
   useEffect(() => {
     if (!isOpen) {
+      setEntryPhase(ENTRY_PHONE);
+      setOtpPurpose(OTP_SIGNUP);
+      setCheckingMobileStatus(false);
       setShowOtp(false);
       setTimer(23);
       setName("");
@@ -295,6 +316,77 @@ export default function GetStartedModal({ isOpen, onClose }) {
       setVerifyingOtp(false);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const draft = consumeSignupDraft();
+    if (draft?.phone) {
+      const cc = draft.countryCode || "IN";
+      const countryRow = Country.getCountryByCode(cc);
+      setPhone(draft.phone);
+      setLocation((prev) => ({
+        ...prev,
+        countryCode: cc,
+        country: countryRow?.name ?? "",
+        stateCode: "",
+        state: "",
+        city: "",
+        pincode: "",
+      }));
+      setEntryPhase(ENTRY_REGISTER);
+    }
+  }, [isOpen, consumeSignupDraft]);
+
+  const handleContinueFromPhoneGate = async () => {
+    const trimmed = phone.trim();
+    const digits = trimmed.replace(/\D/g, "");
+    if (!trimmed.length) {
+      toast.error("Enter your phone number");
+      return;
+    }
+    if (digits.length < 8 || digits.length > 15) {
+      toast.error("Enter a valid phone number (8–15 digits)");
+      return;
+    }
+
+    const cc = location.countryCode?.trim() || "IN";
+
+    setCheckingMobileStatus(true);
+    try {
+      const { branch } = await probeClientSendOtp(fetchAPI, {
+        mobileNumber: trimmed,
+        countryCode: cc,
+      });
+
+      /** Existing client: send-otp already dispatched SMS (single call) → OTP step */
+      if (branch === "login") {
+        setOtpPurpose(OTP_LOGIN);
+        setTimer(23);
+        setShowOtp(true);
+        toast.success("Enter the OTP we sent to sign in.");
+        return;
+      }
+
+      /** New number → full registration form, then POST /register (no duplicate send-otp here) */
+      if (branch === "signup") {
+        setEntryPhase(ENTRY_REGISTER);
+        return;
+      }
+
+      toast.error(
+        "We couldn’t read the server reply. Continuing to registration—correct if you already have an account.",
+      );
+      setEntryPhase(ENTRY_REGISTER);
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Try again shortly.",
+      );
+    } finally {
+      setCheckingMobileStatus(false);
+    }
+  };
 
   const handleSendOtp = async () => {
     setSubmitAttempted(true);
@@ -327,14 +419,49 @@ export default function GetStartedModal({ isOpen, onClose }) {
         "POST",
       );
       if (data?.status_code === 200) {
+        setOtpPurpose(OTP_SIGNUP);
         setShowOtp(true);
         return;
       }
-      const msg =
+
+      const rawRegisterMsg =
         typeof data?.message === "string" && data.message.trim()
           ? data.message.trim()
-          : "Could not start registration. Please try again.";
-      toast.error(msg);
+          : "";
+
+      /** Account already registered: no new OTP from /register → send login OTP */
+      if (
+        rawRegisterMsg &&
+        rawRegisterMsg.toLowerCase().includes("already exists")
+      ) {
+        toast.success("You're already registered. Sending a login code…");
+        try {
+          const { branch } = await probeClientSendOtp(fetchAPI, {
+            mobileNumber: phone.trim(),
+            countryCode: location.countryCode || "IN",
+          });
+          if (branch === "login") {
+            setOtpPurpose(OTP_LOGIN);
+            setTimer(23);
+            setShowOtp(true);
+          } else {
+            toast.error(
+              "Couldn't send OTP. Tap “Sign in instead” at the bottom.",
+            );
+          }
+        } catch (e) {
+          toast.error(
+            e instanceof Error
+              ? e.message
+              : "Couldn't send OTP. Try Sign in from the homepage.",
+          );
+        }
+        return;
+      }
+
+      toast.error(
+        rawRegisterMsg || "Could not start registration. Please try again.",
+      );
     } catch (error) {
       console.error("Registration failed:", error);
       const message =
@@ -347,11 +474,13 @@ export default function GetStartedModal({ isOpen, onClose }) {
 
   const handleResendOtp = async () => {
     try {
+      const trimmed = phone.trim();
+      const cc = location.countryCode || "IN";
       await fetchAPI(
         "/experts/client/send-otp",
         {
-          mobileNumber: phone,
-          countryCode: location.countryCode || "IN",
+          mobileNumber: trimmed || phone,
+          countryCode: cc,
         },
         "POST",
       );
@@ -369,13 +498,20 @@ export default function GetStartedModal({ isOpen, onClose }) {
     }
     setVerifyingOtp(true);
     try {
+      const cc = location.countryCode || "IN";
+      const trimmedPhone = phone.trim();
+      const verifyBody =
+        otpPurpose === OTP_LOGIN
+          ? { mobileNumber: trimmedPhone, otp: code }
+          : {
+              mobileNumber: trimmedPhone || phone,
+              otp: code,
+              countryCode: cc,
+            };
+
       const response = await fetchAPI(
         "/experts/client/verify-otp",
-        {
-          mobileNumber: phone,
-          otp: code,
-          countryCode: location.countryCode || "IN",
-        },
+        verifyBody,
         "POST",
       );
 
@@ -390,13 +526,18 @@ export default function GetStartedModal({ isOpen, onClose }) {
         return;
       }
 
-      const profile = clientProfileFromVerifyResponse(response, {
-        name,
-        email,
-        city: location.city,
-        state: location.state,
-        mobileNumber: phone,
-      });
+      const profile = clientProfileFromVerifyResponse(
+        response,
+        otpPurpose === OTP_LOGIN
+          ? { mobileNumber: trimmedPhone }
+          : {
+              name,
+              email,
+              city: location.city,
+              state: location.state,
+              mobileNumber: trimmedPhone || phone,
+            },
+      );
       login(token, profile);
       const returnTo = consumeReturnPathAfterAuth();
       onClose();
@@ -480,7 +621,98 @@ export default function GetStartedModal({ isOpen, onClose }) {
           </button>
 
           <div className="relative mx-auto max-w-md">
-            {!showOtp ? (
+            {!showOtp && entryPhase === ENTRY_PHONE && (
+              <>
+                <h2 className="text-center text-[1.65rem] font-bold leading-tight tracking-tight text-gray-900">
+                  Continue with phone
+                </h2>
+                <p className="mx-auto max-w-sm text-center text-[0.9375rem] leading-relaxed text-gray-500">
+                  Enter your number first. We&apos;ll send a login code if you
+                  already have an account, or take you through sign-up.
+                </p>
+                <div className="mt-6 space-y-4">
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between px-0.5">
+                      <label className="text-sm font-bold text-gray-900">
+                        Country
+                      </label>
+                    </div>
+                    <select
+                      value={location.countryCode}
+                      onChange={(e) => {
+                        const code = e.target.value;
+                        const c = code
+                          ? Country.getCountryByCode(code)
+                          : null;
+                        setLocation({
+                          countryCode: code,
+                          country: c?.name || "",
+                          stateCode: "",
+                          state: "",
+                          city: "",
+                          pincode: "",
+                        });
+                      }}
+                      className={selectClass(false)}
+                      style={{ backgroundImage: SELECT_CHEVRON_BG }}
+                      aria-label="Country"
+                    >
+                      <option value="">Select country</option>
+                      {countries.map((c) => (
+                        <option key={c.isoCode} value={c.isoCode}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between px-0.5">
+                      <label className="text-sm font-bold text-gray-900">
+                        Phone number
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      inputMode="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+91 9876543210"
+                      className={inputClass(false)}
+                      autoComplete="tel"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    disabled={checkingMobileStatus}
+                    onClick={() => void handleContinueFromPhoneGate()}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
+                  >
+                    {checkingMobileStatus ? (
+                      <>
+                        <Loader2
+                          className="h-5 w-5 animate-spin"
+                          aria-hidden
+                        />
+                        Checking…
+                      </>
+                    ) : (
+                      <>Continue →</>
+                    )}
+                  </button>
+                  <p className="text-center text-sm text-gray-500">
+                    Already registered?{" "}
+                    <button
+                      type="button"
+                      onClick={() => handleSwitchToLogin()}
+                      className="font-bold text-[#84cc16] hover:underline"
+                    >
+                      Sign in instead
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
+            {!showOtp && entryPhase === ENTRY_REGISTER && (
               <>
                 <h2 className="text-center text-[1.65rem] font-bold leading-tight tracking-tight text-gray-900">
                   Start with the Right Expert
@@ -490,7 +722,15 @@ export default function GetStartedModal({ isOpen, onClose }) {
                   your goals best.
                 </p>
 
-                <div className="mt-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setEntryPhase(ENTRY_PHONE)}
+                  className="mx-auto mt-4 block text-sm font-semibold text-[#84cc16] underline underline-offset-2 hover:text-[#76b813]"
+                >
+                  ← Change phone number
+                </button>
+
+                <div className="mt-6 space-y-2">
                   <div>
                     <div className="mb-1.5 flex items-center justify-between px-0.5">
                       <label className="text-sm font-bold text-gray-900">
@@ -844,22 +1084,25 @@ export default function GetStartedModal({ isOpen, onClose }) {
                       Already registered?{" "}
                       <button
                         type="button"
-                        onClick={openLoginModal}
+                        onClick={() => handleSwitchToLogin()}
                         className="font-bold text-[#84cc16] hover:underline"
                       >
-                        Login instead
+                        Sign in instead
                       </button>
                     </p>
                   </div>
                 </div>
               </>
-            ) : (
+            )}
+            {showOtp && (
               <div className="space-y-6">
                 <h2 className="text-center text-[1.65rem] font-semibold leading-tight tracking-tight text-gray-900">
-                  Start with the Right Expert
+                  {otpPurpose === OTP_LOGIN ? "Sign in" : "Almost there"}
                 </h2>
                 <p className="text-center text-[0.9375rem] text-gray-500">
-                  Enter the code we sent to your phone to finish signing up.
+                  {otpPurpose === OTP_LOGIN
+                    ? "Enter the code we sent to your phone to continue."
+                    : "Enter the code we sent to your phone to finish signing up."}
                 </p>
 
                 <div>
@@ -913,6 +1156,24 @@ export default function GetStartedModal({ isOpen, onClose }) {
                     {verifyingOtp ? "Verifying…" : "Continue →"}
                   </button>
                 </div>
+
+                {otpPurpose === OTP_LOGIN ? (
+                  <div className="flex justify-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowOtp(false);
+                        setTimer(23);
+                        setOtp(["", "", "", ""]);
+                        setOtpPurpose(OTP_SIGNUP);
+                        setEntryPhase(ENTRY_PHONE);
+                      }}
+                      className="text-sm font-semibold text-[#84cc16] underline underline-offset-2 hover:text-[#76b813]"
+                    >
+                      Wrong number? Go back
+                    </button>
+                  </div>
+                ) : null}
               </div>
             )}
           </div>

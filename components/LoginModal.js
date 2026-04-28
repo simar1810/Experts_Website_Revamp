@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowRightIcon, X } from "lucide-react";
+import { ArrowRightIcon, Loader2, X } from "lucide-react";
 import { clientProfileFromVerifyResponse, fetchAPI } from "@/lib/api";
+import { probeClientSendOtp } from "@/lib/clientMobileStatus";
 import { submitPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ const inputClass = (hasError) =>
   }`;
 
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
-  const { login, consumeReturnPathAfterAuth } = useAuth();
+  const { login, consumeReturnPathAfterAuth, presetSignupDraft } = useAuth();
   const router = useRouter();
 
   const [showOtp, setShowOtp] = useState(false);
@@ -27,6 +28,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   const [error, setError] = useState(false);
   const [touched, setTouched] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [checkingMobile, setCheckingMobile] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -58,28 +60,70 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       setError(false);
       setTouched(false);
       setVerifying(false);
+      setCheckingMobile(false);
     }
   }, [isOpen]);
 
-  const handleSendOtp = async () => {
+  const normalizePhoneDigits = (value) =>
+    String(value ?? "")
+      .replace(/\D/g, "")
+      .trim();
+
+  const handlePhoneContinueLogin = async () => {
     setTouched(true);
-    if (!phone.trim()) {
+    const trimmed = phone.trim();
+    const digitsOnly = normalizePhoneDigits(trimmed);
+
+    // Match GetStarted-ish validation bounds (excluding country prefixes as strict as server)
+    if (!trimmed.length) {
       setError(true);
       return;
     }
+    if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+      setError(true);
+      toast.error(
+        "Enter a valid phone number (8–15 digits after removing spaces)",
+      );
+      return;
+    }
+    setError(false);
+    setCheckingMobile(true);
 
     try {
-      await fetchAPI(
-        "/experts/client/send-otp",
-        {
-          mobileNumber: phone.trim(),
-        },
-        "POST",
+      const { branch } = await probeClientSendOtp(fetchAPI, {
+        mobileNumber: trimmed,
+        countryCode: "IN",
+      });
+
+      /** Unknown number (no SMS) → signup with this number prefilled */
+      if (branch === "signup") {
+        presetSignupDraft(trimmed, "IN");
+        onSwitchToRegister();
+        setCheckingMobile(false);
+        return;
+      }
+
+      /** Known number: send-otp already sent OTP (single call) */
+      if (branch === "login") {
+        setShowOtp(true);
+        return;
+      }
+
+      /** Ambiguous body — prefer signup to avoid duplicate send-otp */
+      toast.error(
+        "Could not confirm your number. Continuing to create an account—you can sign in if you already have one.",
       );
-      setShowOtp(true);
+      presetSignupDraft(trimmed, "IN");
+      onSwitchToRegister();
     } catch (err) {
-      console.error("Login OTP failed:", err);
-      setShowOtp(true);
+      console.error("Login OTP send failed:", err);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Could not send OTP. Try again shortly.",
+      );
+    } finally {
+      setCheckingMobile(false);
     }
   };
 
@@ -89,6 +133,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
         "/experts/client/send-otp",
         {
           mobileNumber: phone.trim(),
+          countryCode: "IN",
         },
         "POST",
       );
@@ -191,8 +236,8 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
               Wellness Journey
             </h2>
             <p className="mx-auto mt-3 max-w-sm text-center text-[0.9375rem] leading-5 text-gray-500 ">
-              Log in to explore trusted experts, manage bookings, and continue
-              where you left off.
+              Enter your mobile number. We&apos;ll send a code to sign in—or
+              guide you to create an account if you&apos;re new.
             </p>
 
             <form
@@ -203,7 +248,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                 if (showOtp) {
                   void handleVerifyOtp();
                 } else {
-                  void handleSendOtp();
+                  void handlePhoneContinueLogin();
                 }
               }}
             >
@@ -279,27 +324,45 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
               <div className="flex flex-col gap-4 pt-1">
                 <button
                   type="submit"
-                  disabled={verifying}
+                  disabled={verifying || checkingMobile}
                   className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
                 >
                   {verifying ? (
-                    `Signing in…`
+                    "Signing in…"
+                  ) : checkingMobile ? (
+                    <>
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                      Checking…
+                    </>
                   ) : (
                     <div className="flex items-center space-x-1">
-                      <div>Continue</div> <ArrowRightIcon className="w-4 h-4" />
+                      {!showOtp ? (
+                        <>
+                          Continue
+                          <ArrowRightIcon className="w-4 h-4" />
+                        </>
+                      ) : (
+                        <>
+                          Verify & continue
+                          <ArrowRightIcon className="w-4 h-4" />
+                        </>
+                      )}
                     </div>
                   )}
                 </button>
 
                 {!showOtp && (
                   <p className="text-center text-sm text-gray-500">
-                    Don&apos;t have an account?{" "}
+                    Prefer to register first?{" "}
                     <button
                       type="button"
-                      onClick={onSwitchToRegister}
+                      onClick={() => {
+                        presetSignupDraft("");
+                        onSwitchToRegister();
+                      }}
                       className="font-bold text-[#84cc16] hover:underline"
                     >
-                      Register Now
+                      Get started
                     </button>
                   </p>
                 )}
