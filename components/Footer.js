@@ -22,8 +22,8 @@ export default function Footer() {
     <footer className="bg-black px-4 py-12 font-sans text-[#a0a0a0] sm:px-6 sm:py-20">
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 grid grid-cols-1 gap-12 text-center md:mb-20 md:grid-cols-12 md:gap-10 md:text-left lg:gap-12">
-          <div className="space-y-6 md:col-span-3">
-            <div className="mx-auto inline-block md:mx-0">
+          <div className="min-w-0 space-y-6 md:col-span-3">
+            <div className="mx-auto inline-block max-w-full md:mx-0">
               <WellnessZLogoLink href="/" isFooter />
             </div>
             {/* <div className="flex flex-col items-center space-y-4 md:items-start">
