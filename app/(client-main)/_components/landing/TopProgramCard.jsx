@@ -1,6 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Check, Trophy } from "lucide-react";
+import { Calendar, Check, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function TopProgramCard({
@@ -27,7 +26,7 @@ export function TopProgramCard({
     <article
       data-program-card
       className={cn(
-        "flex w-full max-h-none shrink-0 flex-col overflow-visible rounded-3xl bg-white/5 p-4 font-lato sm:max-h-[80vh] sm:overflow-y-auto sm:rounded-4xl sm:p-8 sm:w-[min(92vw,34.5rem)] sm:snap-center lg:w-[42.5rem]",
+        "flex h-full w-full max-h-none shrink-0 flex-col overflow-visible rounded-3xl bg-white/5 p-4 font-lato sm:max-h-[80vh] sm:overflow-y-auto sm:rounded-4xl sm:p-8 sm:w-[min(92vw,34.5rem)] sm:snap-center lg:w-[42.5rem]",
         className,
       )}
     >
@@ -48,7 +47,7 @@ export function TopProgramCard({
             <h3 className="text-base font-bold leading-snug text-white sm:text-xl">
               {name}
             </h3>
-            <ul className="space-y-2 sm:space-y-2.5">
+            <ul className="min-h-17 space-y-2 sm:min-h-20 sm:space-y-2.5">
               {features.map((line) => (
                 <li
                   key={line}
@@ -92,25 +91,21 @@ export function TopProgramCard({
           </div>
 
           <div className="relative h-32 w-[7.25rem] shrink-0 sm:h-56 sm:w-56">
-            <Image
+            <img
               src={imageSrc}
               alt={imageAlt}
-              fill
-              className="rounded-2xl object-cover shadow-xl sm:rounded-3xl sm:shadow-2xl"
-              sizes="(max-width: 640px) 116px, 220px"
+              className="h-full w-full rounded-2xl object-cover shadow-xl sm:rounded-3xl sm:shadow-2xl"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-2 border-t border-white/10 pt-3 sm:gap-2.5 sm:pt-2">
+        <div className="mt-auto flex items-center gap-2 border-t border-white/10 pt-3 sm:gap-2.5 sm:pt-2">
           <div className="relative size-7 shrink-0 overflow-hidden rounded-full bg-neutral-600 ring-1 ring-white/15 sm:size-8">
             {authorAvatarSrc ? (
-              <Image
+              <img
                 src={authorAvatarSrc}
                 alt=""
-                fill
-                className="object-cover"
-                sizes="32px"
+                className="h-full w-full object-cover"
               />
             ) : null}
           </div>
@@ -119,7 +114,7 @@ export function TopProgramCard({
               By {authorName}
             </span>
             <span className="text-white/80">|</span>
-            <span className="text-[#67BC2A]">{enrollmentLine}</span>
+            <span className="text-[#67BC2A] flex gap-x-1 items-center justify-center"><Calendar className="h-4 w-4"/>{enrollmentLine}</span>
           </p>
         </div>
       </div>

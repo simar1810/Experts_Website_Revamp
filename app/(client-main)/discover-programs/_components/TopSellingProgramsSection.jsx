@@ -19,6 +19,7 @@ const RAZORPAY_KEY =
   process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
   process.env.NEXT_PUBLIC_RAZORPAY_API_KEY;
 const CARDS_PER_PAGE = 4;
+const MAX_VISIBLE_PROGRAMS = 8;
 const SEARCH_DEBOUNCE_MS = 400;
 const API_PAGE_LIMIT = 24;
 
@@ -33,6 +34,29 @@ async function postPaymentWithAuth(endpoint, body) {
     method: "POST",
     headers,
     body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+
+  if (res.status === 401 && typeof window !== "undefined") {
+    localStorage.removeItem("client_token");
+    window.dispatchEvent(new Event("auth_unauthorized"));
+  }
+  if (!res.ok) {
+    throw new Error(data.message || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
+async function getWithClientAuth(endpoint) {
+  const headers = {};
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("client_token");
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    method: "GET",
+    headers,
   });
   const data = await res.json().catch(() => ({}));
 
@@ -76,41 +100,89 @@ function chunkPrograms(items, size) {
 const gridCardClassName =
   "w-full min-w-0 max-h-none max-w-none overflow-visible sm:w-full lg:w-full";
 
-function useClientProgramsFromApi() {
+function getSpecialtyOptionsFromPrograms(programs, selectedSpecialty = "") {
+  const specialties = new Map();
+  programs.forEach((program) => {
+    (program.specialtyValues || []).forEach((value) => {
+      const label = String(value || "").trim();
+      if (label) specialties.set(label.toLowerCase(), label);
+    });
+  });
+
+  const selected = String(selectedSpecialty || "").trim();
+  if (selected) specialties.set(selected.toLowerCase(), selected);
+
+  return [
+    { value: "", label: "Specialty" },
+    ...Array.from(specialties.values())
+      .sort((a, b) => a.localeCompare(b))
+      .map((label) => ({ value: label, label })),
+  ];
+}
+
+function isActiveEnrollment(enrollment) {
+  if (enrollment?.status !== "active") return false;
+  if (!enrollment?.endsAt) return true;
+  return new Date(enrollment.endsAt).getTime() > Date.now();
+}
+
+function useClientProgramsFromApi({ initialSearch = "", initialProgramId = "" } = {}) {
   const [programs, setPrograms] = useState(() => []);
+  const [specialtyOptions, setSpecialtyOptions] = useState(() => [
+    { value: "", label: "Specialty" },
+  ]);
   const [loadState, setLoadState] = useState({
     status: "loading",
     error: null,
   });
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => initialSearch);
+  const [programId, setProgramId] = useState(() => initialProgramId);
+  const [filters, setFilters] = useState({
+    specialty: "",
+    duration: "",
+    price: "",
+  });
   const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
 
-  const load = useCallback(async (searchText) => {
+  const load = useCallback(async ({ searchText, activeFilters }) => {
     setLoadState((s) => ({ ...s, status: "loading", error: null }));
     try {
       const res = await fetchDiscoverProgramsList({
         search: searchText,
+        programId,
+        specialty: activeFilters?.specialty || "",
+        duration: activeFilters?.duration || "",
+        price: activeFilters?.price || "",
         page: 1,
         limit: API_PAGE_LIMIT,
         whitelabel: "wellnessz",
       });
       const raw = Array.isArray(res.data) ? res.data : [];
-      const q = String(searchText || "").trim().toLowerCase();
-      const useList = q
-        ? raw.filter((p) =>
-            [
-              p.title,
-              p.shortDescription,
-              p.about,
-              ...(Array.isArray(p.tags) ? p.tags : []),
-            ]
-              .filter(Boolean)
-              .join(" ")
-              .toLowerCase()
-              .includes(q),
-          )
-        : raw;
-      setPrograms(useList.map(programDocumentToTopCard));
+      const mappedPrograms = raw
+        .slice(0, MAX_VISIBLE_PROGRAMS)
+        .map(programDocumentToTopCard);
+      setPrograms(mappedPrograms);
+      setSpecialtyOptions((currentOptions) => {
+        const nextOptions = getSpecialtyOptionsFromPrograms(
+          mappedPrograms,
+          activeFilters?.specialty,
+        );
+        const merged = new Map();
+        [...currentOptions, ...nextOptions].forEach((option) => {
+          if (option?.value === "") {
+            merged.set("", { value: "", label: "Specialty" });
+            return;
+          }
+          const label = String(option?.label || option?.value || "").trim();
+          if (label) merged.set(label.toLowerCase(), { value: label, label });
+        });
+        return [
+          merged.get("") || { value: "", label: "Specialty" },
+          ...Array.from(merged.values())
+            .filter((option) => option.value !== "")
+            .sort((a, b) => a.label.localeCompare(b.label)),
+        ];
+      });
       setLoadState({ status: "ok", error: null });
     } catch (e) {
       setPrograms(discoverTopSellingContent.programs);
@@ -119,32 +191,54 @@ function useClientProgramsFromApi() {
         error: e instanceof Error ? e.message : "Could not load programs",
       });
     }
-  }, []);
+  }, [programId]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      load(debouncedSearch);
+      load({ searchText: debouncedSearch, activeFilters: filters });
     }, 0);
     return () => window.clearTimeout(timeoutId);
-  }, [load, debouncedSearch]);
+  }, [load, debouncedSearch, filters]);
 
   return {
     programs,
+    specialtyOptions,
     loadState,
     search,
-    setSearch,
-    refresh: () => load(debouncedSearch),
+    setSearch: (value) => {
+      setProgramId("");
+      setSearch(value);
+    },
+    filters,
+    setFilters: (value) => {
+      setProgramId("");
+      setFilters(value);
+    },
+    refresh: () =>
+      load({ searchText: debouncedSearch, activeFilters: filters }),
   };
 }
 
-export function TopSellingProgramsSection() {
+export function TopSellingProgramsSection({
+  initialSearch = "",
+  initialProgramId = "",
+} = {}) {
   const c = discoverTopSellingContent;
   const router = useRouter();
   const scrollRef = useRef(null);
-  const { programs, loadState, search, setSearch, refresh } =
-    useClientProgramsFromApi();
+  const {
+    programs,
+    specialtyOptions,
+    loadState,
+    search,
+    setSearch,
+    filters,
+    setFilters,
+    refresh,
+  } = useClientProgramsFromApi({ initialSearch, initialProgramId });
   const { isAuthenticated, openLoginModal, user } = useAuth();
   const [enrollingProgramId, setEnrollingProgramId] = useState(null);
+  const [enrolledProgramIds, setEnrolledProgramIds] = useState(() => new Set());
 
   const pages = useMemo(
     () => chunkPrograms(programs, CARDS_PER_PAGE),
@@ -186,6 +280,37 @@ export function TopSellingProgramsSection() {
     return () => ro.disconnect();
   }, [syncArrows]);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setEnrolledProgramIds(new Set());
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getWithClientAuth("/experts/client/program-enrollments");
+        const rows = Array.isArray(res?.enrollments) ? res.enrollments : [];
+        if (cancelled) return;
+        setEnrolledProgramIds(
+          new Set(
+            rows
+              .filter(isActiveEnrollment)
+              .map((enrollment) => enrollment?.program?._id || enrollment?.program)
+              .filter(Boolean)
+              .map(String),
+          ),
+        );
+      } catch {
+        if (!cancelled) setEnrolledProgramIds(new Set());
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
   const scrollByPage = (dir) => {
     const el = scrollRef.current;
     if (!el || pageCount <= 1) return;
@@ -203,6 +328,10 @@ export function TopSellingProgramsSection() {
     }
     if (!isAuthenticated) {
       openLoginModal?.();
+      return;
+    }
+    if (enrolledProgramIds.has(String(program.programId))) {
+      router.push("/dashboard/programs");
       return;
     }
 
@@ -287,7 +416,10 @@ export function TopSellingProgramsSection() {
   };
 
   return (
-    <section className="w-full bg-[#03632C] py-10 font-lato sm:py-14 lg:py-20">
+    <section
+      id="top-selling-programs"
+      className="w-full scroll-mt-24 bg-[#03632C] py-10 font-lato sm:py-14 lg:py-20"
+    >
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-center font-lexend text-[1.8rem] font-bold leading-tight tracking-tighter sm:text-3xl lg:text-[3.6rem] text-[#9AF45D] ">
           <span className="">{c.titleBefore}</span>{" "}
@@ -299,6 +431,9 @@ export function TopSellingProgramsSection() {
           <ProgramsFilterBar
             searchValue={search}
             onSearchChange={setSearch}
+            filters={filters}
+            onFiltersChange={setFilters}
+            specialtyOptions={specialtyOptions}
             onFilterApply={refresh}
           />
         </div>
@@ -333,26 +468,33 @@ export function TopSellingProgramsSection() {
                 className="w-full min-w-full shrink-0 snap-center px-4 sm:px-0"
               >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-                  {pagePrograms.map((p) => (
-                    <TopProgramCard
-                      key={p.id}
-                      className={gridCardClassName}
-                      badgeLabel={p.badgeLabel}
-                      name={p.name}
-                      features={p.features}
-                      price={p.price}
-                      enrollLabel={p.enrollLabel}
-                      enrollHref={p.enrollHref}
-                      deliveryTags={p.deliveryTags}
-                      authorName={p.authorName}
-                      enrollmentLine={p.enrollmentLine}
-                      authorAvatarSrc={p.authorAvatarSrc}
-                      imageSrc={p.imageSrc}
-                      imageAlt={p.imageAlt}
-                      onEnroll={() => handleEnroll(p)}
-                      enrollDisabled={enrollingProgramId === p.programId}
-                    />
-                  ))}
+                  {pagePrograms.map((p) => {
+                    const alreadyEnrolled = enrolledProgramIds.has(
+                      String(p.programId),
+                    );
+                    return (
+                      <TopProgramCard
+                        key={p.id}
+                        className={gridCardClassName}
+                        badgeLabel={p.badgeLabel}
+                        name={p.name}
+                        features={p.features}
+                        price={p.price}
+                        enrollLabel={
+                          alreadyEnrolled ? "GO TO PROGRAM" : p.enrollLabel
+                        }
+                        enrollHref={p.enrollHref}
+                        deliveryTags={p.deliveryTags}
+                        authorName={p.authorName}
+                        enrollmentLine={p.enrollmentLine}
+                        authorAvatarSrc={p.authorAvatarSrc}
+                        imageSrc={p.imageSrc}
+                        imageAlt={p.imageAlt}
+                        onEnroll={() => handleEnroll(p)}
+                        enrollDisabled={enrollingProgramId === p.programId}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             ))
