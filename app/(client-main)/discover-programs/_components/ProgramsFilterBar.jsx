@@ -29,10 +29,15 @@ const triggerClassName =
 function FilterDropdown({ options, value, onChange, ariaLabel }) {
   const selected = options.find((o) => o.value === value);
   const label = selected?.label ?? options[0]?.label ?? "";
+  const a11yName = `${ariaLabel}: ${label}`;
 
   return (
     <DropdownMenu modal={false}>
-      <DropdownMenuTrigger aria-label={ariaLabel} className={triggerClassName}>
+      <DropdownMenuTrigger
+        type="button"
+        aria-label={a11yName}
+        className={triggerClassName}
+      >
         <span className="min-w-0 truncate text-xs max-md:text-[10px]">
           {label}
         </span>
@@ -149,6 +154,7 @@ export function ProgramsFilterBar({
           <button
             type="button"
             onClick={() => onFilterApply?.()}
+            aria-label={`${f.filterButtonLabel} — ${f.specialtyLabel}, ${f.durationLabel}, ${f.priceLabel}`}
             className="font-lato h-10 shrink-0 rounded-full bg-[#03632C] px-3 text-[0.6875rem] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#024d23] sm:h-11 sm:px-7 sm:text-sm"
           >
             {f.filterButtonLabel}

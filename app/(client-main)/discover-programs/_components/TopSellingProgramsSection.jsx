@@ -113,7 +113,7 @@ function getSpecialtyOptionsFromPrograms(programs, selectedSpecialty = "") {
   if (selected) specialties.set(selected.toLowerCase(), selected);
 
   return [
-    { value: "", label: "Specialty" },
+    { value: "", label: "All specialties" },
     ...Array.from(specialties.values())
       .sort((a, b) => a.localeCompare(b))
       .map((label) => ({ value: label, label })),
@@ -129,7 +129,7 @@ function isActiveEnrollment(enrollment) {
 function useClientProgramsFromApi({ initialSearch = "", initialProgramId = "" } = {}) {
   const [programs, setPrograms] = useState(() => []);
   const [specialtyOptions, setSpecialtyOptions] = useState(() => [
-    { value: "", label: "Specialty" },
+    { value: "", label: "All specialties" },
   ]);
   const [loadState, setLoadState] = useState({
     status: "loading",
@@ -170,14 +170,14 @@ function useClientProgramsFromApi({ initialSearch = "", initialProgramId = "" } 
         const merged = new Map();
         [...currentOptions, ...nextOptions].forEach((option) => {
           if (option?.value === "") {
-            merged.set("", { value: "", label: "Specialty" });
+            merged.set("", { value: "", label: "All specialties" });
             return;
           }
           const label = String(option?.label || option?.value || "").trim();
           if (label) merged.set(label.toLowerCase(), { value: label, label });
         });
         return [
-          merged.get("") || { value: "", label: "Specialty" },
+          merged.get("") || { value: "", label: "All specialties" },
           ...Array.from(merged.values())
             .filter((option) => option.value !== "")
             .sort((a, b) => a.label.localeCompare(b.label)),
