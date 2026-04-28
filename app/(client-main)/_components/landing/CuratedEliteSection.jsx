@@ -12,9 +12,12 @@ export function CuratedEliteSection() {
 
   const coachesToShow = useMemo(
     () =>
-      FEATURED_EXPERTS_STATIC.map((e, i) =>
-        featuredStaticExpertToCoachShowcase(e, i),
-      ),
+      FEATURED_EXPERTS_STATIC
+        .filter((e) => {
+          const name = (e?.coach?.name || "").trim().toLowerCase();
+          return name !== "priyanka shah";
+        })
+        .map((e, i) => featuredStaticExpertToCoachShowcase(e, i)),
     [],
   );
 
