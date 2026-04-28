@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, Flame } from "lucide-react";
+import { BookOpen, CalendarDays, Check, Trophy } from "lucide-react";
 import DashboardHeading from "../_components/common/DashboardHeading";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -28,6 +28,24 @@ function enrollmentProgressPercent(e) {
   if (now <= start) return 0;
   if (now >= end) return 100;
   return Math.round(((now - start) / (end - start)) * 100);
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+function daysUntil(value) {
+  if (!value) return null;
+  const end = new Date(value).getTime();
+  if (!Number.isFinite(end)) return null;
+  return Math.max(0, Math.ceil((end - Date.now()) / (24 * 60 * 60 * 1000)));
 }
 
 function mapEnrollmentToProgramCard(e) {
@@ -57,57 +75,103 @@ function mapEnrollmentToProgramCard(e) {
   return {
     id: String(e._id),
     title,
+    description:
+      prog && typeof prog.shortDescription === "string" && prog.shortDescription.trim()
+        ? prog.shortDescription.trim()
+        : prog && typeof prog.about === "string" && prog.about.trim()
+          ? prog.about.trim()
+          : "",
     coach: coachName.startsWith("Coach ") ? coachName : `Coach ${coachName}`,
     coachAvatar,
     image,
     progress: enrollmentProgressPercent(e),
+    startsAt: e.startsAt,
+    endsAt: e.endsAt,
+    durationLabel: prog?.durationLabel || "",
   };
 }
 
-function StatPills() {
+function StatCard({ label, value, helper, icon: Icon, variant = "light" }) {
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-xs text-zinc-400 lg:hidden">
-        Stats below are illustrative — not tied to your account yet.
-      </p>
-      <div className="rounded-2xl bg-[#e8f5dc] px-5 py-5 shadow-sm">
-        <p className="font-lato text-[10px] font-semibold uppercase tracking-wider text-[#3d6630]">
-          Monthly completion
-        </p>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="font-lato text-3xl font-extrabold text-[#2d5a1f]">
-            84%
-          </span>
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-[#70C136] shadow-sm">
-            <Check className="h-6 w-6" strokeWidth={2.5} aria-hidden />
-          </div>
-        </div>
-      </div>
-      <div className="rounded-2xl border border-zinc-200/80 bg-white px-5 py-5 shadow-sm">
-        <div className="flex items-center gap-2 text-amber-600">
-          <Flame className="h-5 w-5 shrink-0" strokeWidth={2} aria-hidden />
-          <p className="font-lato text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
-            Active streak
+    <div
+      className={cn(
+        "rounded-3xl border p-5 shadow-sm",
+        variant === "green"
+          ? "border-[#d7edc8] bg-[#e8f5dc]"
+          : "border-zinc-200/80 bg-white",
+      )}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-lato text-[10px] font-bold uppercase tracking-[0.18em] text-[#3d6630]">
+            {label}
+          </p>
+          <p className="mt-3 font-lato text-3xl font-extrabold tracking-tight text-[#1f3d18]">
+            {value}
           </p>
         </div>
-        <p className="mt-3 font-lato text-2xl font-extrabold text-zinc-900">
-          12 Days
-        </p>
+        <div
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
+            variant === "green"
+              ? "bg-white/85 text-[#70C136]"
+              : "bg-[#f2f8ec] text-[#357200]",
+          )}
+        >
+          <Icon className="h-5 w-5" strokeWidth={2.4} aria-hidden />
+        </div>
       </div>
-      <p className="hidden text-xs text-zinc-400 lg:block">
-        Illustrative stats — personal metrics coming later.
-      </p>
+      {helper ? (
+        <p className="mt-4 text-xs font-medium leading-relaxed text-zinc-500">
+          {helper}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function StatPills({ stats }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-3 lg:sticky lg:top-6 lg:block lg:space-y-4">
+      <StatCard
+        label="Overall progress"
+        value={`${stats.overallProgress}%`}
+        helper={`${stats.totalPrograms} enrolled ${
+          stats.totalPrograms === 1 ? "program" : "programs"
+        }`}
+        icon={Check}
+        variant="green"
+      />
+      <StatCard
+        label="Active programs"
+        value={stats.activePrograms}
+        helper={
+          stats.nextEndingDays == null
+            ? "No active end date yet"
+            : stats.nextEndingDays === 0
+              ? "A program ends today"
+              : `Next program ends in ${stats.nextEndingDays} days`
+        }
+        icon={BookOpen}
+      />
+      <StatCard
+        label="Completed"
+        value={stats.completedPrograms}
+        helper="Completed, expired, refunded, and cancelled enrollments"
+        icon={Trophy}
+      />
     </div>
   );
 }
 
 function ProgramCard({ program }) {
   const pct = Math.min(100, Math.max(0, program.progress));
+  const remainingDays = daysUntil(program.endsAt);
 
   return (
-    <article className="flex flex-col rounded-3xl border border-zinc-200/80 bg-white p-6 pb-10 font-lato shadow-sm">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative aspect-5/3 w-full shrink-0 overflow-hidden rounded-xl bg-zinc-100 sm:aspect-auto sm:h-30 sm:w-46">
+    <article className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white font-lato shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex flex-col sm:flex-row">
+        <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-zinc-100 sm:h-auto sm:w-44 lg:w-52">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={program.image}
@@ -115,47 +179,70 @@ function ProgramCard({ program }) {
             className="h-full w-full object-cover"
           />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-3">
-          <h4 className="font-lato text-lg font-bold tracking-tight text-[#357200]">
-            {program.title}
-          </h4>
-          <div className="flex items-center gap-2.5">
-            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-white">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={program.coachAvatar}
-                alt=""
-                className="h-full w-full object-cover"
+        <div className="flex min-w-0 flex-1 flex-col p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h4 className="line-clamp-2 font-lato text-lg font-extrabold tracking-tight text-[#285c16]">
+                {program.title}
+              </h4>
+              {program.description ? (
+                <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">
+                  {program.description}
+                </p>
+              ) : null}
+            </div>
+            {remainingDays != null ? (
+              <span className="shrink-0 rounded-full bg-[#f2f8ec] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#357200]">
+                {remainingDays === 0 ? "Ends today" : `${remainingDays}d left`}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-zinc-500">
+            <div className="flex items-center gap-2.5">
+              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-200 ring-2 ring-white">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={program.coachAvatar}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <span className="font-lato font-semibold text-[#357200]/80">
+                {program.coach}
+              </span>
+            </div>
+            {program.endsAt ? (
+              <div className="flex items-center gap-1.5">
+                <CalendarDays className="h-4 w-4 text-[#70C136]" aria-hidden />
+                <span>Ends {formatDate(program.endsAt)}</span>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mt-auto pt-5">
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <span className="font-lato text-[10px] font-bold uppercase tracking-[0.18em] text-[#357200]">
+                Progress
+              </span>
+              <span className="font-lato text-xs font-extrabold tabular-nums text-[#357200]">
+                {pct}%
+              </span>
+            </div>
+            <div
+              className="h-2.5 w-full overflow-hidden rounded-full bg-[#67BC2A1A]"
+              role="progressbar"
+              aria-valuenow={pct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Program progress ${pct}%`}
+            >
+              <div
+                className="h-full min-w-0 rounded-full bg-linear-to-r from-[#357200] to-[#67BC2A] transition-[width] duration-300 ease-out"
+                style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="font-lato text-sm font-medium text-[#357200]/75">
-              {program.coach}
-            </span>
           </div>
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-2">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="font-lato text-[10px] font-semibold uppercase tracking-wider text-[#357200]">
-            Progress
-          </span>
-          <span className="font-lato text-[10px] font-semibold uppercase tabular-nums tracking-wider text-[#357200]">
-            {pct}%
-          </span>
-        </div>
-        <div
-          className="h-2 w-full overflow-hidden rounded-full bg-[#67BC2A1A]"
-          role="progressbar"
-          aria-valuenow={pct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`Program progress ${pct}%`}
-        >
-          <div
-            className="h-full min-w-0 rounded-full bg-linear-to-r from-[#357200] to-[#67BC2A] transition-[width] duration-300 ease-out"
-            style={{ width: `${pct}%` }}
-          />
         </div>
       </div>
     </article>
@@ -222,6 +309,29 @@ export default function ProgramsPage() {
   const activeList =
     curriculumFilter === "completed" ? completedCards : inProgressCards;
 
+  const dashboardStats = useMemo(() => {
+    const allCards = [...inProgressCards, ...completedCards];
+    const overallProgress = allCards.length
+      ? Math.round(
+          allCards.reduce((sum, program) => sum + program.progress, 0) /
+            allCards.length,
+        )
+      : 0;
+    const nextEndingDays = inProgressCards.reduce((best, program) => {
+      const days = daysUntil(program.endsAt);
+      if (days == null) return best;
+      return best == null ? days : Math.min(best, days);
+    }, null);
+
+    return {
+      totalPrograms: allCards.length,
+      overallProgress,
+      activePrograms: inProgressCards.length,
+      completedPrograms: completedCards.length,
+      nextEndingDays,
+    };
+  }, [completedCards, inProgressCards]);
+
   if (!isAuthenticated) {
     return (
       <div className="font-lato mx-auto flex max-w-lg flex-col items-center justify-center space-y-4 py-16 text-center pb-4">
@@ -241,15 +351,12 @@ export default function ProgramsPage() {
   }
 
   return (
-    <div className="font-lato space-y-8 pb-4">
+    <div className="font-lato space-y-8 pb-8">
       <DashboardHeading text="YOUR PROGRAMS" />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_minmax(240px,280px)] lg:items-stretch">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <section className="min-w-0 space-y-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="font-lato text-xl font-bold text-[#2d5a1f]">
-              Active Curriculum
-            </h3>
+          <div className="flex justify-end">
             <div
               className="inline-flex rounded-full border border-zinc-200/80 bg-white p-1 shadow-sm"
               role="tablist"
@@ -300,14 +407,14 @@ export default function ProgramsPage() {
                 : "No programs in progress. Join a program from an expert profile to see it here."}
             </p>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4">
               {activeList.map((p) => (
                 <ProgramCard key={p.id} program={p} />
               ))}
             </div>
           )}
         </section>
-        <StatPills />
+        <StatPills stats={dashboardStats} />
       </div>
     </div>
   );
