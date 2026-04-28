@@ -64,26 +64,18 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
     }
   }, [isOpen]);
 
-  const normalizePhoneDigits = (value) =>
+  const digitsOnlyUpTo10 = (value) =>
     String(value ?? "")
       .replace(/\D/g, "")
-      .trim();
+      .slice(0, 10);
 
   const handlePhoneContinueLogin = async () => {
     setTouched(true);
-    const trimmed = phone.trim();
-    const digitsOnly = normalizePhoneDigits(trimmed);
+    const digitsOnly = digitsOnlyUpTo10(phone);
 
-    // Match GetStarted-ish validation bounds (excluding country prefixes as strict as server)
-    if (!trimmed.length) {
+    if (digitsOnly.length !== 10) {
       setError(true);
-      return;
-    }
-    if (digitsOnly.length < 8 || digitsOnly.length > 15) {
-      setError(true);
-      toast.error(
-        "Enter a valid phone number (8–15 digits after removing spaces)",
-      );
+      toast.error("Enter exactly 10 digits");
       return;
     }
     setError(false);
@@ -91,13 +83,13 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
 
     try {
       const { branch } = await probeClientSendOtp(fetchAPI, {
-        mobileNumber: trimmed,
+        mobileNumber: digitsOnly,
         countryCode: "IN",
       });
 
       /** Unknown number (no SMS) → signup with this number prefilled */
       if (branch === "signup") {
-        presetSignupDraft(trimmed, "IN");
+        presetSignupDraft(digitsOnly, "IN");
         onSwitchToRegister();
         setCheckingMobile(false);
         return;
@@ -113,7 +105,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       toast.error(
         "Could not confirm your number. Continuing to create an account—you can sign in if you already have one.",
       );
-      presetSignupDraft(trimmed, "IN");
+      presetSignupDraft(digitsOnly, "IN");
       onSwitchToRegister();
     } catch (err) {
       console.error("Login OTP send failed:", err);
@@ -132,7 +124,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       await fetchAPI(
         "/experts/client/send-otp",
         {
-          mobileNumber: phone.trim(),
+          mobileNumber: digitsOnlyUpTo10(phone),
           countryCode: "IN",
         },
         "POST",
@@ -143,14 +135,19 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
     }
   };
 
-  const handleVerifyOtp = async () => {
+  const handleVerifyOtp = async (explicitCode) => {
+    const code = (explicitCode ?? otp.join("")).replace(/\D/g, "");
+    if (code.length !== 4) {
+      return;
+    }
+    if (verifying) return;
     setVerifying(true);
     try {
       const response = await fetchAPI(
         "/experts/client/verify-otp",
         {
-          mobileNumber: phone.trim(),
-          otp: otp.join(""),
+          mobileNumber: digitsOnlyUpTo10(phone),
+          otp: code,
         },
         "POST",
       );
@@ -160,7 +157,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
         return;
       }
       const profile = clientProfileFromVerifyResponse(response, {
-        mobileNumber: phone.trim(),
+        mobileNumber: digitsOnlyUpTo10(phone),
       });
       login(token, profile);
       const returnTo = consumeReturnPathAfterAuth();
@@ -190,14 +187,40 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   };
 
   const handleOtpChange = (index, value) => {
-    if (value !== "" && !/^\d$/.test(value)) return;
+    if (verifying) return;
+    const digits = String(value ?? "").replace(/\D/g, "");
+    if (digits.length > 1) {
+      const newOtp = [...otp];
+      for (let i = 0; i < digits.length && index + i < 4; i += 1) {
+        newOtp[index + i] = digits[i];
+      }
+      setOtp(newOtp);
+      const joined = newOtp.join("");
+      if (/^\d{4}$/.test(joined)) {
+        void handleVerifyOtp(joined);
+      } else {
+        const nextFocus = Math.min(index + digits.length, 3);
+        requestAnimationFrame(() =>
+          document.getElementById(`login-otp-${nextFocus}`)?.focus(),
+        );
+      }
+      return;
+    }
+
+    if (value !== "" && !/^\d$/.test(digits)) return;
     const newOtp = [...otp];
-    newOtp[index] = value.substring(value.length - 1);
+    newOtp[index] = digits.slice(-1);
     setOtp(newOtp);
 
-    if (value && index < otp.length - 1) {
+    if (digits && index < otp.length - 1) {
       const nextInput = document.getElementById(`login-otp-${index + 1}`);
       nextInput?.focus();
+      return;
+    }
+
+    const joined = newOtp.join("");
+    if (/^\d{4}$/.test(joined)) {
+      void handleVerifyOtp(joined);
     }
   };
 
@@ -253,25 +276,33 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
               }}
             >
               <div>
-                <div className="mb-1.5 flex items-center justify-between px-0.5">
+                <div className="mb-1.5 flex items-center justify-between gap-2 px-0.5">
                   <label className="text-sm font-bold text-gray-900">
                     Phone Number
                   </label>
-                  {touched && error && (
-                    <span className="text-xs font-semibold text-red-500">
-                      Required
-                    </span>
-                  )}
+                  <div className="flex shrink-0 items-center gap-2">
+                    {touched && error && (
+                      <span className="text-xs font-semibold text-red-500">
+                        10 digits
+                      </span>
+                    )}
+                    {!showOtp && (
+                      <span className="text-xs font-medium text-gray-400 tabular-nums">
+                        {digitsOnlyUpTo10(phone).length}/10
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <input
                   type="text"
-                  inputMode="tel"
+                  inputMode="numeric"
+                  maxLength={10}
                   value={phone}
                   onChange={(e) => {
-                    setPhone(e.target.value);
+                    setPhone(digitsOnlyUpTo10(e.target.value));
                     if (touched && e.target.value) setError(false);
                   }}
-                  placeholder="+91 9876543210"
+                  placeholder="9876543210"
                   disabled={showOtp}
                   readOnly={showOtp}
                   className={`${inputClass(touched && error)} ${showOtp ? "bg-gray-50 text-gray-600" : ""}`}
@@ -294,9 +325,10 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                           value={val}
                           onChange={(e) => handleOtpChange(idx, e.target.value)}
                           onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                          disabled={verifying}
                           inputMode="numeric"
                           autoComplete="one-time-code"
-                          className="h-12 w-10 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25 sm:h-12 sm:w-11"
+                          className="h-12 w-10 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25 disabled:cursor-not-allowed disabled:opacity-60 sm:h-12 sm:w-11"
                         />
                       ))}
                     </div>
