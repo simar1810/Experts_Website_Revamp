@@ -17,7 +17,12 @@ export function TopProgramCard({
   imageSrc,
   imageAlt,
   className,
+  onEnroll,
+  enrollDisabled = false,
 }) {
+  const enrollClassName =
+    "inline-flex items-center justify-center rounded-lg bg-[#67BC2A] px-3 py-2 text-[0.625rem] font-extrabold uppercase tracking-wide text-white transition-opacity hover:opacity-92 disabled:pointer-events-none disabled:opacity-60 sm:px-5 sm:py-2.5 sm:text-[0.75rem]";
+
   return (
     <article
       data-program-card
@@ -69,12 +74,20 @@ export function TopProgramCard({
               <span className="text-white/40"> /month</span>
             </p>
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <Link
-                href={enrollHref}
-                className="inline-flex items-center justify-center rounded-lg bg-[#67BC2A] px-3 py-2 text-[0.625rem] font-extrabold uppercase tracking-wide text-white transition-opacity hover:opacity-92 sm:px-5 sm:py-2.5 sm:text-[0.75rem]"
-              >
-                {enrollLabel}
-              </Link>
+              {onEnroll ? (
+                <button
+                  type="button"
+                  disabled={enrollDisabled}
+                  onClick={onEnroll}
+                  className={enrollClassName}
+                >
+                  {enrollLabel}
+                </button>
+              ) : (
+                <Link href={enrollHref} className={enrollClassName}>
+                  {enrollLabel}
+                </Link>
+              )}
             </div>
           </div>
 
