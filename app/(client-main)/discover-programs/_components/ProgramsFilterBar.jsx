@@ -66,12 +66,26 @@ export function ProgramsFilterBar({
   className,
   searchValue,
   onSearchChange,
+  filters,
+  onFiltersChange,
+  specialtyOptions,
   onFilterApply,
 }) {
   const f = discoverFilterContent;
-  const [specialty, setSpecialty] = useState("");
-  const [duration, setDuration] = useState("");
-  const [price, setPrice] = useState("");
+  const [localFilters, setLocalFilters] = useState({
+    specialty: "",
+    duration: "",
+    price: "",
+  });
+  const activeFilters = filters || localFilters;
+  const updateFilter = (key, value) => {
+    const next = { ...activeFilters, [key]: value };
+    if (typeof onFiltersChange === "function") {
+      onFiltersChange(next);
+    } else {
+      setLocalFilters(next);
+    }
+  };
 
   const isSearchControlled =
     typeof searchValue === "string" && typeof onSearchChange === "function";
@@ -114,21 +128,21 @@ export function ProgramsFilterBar({
         {/* Mobile: one row — 3 equal dropdowns + Filter; desktop: flex row */}
         <div className="grid w-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2 sm:flex sm:w-auto sm:flex-row sm:flex-wrap sm:gap-2">
           <FilterDropdown
-            options={f.specialtyOptions}
-            value={specialty}
-            onChange={setSpecialty}
+            options={specialtyOptions?.length ? specialtyOptions : f.specialtyOptions}
+            value={activeFilters.specialty}
+            onChange={(value) => updateFilter("specialty", value)}
             ariaLabel={f.specialtyLabel}
           />
           <FilterDropdown
             options={f.durationOptions}
-            value={duration}
-            onChange={setDuration}
+            value={activeFilters.duration}
+            onChange={(value) => updateFilter("duration", value)}
             ariaLabel={f.durationLabel}
           />
           <FilterDropdown
             options={f.priceOptions}
-            value={price}
-            onChange={setPrice}
+            value={activeFilters.price}
+            onChange={(value) => updateFilter("price", value)}
             ariaLabel={f.priceLabel}
           />
 

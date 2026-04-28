@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: "**.amazonaws.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "media.istockphoto.com",
+        pathname: "/**",
+      },
     ],
   },
 };
