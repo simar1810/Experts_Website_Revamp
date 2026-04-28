@@ -1,18 +1,18 @@
-import Link from "next/link";
 import CookieSettingsClient from "@/app/(client-main)/_components/legal/CookieSettingsClient";
 import LegalMarkdownBody from "@/app/(client-main)/_components/legal/LegalMarkdownBody";
 import LegalSubnav from "@/app/(client-main)/_components/legal/LegalSubnav";
-import CookieSettingsFooterNote from "./CookieSettingsFooterNote";
 import {
   getCookieSettingsCategoriesText,
   getCookieSettingsHeaderText,
 } from "@/lib/legal/getLegalContent";
 import { splitLeadingH1 } from "@/lib/legal/parseLegalMarkdown";
+import Link from "next/link";
+import CookieSettingsFooterNote from "./CookieSettingsFooterNote";
 
 export const metadata = {
-  title: "Cookie settings | WellnessZ Experts",
+  title: "Cookie settings | Zeefit",
   description:
-    "Choose which optional cookies to allow on WellnessZ Experts. Essential cookies always stay on.",
+    "Choose which optional cookies to allow on Zeefit. Essential cookies always stay on.",
 };
 
 export default function CookieSettingsPage() {

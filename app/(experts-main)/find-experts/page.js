@@ -41,6 +41,8 @@ function ExpertsPageInner() {
   const [searchClientLocation, setSearchClientLocation] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const mobileFiltersRef = useRef(null);
+  /** Scroll target: start of the left-hand filter rail (lg+); passed to PopularExpertsSection when filters change. */
+  const filterRailScrollTargetRef = useRef(null);
   const isMinLg = useIsMinLg();
   const { values } = useValues();
 
@@ -134,6 +136,44 @@ function ExpertsPageInner() {
     setIsMobileFiltersOpen(open);
   };
 
+  /** Stable fingerprint of *applied* filters (not current page). When it changes, PopularExpertsSection smoothly scrolls to the filter rail (see `filterRailScrollTargetRef`). */
+  const appliedFiltersScrollKey = useMemo(() => {
+    try {
+      return JSON.stringify({
+        spec: [...selectedSpecialities].sort(),
+        loc: locationFilter,
+        geo:
+          searchClientLocation?.coordinates &&
+          Array.isArray(searchClientLocation.coordinates)
+            ? [
+                searchClientLocation.coordinates[0],
+                searchClientLocation.coordinates[1],
+              ]
+            : null,
+        name: (nameQuery || "").trim(),
+        langs: [...(listing.languages || [])].sort(),
+        mode: listing.consultationMode || "",
+        r: Number(listing.radiusKm) || 0,
+        cr: listing.clientsRanges || {},
+        wz: !!listing.wzAssured,
+        ps: listing.pageSize,
+      });
+    } catch {
+      return "";
+    }
+  }, [
+    selectedSpecialities,
+    locationFilter,
+    searchClientLocation,
+    nameQuery,
+    listing.languages,
+    listing.consultationMode,
+    listing.radiusKm,
+    listing.clientsRanges,
+    listing.wzAssured,
+    listing.pageSize,
+  ]);
+
   const filterSidebarProps = {
     showDistanceFilter,
     locationLabel,
@@ -194,9 +234,15 @@ function ExpertsPageInner() {
       {/* items-stretch: left column matches main column height so sticky aside can ride the full Top + Popular (incl. pagination) scroll range */}
       <div className="flex items-stretch justify-between">
         {isMinLg === true ? (
-          <div className="flex w-full shrink-0 flex-col px-6 lg:min-h-0 lg:w-[340px] lg:pl-6 lg:pr-0">
-            <div className="h-10 shrink-0 md:h-12" aria-hidden />
-            <aside className="sticky top-16 z-5 w-full md:top-5 lg:max-h-[calc(100dvh-12rem)] overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
+          <div
+            ref={filterRailScrollTargetRef}
+            className="flex min-h-0 w-full shrink-0 flex-col self-stretch px-6 lg:w-[340px] lg:pl-6 lg:pr-0"
+          >
+            <div className="h-6 shrink-0 md:h-8" aria-hidden />
+            {/*
+              ~Full-viewport tall filter rail; inner ExpertsFiltersSidebar scrolls its white body.
+            */}
+            <aside className="sticky top-16 z-10 flex h-auto min-h-0 w-full flex-col overflow-hidden lg:h-[calc(100dvh-5rem)]">
               <ExpertsFiltersSidebar {...filterSidebarProps} />
             </aside>
           </div>
@@ -234,6 +280,8 @@ function ExpertsPageInner() {
               <PopularExpertsSection
                 experts={listing.displayFree}
                 loading={listing.loading}
+                appliedFiltersScrollKey={appliedFiltersScrollKey}
+                filtersScrollTargetRef={filterRailScrollTargetRef}
                 page={listing.page}
                 onPageChange={listing.setPage}
                 hasNextPage={listing.hasNextPage}

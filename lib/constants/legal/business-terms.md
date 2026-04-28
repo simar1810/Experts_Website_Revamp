@@ -1,10 +1,10 @@
-# **WELLNESSZ EXPERTS**
+# **Zeefit**
 
 ## **BUSINESS TERMS AND CONDITIONS**
 
 **Version:** 1.0
 
-These Business Terms and Conditions (“**Business Terms**”) govern the access to, onboarding onto, listing on, and use of the WellnessZ Experts platform by any expert, coach, professional, consultant, trainer, wellness service provider, clinic, studio, brand, business entity, or other commercial participant (“**Expert**”, “**Partner**”, “**Service Provider**”, “**Business User**”, “**you**”, or “**your**”).
+These Business Terms and Conditions (“**Business Terms**”) govern the access to, onboarding onto, listing on, and use of the Zeefit platform by any expert, coach, professional, consultant, trainer, wellness service provider, clinic, studio, brand, business entity, or other commercial participant (“**Expert**”, “**Partner**”, “**Service Provider**”, “**Business User**”, “**you**”, or “**your**”).
 
 These Business Terms are entered into between:
 
@@ -14,13 +14,13 @@ and
 
 the Expert / Business User accepting these Business Terms by digital acceptance, onboarding, listing activation, invoice acceptance, service activation, or use of the Platform.
 
-By accessing, registering on, using, listing on, selling through, or receiving leads/orders/services from WellnessZ Experts, you agree to be legally bound by these Business Terms, along with the Privacy Policy, User Terms, payout policies, commission structures, service-specific schedules, pricing terms, and any annexures, addenda, policies, or onboarding forms issued by WellnessZ from time to time.
+By accessing, registering on, using, listing on, selling through, or receiving leads/orders/services from Zeefit, you agree to be legally bound by these Business Terms, along with the Privacy Policy, User Terms, payout policies, commission structures, service-specific schedules, pricing terms, and any annexures, addenda, policies, or onboarding forms issued by WellnessZ from time to time.
 
 ---
 
 ## **1\. PURPOSE AND NATURE OF RELATIONSHIP**
 
-1.1 WellnessZ Experts is a technology-enabled platform through which Experts may:
+1.1 Zeefit is a technology-enabled platform through which Experts may:
 
 - create or maintain a public or private profile;
 
@@ -84,7 +84,7 @@ By accessing, registering on, using, listing on, selling through, or receiving l
 
 ## **3\. ONBOARDING AND ACCOUNT**
 
-3.1 To use WellnessZ Experts as a Business User, you may be required to submit:
+3.1 To use Zeefit as a Business User, you may be required to submit:
 
 - legal name,
 
@@ -178,7 +178,7 @@ By accessing, registering on, using, listing on, selling through, or receiving l
 
 - or business outcomes.
 
-  4.4 Listing on WellnessZ Experts is a revocable platform privilege and not a permanent right.
+  4.4 Listing on Zeefit is a revocable platform privilege and not a permanent right.
 
 ---
 
@@ -318,7 +318,7 @@ You agree that you shall:
 
 ## **8\. GST, INVOICING, AND BILLING MODEL**
 
-This clause is especially important for WellnessZ Experts.
+This clause is especially important for Zeefit.
 
 ### **8.1 General Principle**
 
@@ -458,7 +458,7 @@ The Expert shall indemnify WellnessZ against any loss, tax, interest, penalty, n
 
 ## **11\. NON-CIRCUMVENTION AND PLATFORM PROTECTION**
 
-11.1 The Expert shall not directly or indirectly bypass, divert, or take off-platform any lead, user, customer, or transaction introduced through WellnessZ Experts for the purpose of avoiding platform fees, commissions, records, or commercial obligations.
+11.1 The Expert shall not directly or indirectly bypass, divert, or take off-platform any lead, user, customer, or transaction introduced through Zeefit for the purpose of avoiding platform fees, commissions, records, or commercial obligations.
 
 11.2 The Expert shall not:
 
@@ -540,7 +540,7 @@ The Expert shall indemnify WellnessZ against any loss, tax, interest, penalty, n
 
 - PR,
 
-- and related commercial purposes connected with WellnessZ Experts.
+- and related commercial purposes connected with Zeefit.
 
   12.4 WellnessZ may edit formatting, resize visuals, rewrite presentation text, standardize listing format, or remove content that violates platform rules.
 

@@ -1,6 +1,6 @@
 # **COOKIE SETTINGS**
 
-We use cookies and similar technologies to make **WellnessZ Experts** work properly, keep your account secure, remember your preferences, understand how the platform is used, and improve your experience.
+We use cookies and similar technologies to make **Zeefit** work properly, keep your account secure, remember your preferences, understand how the platform is used, and improve your experience.
 
 You can choose which optional cookies you want to allow.
 
@@ -40,7 +40,7 @@ These cookies help us remember your preferences and improve convenience, such as
 
 **Status:** Optional
 
-These cookies help us understand how users interact with **WellnessZ Experts**, including:
+These cookies help us understand how users interact with **Zeefit**, including:
 
 - pages visited
 - time spent on the platform

@@ -1,18 +1,18 @@
 "use client";
 
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  useCallback,
-} from "react";
 import { useValues } from "@/context/valuesContext";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { EXPERTS_FILTER_DEBOUNCE_MS } from "@/lib/constants/filters";
+import { cn } from "@/lib/utils";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 function sameLangs(a, b) {
   if (!Array.isArray(a) || !Array.isArray(b)) return false;
@@ -45,6 +45,13 @@ const CONSULTATION_OPTIONS = [
 /** Distance slider range (desktop + sheet — same semantics). */
 const DISTANCE_SLIDER_MAX_KM = 200;
 const DISTANCE_SLIDER_STEP = 5;
+
+/** ~4 stacked options tall, then internal scroll (single-column checklists). */
+const FILTER_OPTIONS_SCROLL_SINGLE =
+  "max-h-[11rem] overflow-y-auto overscroll-y-contain pr-1 touch-pan-y [scrollbar-gutter:stable]";
+/** ~4 options in a 2-column grid (two rows visible), then scroll — sheet specialization / languages / clients. */
+const FILTER_OPTIONS_SCROLL_GRID_2 =
+  "max-h-[8.75rem] overflow-y-auto overscroll-y-contain pr-1 touch-pan-y [scrollbar-gutter:stable]";
 
 function countTruthy(obj) {
   if (!obj || typeof obj !== "object") return 0;
@@ -491,7 +498,9 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
               <h3 className="font-bold text-base text-gray-900 mb-3">
                 Specialization
               </h3>
-              <div className="grid max-h-[min(40vh,280px)] grid-cols-2 gap-x-4 gap-y-3 overflow-y-auto pr-1">
+              <div
+                className={`grid grid-cols-2 gap-x-4 gap-y-3 ${FILTER_OPTIONS_SCROLL_GRID_2}`}
+              >
                 {(values?.expertise_categories || []).map((item) => (
                   <label
                     key={item}
@@ -618,7 +627,9 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                 )}
               </button>
               {openSections.clients && (
-                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                <div
+                  className={`mt-3 grid grid-cols-2 gap-x-4 gap-y-3 ${FILTER_OPTIONS_SCROLL_GRID_2}`}
+                >
                   {clients_options.map((item) => (
                     <label
                       key={item}
@@ -662,7 +673,9 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
               </button>
               {openSections.languages &&
                 (values?.languages || []).length > 0 && (
-                  <div className="mt-3 grid max-h-48 grid-cols-2 gap-x-4 gap-y-3 overflow-y-auto pr-1">
+                  <div
+                    className={`mt-3 grid grid-cols-2 gap-x-4 gap-y-3 ${FILTER_OPTIONS_SCROLL_GRID_2}`}
+                  >
                     {(values?.languages || []).map((item) => (
                       <label
                         key={item}
@@ -749,7 +762,9 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
               />
             </button>
             {openSections.specializations && (
-              <div className="max-h-[220px] space-y-2 overflow-y-auto pl-1 pr-2">
+              <div
+                className={`space-y-2 pl-1 pr-2 ${FILTER_OPTIONS_SCROLL_SINGLE}`}
+              >
                 {(values?.expertise_categories || []).map((item) => (
                   <label
                     key={item}
@@ -814,7 +829,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                   WZ Assured only
                 </span>
                 <span className="mt-0.5 block text-xs text-gray-500">
-                  Verified WellnessZ experts
+                  Verified Zeefit
                 </span>
               </span>
             </label>
@@ -841,7 +856,9 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
               />
             </button>
             {openSections.clients && (
-              <div className="grid grid-cols-1 gap-2 pl-1">
+              <div
+                className={`grid grid-cols-1 gap-2 pl-1 ${FILTER_OPTIONS_SCROLL_SINGLE}`}
+              >
                 {clients_options.map((item) => (
                   <label
                     key={item}
@@ -884,7 +901,9 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
             </button>
             {openSections.languages &&
               (values?.languages || []).length > 0 && (
-                <div className="grid max-h-48 grid-cols-1 gap-2 overflow-y-auto pl-1">
+                <div
+                  className={`grid grid-cols-1 gap-2 pl-1 ${FILTER_OPTIONS_SCROLL_SINGLE}`}
+                >
                   {(values?.languages || []).map((item) => (
                     <label
                       key={item}

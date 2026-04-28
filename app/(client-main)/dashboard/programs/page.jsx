@@ -1,95 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { BookOpen, CalendarDays, Check, Trophy } from "lucide-react";
-import DashboardHeading from "../_components/common/DashboardHeading";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { fetchAPI } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-
-const PROGRAM_IMAGE_FALLBACK =
-  "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=240&fit=crop&q=80";
-const COACH_AVATAR_FALLBACK =
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&q=80";
-
-function isEnrollmentCompleted(e) {
-  if (e.status === "expired" || e.status === "cancelled" || e.status === "refunded")
-    return true;
-  if (e.endsAt && new Date(e.endsAt) <= new Date()) return true;
-  return false;
-}
-
-function enrollmentProgressPercent(e) {
-  const start = new Date(e.startsAt).getTime();
-  const end = new Date(e.endsAt).getTime();
-  const now = Date.now();
-  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return 0;
-  if (now <= start) return 0;
-  if (now >= end) return 100;
-  return Math.round(((now - start) / (end - start)) * 100);
-}
-
-function formatDate(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
-
-function daysUntil(value) {
-  if (!value) return null;
-  const end = new Date(value).getTime();
-  if (!Number.isFinite(end)) return null;
-  return Math.max(0, Math.ceil((end - Date.now()) / (24 * 60 * 60 * 1000)));
-}
-
-function mapEnrollmentToProgramCard(e) {
-  const prog = e.program;
-  const coach = e.coach;
-  const title =
-    prog && typeof prog.title === "string" && prog.title.trim()
-      ? prog.title.trim()
-      : "Program";
-  const coachName =
-    coach && typeof coach.name === "string" && coach.name.trim()
-      ? coach.name.trim()
-      : "Expert";
-  const coachAvatar =
-    coach &&
-    typeof coach.profilePhoto === "string" &&
-    coach.profilePhoto.trim()
-      ? coach.profilePhoto.trim()
-      : COACH_AVATAR_FALLBACK;
-  const image =
-    prog &&
-    typeof prog.coverImage === "string" &&
-    prog.coverImage.trim()
-      ? prog.coverImage.trim()
-      : PROGRAM_IMAGE_FALLBACK;
-
-  return {
-    id: String(e._id),
-    title,
-    description:
-      prog && typeof prog.shortDescription === "string" && prog.shortDescription.trim()
-        ? prog.shortDescription.trim()
-        : prog && typeof prog.about === "string" && prog.about.trim()
-          ? prog.about.trim()
-          : "",
-    coach: coachName.startsWith("Coach ") ? coachName : `Coach ${coachName}`,
-    coachAvatar,
-    image,
-    progress: enrollmentProgressPercent(e),
-    startsAt: e.startsAt,
-    endsAt: e.endsAt,
-    durationLabel: prog?.durationLabel || "",
-  };
-}
+import {
+  daysUntilEnd,
+  formatProgramDate,
+  isEnrollmentCompleted,
+  mapEnrollmentToProgramCard,
+} from "@/lib/dashboardProgramEnrollment";
+import { cn } from "@/lib/utils";
+import { BookOpen, CalendarDays, Check, Trophy } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import DashboardHeading from "../_components/common/DashboardHeading";
 
 function StatCard({ label, value, helper, icon: Icon, variant = "light" }) {
   return (
@@ -166,10 +90,11 @@ function StatPills({ stats }) {
 
 function ProgramCard({ program }) {
   const pct = Math.min(100, Math.max(0, program.progress));
-  const remainingDays = daysUntil(program.endsAt);
+  const remainingDays = daysUntilEnd(program.endsAt);
+  const href = `/dashboard/programs/${program.enrollmentId}`;
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white font-lato shadow-sm transition-shadow hover:shadow-md">
+    <article className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white font-lato shadow-sm transition-[box-shadow,border-color] hover:border-[#cfe8b8] hover:shadow-md">
       <div className="flex flex-col sm:flex-row">
         <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-zinc-100 sm:h-auto sm:w-44 lg:w-52">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -183,7 +108,13 @@ function ProgramCard({ program }) {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h4 className="line-clamp-2 font-lato text-lg font-extrabold tracking-tight text-[#285c16]">
-                {program.title}
+                <Link
+                  href={href}
+                  className="rounded-sm outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#70C136]"
+                  aria-label={`Open details for ${program.title}`}
+                >
+                  {program.title}
+                </Link>
               </h4>
               {program.description ? (
                 <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">
@@ -215,9 +146,20 @@ function ProgramCard({ program }) {
             {program.endsAt ? (
               <div className="flex items-center gap-1.5">
                 <CalendarDays className="h-4 w-4 text-[#70C136]" aria-hidden />
-                <span>Ends {formatDate(program.endsAt)}</span>
+                <span>Ends {formatProgramDate(program.endsAt)}</span>
               </div>
             ) : null}
+          </div>
+
+          <div className="mt-3">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="h-9 rounded-xl border-[#cfe8b8] font-lato text-xs font-semibold text-[#285c16] hover:bg-[#f2f8ec]"
+            >
+              <Link href={href}>View details</Link>
+            </Button>
           </div>
 
           <div className="mt-auto pt-5">
@@ -318,7 +260,7 @@ export default function ProgramsPage() {
         )
       : 0;
     const nextEndingDays = inProgressCards.reduce((best, program) => {
-      const days = daysUntil(program.endsAt);
+      const days = daysUntilEnd(program.endsAt);
       if (days == null) return best;
       return best == null ? days : Math.min(best, days);
     }, null);
@@ -409,7 +351,7 @@ export default function ProgramsPage() {
           ) : (
             <div className="grid gap-4">
               {activeList.map((p) => (
-                <ProgramCard key={p.id} program={p} />
+                <ProgramCard key={p.enrollmentId} program={p} />
               ))}
             </div>
           )}

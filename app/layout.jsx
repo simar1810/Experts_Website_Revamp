@@ -1,23 +1,20 @@
 import { AuthProvider } from "@/context/AuthContext";
+import ExpertListing from "@/features/experts-landing/components/index";
 import { Toaster } from "react-hot-toast";
-import ExpertListing from "@/features/experts-landing/components/index"
 
+import { ValuesProvider } from "@/context/valuesContext";
+import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner";
 import {
   Geist,
   Geist_Mono,
   Lato,
   Lexend,
   Manrope,
-  Montserrat,
-  Playfair_Display,
+  Playfair_Display
 } from "next/font/google";
-import "./globals.css";
-import ClientMainLayoutShell from "./(client-main)/ClientMainLayoutShell";
-import { ValuesProvider } from "@/context/valuesContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner"
 import { SWRConfig } from "swr";
+import ClientMainLayoutShell from "./(client-main)/ClientMainLayoutShell";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,7 +51,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
-  title: "WellnessZ Experts",
+  title: "Zeefit",
   description: "All in One Business Platform for Wellness Professionals",
   manifest: "/app.webmanifest",
 };

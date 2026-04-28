@@ -27,7 +27,7 @@ export default function WellnessZLogoLink({
       <span className="inline-flex w-full items-center">
         <Image
           src="/experts-logo.png"
-          alt="WellnessZ Experts"
+          alt="Zeefit"
           width={400}
           height={120}
           className={cn(

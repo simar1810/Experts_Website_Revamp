@@ -1,10 +1,10 @@
-# **WELLNESSZ EXPERTS**
+# **Zeefit**
 
 ## **USER TERMS AND CONDITIONS**
 
 **Version:** 1.0
 
-These User Terms and Conditions (“**Terms**”) govern the access to and use of the WellnessZ Experts platform, website, mobile application, software, dashboards, communication tools, booking systems, payment tools, content, and related services (collectively, the “**Platform**” or “**Services**”) made available by **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**, a company incorporated under the laws of India, having its registered office at **First Floor A-279, A-Block, New Amritsar, Amritsar, Punjab – 143001** (hereinafter referred to as “**WellnessZ**”, “**Company**”, “**we**”, “**our**” or “**us**”).
+These User Terms and Conditions (“**Terms**”) govern the access to and use of the Zeefit platform, website, mobile application, software, dashboards, communication tools, booking systems, payment tools, content, and related services (collectively, the “**Platform**” or “**Services**”) made available by **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**, a company incorporated under the laws of India, having its registered office at **First Floor A-279, A-Block, New Amritsar, Amritsar, Punjab – 143001** (hereinafter referred to as “**WellnessZ**”, “**Company**”, “**we**”, “**our**” or “**us**”).
 
 By accessing, browsing, registering on, booking through, paying through, or otherwise using the Platform, you (“**User**”, “**you**”, or “**your**”) agree to be bound by these Terms, together with our Privacy Policy and any additional policies, notices, disclaimers, or service-specific conditions displayed on the Platform.
 
@@ -14,7 +14,7 @@ If you do not agree to these Terms, you must not access or use the Platform.
 
 ## **1\. NATURE OF THE PLATFORM**
 
-1.1 WellnessZ Experts is a technology-enabled platform that may enable Users to:
+1.1 Zeefit is a technology-enabled platform that may enable Users to:
 
 - discover, browse, and connect with wellness professionals, coaches, nutritionists, dietitians, trainers, yoga experts, physiotherapy experts, mental wellness experts, and other experts listed on the Platform (“**Experts**”);
 
@@ -92,7 +92,7 @@ If you do not agree to these Terms, you must not access or use the Platform.
 
 ## **4\. MEDICAL, FITNESS, AND WELLNESS DISCLAIMER**
 
-4.1 **WellnessZ Experts is not a hospital, clinic, emergency service, ambulance provider, or medical emergency platform.**
+4.1 **Zeefit is not a hospital, clinic, emergency service, ambulance provider, or medical emergency platform.**
 
 4.2 If you have:
 
@@ -210,7 +210,7 @@ you must immediately contact a qualified doctor, emergency responder, or visit t
 
 ### **7.5 GST and Invoice Structure**
 
-You acknowledge and agree that the invoice structure on WellnessZ Experts may vary depending on the nature of the service and the legal/commercial arrangement applicable to the transaction, including the following:
+You acknowledge and agree that the invoice structure on Zeefit may vary depending on the nature of the service and the legal/commercial arrangement applicable to the transaction, including the following:
 
 **(a)** Where the relevant service is supplied directly by an Expert who is registered under GST and is the supplier of record, the invoice may be issued in the name of such Expert using that Expert’s GSTIN.
 

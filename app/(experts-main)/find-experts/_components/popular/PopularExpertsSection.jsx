@@ -7,9 +7,15 @@ import ExpertsPagination from "./ExpertsPagination";
 
 const DEFAULT_PAGE_SIZES = [10, 20, 50];
 
+/** Navbar offset — keep filter rail headline under the sticky header when smoothing into view */
+const FILTERS_SCROLL_OFFSET_PX = 96;
+
 export default function PopularExpertsSection({
   experts = [],
   loading = false,
+  /** When applied filters / page size change (not page number), smoothly scroll toward the filter rail start (desktop) or Popular Experts heading (mobile fallback). */
+  appliedFiltersScrollKey,
+  filtersScrollTargetRef,
   page,
   onPageChange,
   hasNextPage,
@@ -21,7 +27,43 @@ export default function PopularExpertsSection({
 }) {
   const [profilePaths, setProfilePaths] = useState({});
   const sectionTopRef = useRef(null);
-  const shouldScrollAfterPageChangeRef = useRef(false);
+  const appliedFilterKeyPrevRef = useRef(null);
+
+  const scrollListingHeaderIntoPlace = (behavior = "smooth") => {
+    requestAnimationFrame(() => {
+      const el = sectionTopRef.current;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY - 96;
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: behavior === "instant" ? "auto" : behavior,
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (appliedFiltersScrollKey === undefined) return;
+    const prev = appliedFilterKeyPrevRef.current;
+    appliedFilterKeyPrevRef.current = appliedFiltersScrollKey;
+    if (prev === null) return;
+    if (prev === appliedFiltersScrollKey) return;
+    /** Double rAF: let list height settle, then smoothly scroll toward the filters rail (desktop) or listing header (fallback). */
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const target =
+          filtersScrollTargetRef?.current ?? sectionTopRef.current;
+        if (!target) return;
+        const top =
+          target.getBoundingClientRect().top +
+          window.scrollY -
+          FILTERS_SCROLL_OFFSET_PX;
+        window.scrollTo({
+          top: Math.max(0, top),
+          behavior: "smooth",
+        });
+      });
+    });
+  }, [appliedFiltersScrollKey, filtersScrollTargetRef]);
 
   const profilePathIdsKey = useMemo(
     () =>
@@ -62,21 +104,9 @@ export default function PopularExpertsSection({
   }, [experts, profilePathIdsKey]);
 
   const handlePageChange = (nextPage) => {
-    shouldScrollAfterPageChangeRef.current = true;
     onPageChange?.(nextPage);
+    scrollListingHeaderIntoPlace("smooth");
   };
-
-  useEffect(() => {
-    if (!shouldScrollAfterPageChangeRef.current) return;
-    if (loading) return;
-
-    const el = sectionTopRef.current;
-    if (!el) return;
-
-    const top = el.getBoundingClientRect().top + window.scrollY - 96;
-    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-    shouldScrollAfterPageChangeRef.current = false;
-  }, [loading]);
 
   return (
     <div className="flex-1 min-w-0">
@@ -103,7 +133,6 @@ export default function PopularExpertsSection({
               value={pageSize}
               aria-label="Experts per page"
               onChange={(e) => {
-                shouldScrollAfterPageChangeRef.current = true;
                 onPageSizeChange(Number(e.target.value));
               }}
               disabled={loading}

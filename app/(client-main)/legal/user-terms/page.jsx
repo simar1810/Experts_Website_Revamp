@@ -2,9 +2,9 @@ import LegalDocumentPage from "@/app/(client-main)/_components/legal/LegalDocume
 import { getUserTermsText } from "@/lib/legal/getLegalContent";
 
 export const metadata = {
-  title: "User terms | WellnessZ Experts",
+  title: "User terms | Zeefit",
   description:
-    "User terms and conditions for using the WellnessZ Experts platform.",
+    "User terms and conditions for using the Zeefit platform.",
 };
 
 export default function UserTermsPage() {

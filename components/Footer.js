@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 // import { footerCityColumns } from "@/lib/data/footerCities";
+import WellnessZLogoLink from "@/components/WellnessZLogoLink";
 import { footerSections } from "@/lib/data/footerCities";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
-import WellnessZLogoLink from "@/components/WellnessZLogoLink";
 import Link from "next/link";
 
 export default function Footer() {
@@ -140,7 +140,7 @@ export default function Footer() {
 
         <div className="mt-16 text-center sm:mt-20">
           <p className="text-xs font-poppins font-black">
-            © 2026 WellnessZ Experts | Mohi Lifestile Solutions Pvt. Ltd.
+            © 2026 Zeefit | Mohi Lifestile Solutions Pvt. Ltd.
           </p>
         </div>
       </div>

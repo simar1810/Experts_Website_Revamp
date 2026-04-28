@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
-import { motion, LayoutGroup } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { googleDrivePreviewUrl } from "../utils/testimonialVideos";
 
 const SLOT_OFFSETS = [-3, -2, -1, 0, 1, 2, 3];

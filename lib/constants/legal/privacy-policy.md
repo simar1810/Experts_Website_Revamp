@@ -1,10 +1,10 @@
-# **WELLNESSZ EXPERTS**
+# **Zeefit**
 
 ## **PRIVACY POLICY**
 
 **Version:** 1.0
 
-This Privacy Policy (“**Policy**”) describes how **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**, having its registered office at **First Floor A-279, A-Block, New Amritsar, Amritsar, Punjab – 143001**, operating under the brand name **WellnessZ** (“**WellnessZ**”, “**Company**”, “**we**”, “**our**”, or “**us**”), collects, uses, stores, shares, transfers, and otherwise processes personal data through the **WellnessZ Experts** platform, including the website, mobile applications, dashboards, consultations, booking tools, software, communication tools, payment flows, digital products, and related services (collectively, the “**Platform**” or “**Services**”).
+This Privacy Policy (“**Policy**”) describes how **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**, having its registered office at **First Floor A-279, A-Block, New Amritsar, Amritsar, Punjab – 143001**, operating under the brand name **WellnessZ** (“**WellnessZ**”, “**Company**”, “**we**”, “**our**”, or “**us**”), collects, uses, stores, shares, transfers, and otherwise processes personal data through the **Zeefit** platform, including the website, mobile applications, dashboards, consultations, booking tools, software, communication tools, payment flows, digital products, and related services (collectively, the “**Platform**” or “**Services**”).
 
 By accessing or using the Platform, or by submitting your information to us, you agree to this Policy, subject to applicable law.
 
@@ -18,7 +18,7 @@ This Policy applies to:
 
 - visitors browsing the Platform;
 
-- Users / Clients / Customers booking or using services through WellnessZ Experts;
+- Users / Clients / Customers booking or using services through Zeefit;
 
 - Experts, coaches, trainers, dietitians, consultants, and other service providers onboarded to the Platform;
 
@@ -300,7 +300,7 @@ India’s Digital Personal Data Protection Act, 2023 provides the overarching fr
 
 ## **6\. HEALTH AND WELLNESS DATA NOTICE**
 
-6.1 Some services on WellnessZ Experts may involve the collection or sharing of health-related or wellness-related information that you voluntarily provide.
+6.1 Some services on Zeefit may involve the collection or sharing of health-related or wellness-related information that you voluntarily provide.
 
 6.2 You acknowledge that such information may be processed by WellnessZ and, where necessary for service delivery, shared with the relevant Expert, service partner, support team member, or authorized processor.
 
@@ -478,7 +478,7 @@ The Platform may contain links to third-party websites, applications, videos, to
 
 ## **17\. EXPERT-SPECIFIC PRIVACY NOTE**
 
-If you are an Expert or business user on WellnessZ Experts, we may process your business and personal data for:
+If you are an Expert or business user on Zeefit, we may process your business and personal data for:
 
 - onboarding and profile creation
 
@@ -554,7 +554,7 @@ If you have any questions, complaints, requests, or privacy concerns, you may co
 
 **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**
 
-**Brand:** WellnessZ / WellnessZ Experts
+**Brand:** WellnessZ / Zeefit
 
 **Email:** support@wellnessz.in
 
@@ -582,4 +582,4 @@ This Privacy Policy shall be governed by the laws of India. Any disputes arising
 
 You can use this shorter line near signup or booking:
 
-**“By continuing, you agree to WellnessZ Experts’ Terms and Privacy Policy and consent to the collection and processing of your personal data, including wellness-related information you choose to provide, for providing platform services, bookings, support, payments, and related operations.”**
+**“By continuing, you agree to Zeefit’ Terms and Privacy Policy and consent to the collection and processing of your personal data, including wellness-related information you choose to provide, for providing platform services, bookings, support, payments, and related operations.”**

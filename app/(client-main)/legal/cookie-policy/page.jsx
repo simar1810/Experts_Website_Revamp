@@ -2,9 +2,9 @@ import LegalDocumentPage from "@/app/(client-main)/_components/legal/LegalDocume
 import { getCookiePolicyText } from "@/lib/legal/getLegalContent";
 
 export const metadata = {
-  title: "Cookie policy | WellnessZ Experts",
+  title: "Cookie policy | Zeefit",
   description:
-    "How WellnessZ Experts uses cookies and similar technologies on the platform.",
+    "How Zeefit uses cookies and similar technologies on the platform.",
 };
 
 export default function CookiePolicyPage() {

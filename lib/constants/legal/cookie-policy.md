@@ -1,10 +1,10 @@
-# **WELLNESSZ EXPERTS**
+# **Zeefit**
 
 ## **COOKIE POLICY**
 
 **Version:** 1.0
 
-This Cookie Policy (“**Policy**”) explains how **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**, operating under the brand name **WellnessZ / WellnessZ Experts** (“**WellnessZ**”, “**we**”, “**our**”, or “**us**”), uses cookies and similar technologies on its website, mobile application, dashboards, and related platform services (collectively, the “**Platform**”).
+This Cookie Policy (“**Policy**”) explains how **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**, operating under the brand name **WellnessZ / Zeefit** (“**WellnessZ**”, “**we**”, “**our**”, or “**us**”), uses cookies and similar technologies on its website, mobile application, dashboards, and related platform services (collectively, the “**Platform**”).
 
 This Policy should be read together with our **Privacy Policy** and **Terms and Conditions**.
 
@@ -320,7 +320,7 @@ If you have any questions about this Cookie Policy or our use of Cookies, you ma
 
 **MOHI LIFESTILE SOLUTIONS PRIVATE LIMITED**
 
-**Brand:** WellnessZ / WellnessZ Experts
+**Brand:** WellnessZ / Zeefit
 
 **Email:** support@wellnessz.in
 
@@ -346,7 +346,7 @@ You can use this on the website:
 
 **Option 2 — Better**
 
-“We use essential cookies to make WellnessZ Experts work. With your permission, we may also use analytics and marketing cookies to improve performance, understand usage, and personalize experience. You can manage your preferences anytime.”
+“We use essential cookies to make Zeefit work. With your permission, we may also use analytics and marketing cookies to improve performance, understand usage, and personalize experience. You can manage your preferences anytime.”
 
 **Buttons:**
 
