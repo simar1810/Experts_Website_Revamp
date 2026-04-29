@@ -13,41 +13,27 @@ import { headers } from "next/headers";
  */
 export const resolvePartner = async function () {
   const headersList = await headers();
-  const raw = headersList.get("host") ?? "";
-  const host = raw.split(":")[0]?.toLowerCase() ?? "";
-  const parts = host.split(".").filter(Boolean);
+  const hostHeader = headersList.get("host") || "";
 
-  if (parts.length === 0) {
-    return { success: false, partner: "" };
-  }
-
-  // e.g. localhost, 127.0.0.1 (single-token hosts)
-  if (parts.length === 1) {
-    return { success: false, partner: parts[0] };
-  }
-
-  // *.localhost — first label is the tenant (brand.localhost:3000)
-  if (parts[parts.length - 1] === "localhost") {
-    const tenant = parts[0];
-    return {
-      success: Boolean(tenant && tenant !== "www"),
-      partner: tenant || "",
-    };
-  }
-
-  // Apex only e.g. zeefit.in — no subdomain tenant
-  if (parts.length === 2) {
-    return { success: false, partner: "" };
-  }
-
-  // www.zeefit.in — www is the canonical main site, not a tenant slug
+  const host = hostHeader.split(":")[0];
+  let parts = host.split(".");
   if (parts[0] === "www") {
-    return { success: false, partner: "" };
+    parts.shift();
   }
 
-  // tenant.zeefit.in (or deeper subdomains using first label as tenant)
+  let partner = null;
+  let success = false;
+
+  if (parts.length >= 2) {
+    const potentialPartner = parts[0];
+    if (potentialPartner !== "localhost") {
+      partner = potentialPartner;
+      success = true;
+    }
+  }
+
   return {
-    success: true,
-    partner: parts[0],
-  };
-};
+    success,
+    partner
+  }
+}

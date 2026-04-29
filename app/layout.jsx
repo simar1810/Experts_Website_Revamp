@@ -1,20 +1,19 @@
 import { AuthProvider } from "@/context/AuthContext";
 import ExpertListing from "@/features/experts-landing/components/index";
 import { Toaster } from "react-hot-toast";
-
-import { ValuesProvider } from "@/context/valuesContext";
-import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner";
 import {
   Geist,
   Geist_Mono,
   Lato,
   Lexend,
   Manrope,
-  Playfair_Display
+  Playfair_Display,
 } from "next/font/google";
-import { SWRConfig } from "swr";
 import ClientMainLayoutShell from "./(client-main)/ClientMainLayoutShell";
-import "./globals.css";
+import { ValuesProvider } from "@/context/valuesContext";
+import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner"
+import { SWRConfig } from "swr";
+import "./globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

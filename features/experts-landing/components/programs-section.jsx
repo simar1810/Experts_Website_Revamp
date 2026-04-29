@@ -10,11 +10,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
-import {
-  fetchPublicListingPrograms,
-  normalizeListingId,
-  programStableId,
-} from "@/features/experts-landing/lib/publicListingProgramsApi";
+import { useMemo } from 'react';
+import { mockPrograms } from "@/features/experts-landing/helpers/mock"
+import { fetchData } from '../helpers/network';
 
 function ProgramCard({ program }) {
   const {
@@ -139,24 +137,12 @@ async function programsListingFetcher([_, listingId, tenant]) {
 }
 
 export default function ProgramsSection({ partner, listingId }) {
-  const id = normalizeListingId(listingId);
-  const tenant =
-    partner != null && String(partner).trim() ? String(partner).trim() : "";
-
-  const swrKey =
-    id ? ["public-listing-programs", id, tenant] : null;
-
-  const { isLoading, isValidating, error, data, mutate } = useSWR(
-    swrKey,
-    programsListingFetcher,
-    { revalidateOnFocus: false },
-  );
-
-  const programs = Array.isArray(data) ? data : [];
-
-  if (!id) {
-    return null;
-  }
+  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + `/experts/listing/${listingId}/programs`, [partner]);
+  const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetchData(endpoint,{
+    headers: {
+      "x-tenant": partner
+    }
+  }));
 
   if (isLoading || isValidating) {
     return (
@@ -182,43 +168,22 @@ export default function ProgramsSection({ partner, listingId }) {
     );
   }
 
-  if (error) {
-    return (
-      <section className="bg-white px-6 py-16">
-        <div className="mx-auto flex max-w-lg flex-col items-center justify-center text-center">
-          <div className="mb-6 rounded-full bg-red-50 p-4">
-            <AlertCircle className="h-12 w-12 text-[var(--brand-secondary)]" />
-          </div>
-          <h3 className="mb-2 text-2xl font-bold text-gray-900">
-            Could not load programs
-          </h3>
-          <p className="mb-8 text-gray-500">{error.message}</p>
-          <Button
-            type="button"
-            onClick={() => mutate()}
-            className="flex gap-2 rounded-full bg-[var(--brand-primary)] px-8 py-6 font-bold text-white hover:opacity-90"
-          >
-            <RefreshCw className="h-4 w-4" /> Try again
-          </Button>
-        </div>
-      </section>
-    );
-  }
+  if (error || !data?.success) return (
+    <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+      <div className="bg-red-50 p-4 rounded-full mb-6">
+        <AlertCircle className="w-12 h-12 text-[var(--brand-secondary)]" />
+      </div>
+      <h3 className="text-2xl font-bold text-gray-900 mb-2">Failed to load programs</h3>
+      <Button 
+        onClick={mutate}
+        className="bg-[var(--brand-primary)] text-white rounded-full px-8 py-6 font-bold hover:opacity-90 flex gap-2"
+      >
+        <RefreshCw className="w-4 h-4" /> Try Again
+      </Button>
+    </div>
+  );
 
-  if (programs.length === 0) {
-    return (
-      <section className="bg-white px-6 py-16">
-        <div className="mx-auto max-w-7xl text-center">
-          <h2 className="mb-2 text-2xl font-black tracking-tight text-gray-900">
-            Programs
-          </h2>
-          <p className="text-gray-500">
-            No published programs are available for this listing yet.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  const programs = data?.data || [];
 
   return (
     <section className="bg-white px-6 py-16">
