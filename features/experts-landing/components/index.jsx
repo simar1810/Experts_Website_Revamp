@@ -3,6 +3,7 @@ import Image from "next/image";
 import Navbar from "./navbar"
 import ExpertSection from "./expert-section"
 import ProgramsSection from "./programs-section"
+import BrandDynamicHead from "./build-dynamic-head"
 import Footer from "./footer"
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
@@ -47,6 +48,7 @@ export default async function ExpertsListing({ partner }) {
           '--brand-secondary': brandInfo?.branding?.secondaryColor || '#b1271c',
         }}
       >
+        <BrandDynamicHead brandInfo={brandInfo} />
         <Navbar brand={brandInfo} />
         <section className="relative w-full bg-white py-12 md:py-20 lg:py-24">
           <Image
