@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { useMemo } from 'react';
 import { mockPrograms } from "@/features/experts-landing/helpers/mock"
+import { fetchData } from '../helpers/network';
 
 function ProgramCard({ program }) {
   const {
@@ -100,10 +101,12 @@ function ProgramCard({ program }) {
 }
 
 export default function ProgramsSection({ partner, listingId }) {
-  const endpoint = useMemo(() => `http://${partner}.wellness.in/api/experts/listing/${listingId}/programs`, [partner]);
-  const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetch(endpoint).then(res => res.json()));
-
-  const programs = data?.data || mockPrograms;
+  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + `/experts/listing/${listingId}/programs`, [partner]);
+  const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetchData(endpoint,{
+    headers: {
+      "x-tenant": partner
+    }
+  }));
 
   if (isLoading || isValidating) return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-6 py-16 max-w-7xl mx-auto">
@@ -124,7 +127,7 @@ export default function ProgramsSection({ partner, listingId }) {
     </div>
   );
 
-  if (error && false) return (
+  if (error || !data?.success) return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
       <div className="bg-red-50 p-4 rounded-full mb-6">
         <AlertCircle className="w-12 h-12 text-[var(--brand-secondary)]" />
@@ -138,6 +141,8 @@ export default function ProgramsSection({ partner, listingId }) {
       </Button>
     </div>
   );
+
+  const programs = data?.data || [];
 
   return (
     <section className="bg-white py-16 px-6">

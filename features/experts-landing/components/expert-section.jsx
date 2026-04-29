@@ -3,7 +3,7 @@ import { AlertCircle, RefreshCw, Star} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { useMemo } from 'react';
-import { expertsItems } from "@/features/experts-landing/helpers/mock"
+import { fetchData } from "@/features/experts-landing/helpers/network"
 
 function ExpertCard({ expert }) {
   const name = expert.coach?.name || "Expert Coach";
@@ -78,9 +78,14 @@ function ExpertCard({ expert }) {
   );
 }
 
-export default function ExpertSection({ partner, experts = expertsItems }) {
-  const endpoint = useMemo(() => `http://${partner}.wellness.in/api/experts/listing/search`, [partner])
-  const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetch(endpoint, { method: "POST" }));
+export default function ExpertSection({ partner }) {
+  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + "/experts/listing/search", [partner])
+  const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetchData(endpoint, {
+    method: "POST",
+    hreader: {
+      "x-tenant": partner
+    }
+  }));
 
   if (isLoading || isValidating) return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-6 py-16 max-w-7xl mx-auto">
@@ -102,7 +107,7 @@ export default function ExpertSection({ partner, experts = expertsItems }) {
     </div>
   );
 
-  if (error && data?.status_code !== 200 && false) return (
+  if (error || !data?.success) return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
       <div className="bg-red-50 p-4 rounded-full mb-6">
         <AlertCircle className="w-12 h-12 text-[var(--brand-secondary)]" />
@@ -126,6 +131,8 @@ export default function ExpertSection({ partner, experts = expertsItems }) {
     </div>
   )
 
+  const experts = Array.isArray(data?.free) ? data?.free : []
+
   return (
     <section className="bg-gray-50 py-16 px-6">
       <div className="max-w-7xl mx-auto">
@@ -135,7 +142,7 @@ export default function ExpertSection({ partner, experts = expertsItems }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {experts.map((expert) => (
-            <ExpertCard key={expert.id} expert={expert} />
+            <ExpertCard key={expert._id} expert={expert} />
           ))}
         </div>
 
