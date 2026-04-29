@@ -26,10 +26,10 @@ function FieldLabel({ children, className }) {
 
 function fieldInputClass(extra) {
   return cn(
-    "mt-1.5 w-full rounded-lg border-0 bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-900 outline-none",
+    "mt-1.5 w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-900 shadow-sm outline-none",
     "placeholder:text-gray-400",
-    "focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-0",
-    "disabled:cursor-not-allowed disabled:opacity-60",
+    "focus-visible:border-[#70C136]/50 focus-visible:ring-2 focus-visible:ring-[#70C136]/25 focus-visible:ring-offset-0",
+    "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60",
     extra,
   );
 }
@@ -351,8 +351,12 @@ export default function EditProfileModal({
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={4}
-                  className={cn(fieldInputClass(), "mt-1.5 resize-y")}
+                  rows={5}
+                  placeholder="A short bio or how you like to train…"
+                  className={cn(
+                    fieldInputClass(),
+                    "mt-1.5 min-h-[7.5rem] resize-y py-3",
+                  )}
                 />
               </div>
             </div>

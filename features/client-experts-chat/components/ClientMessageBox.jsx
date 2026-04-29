@@ -4,16 +4,42 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { useClientChatContext } from "../state/ClientChatContext";
 
-export default function ClientMessageBox({ activeThreadId }) {
+export default function ClientMessageBox({
+  activeThreadId,
+  initialComposerText = "",
+  onComposerPrefillApplied,
+}) {
   const [disabled, setDisabled] = useState(false);
   const [text, setText] = useState("");
   const { socket } = useClientChatContext();
   const textRef = useRef(text);
   const textareaRef = useRef(null);
+  const prefillKeyRef = useRef("");
 
   useEffect(() => {
     textRef.current = text;
   }, [text]);
+
+  useEffect(() => {
+    const t = typeof initialComposerText === "string" ? initialComposerText : "";
+    if (!t.trim() || !activeThreadId) return;
+    const key = `${activeThreadId}::${t}`;
+    if (prefillKeyRef.current === key) return;
+    prefillKeyRef.current = key;
+    queueMicrotask(() => {
+      setText(t);
+      textRef.current = t;
+      requestAnimationFrame(() => {
+        const el = textareaRef.current;
+        if (el) {
+          el.style.height = "auto";
+          el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+          el.focus({ preventScroll: true });
+        }
+      });
+      onComposerPrefillApplied?.();
+    });
+  }, [activeThreadId, initialComposerText, onComposerPrefillApplied]);
 
   useEffect(() => {
     if (!activeThreadId) return;

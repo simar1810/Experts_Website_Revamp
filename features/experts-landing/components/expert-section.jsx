@@ -1,5 +1,5 @@
 "use client";
-import { AlertCircle, RefreshCw, Star} from 'lucide-react';
+import { AlertCircle, RefreshCw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { useMemo } from 'react';

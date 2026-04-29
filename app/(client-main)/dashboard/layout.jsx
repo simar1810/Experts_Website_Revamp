@@ -3,7 +3,7 @@ import ClientNavbar from "../_components/common/client-navbar/ClientNavbar";
 import { AppSidebar } from "./_components/app-sidebar";
 
 export const metadata = {
-  title: "WellnessZ Experts | Dashboard",
+  title: "Zeefit | Dashboard",
 };
 
 export default function ClientDashboardLayout({ children }) {
@@ -21,12 +21,12 @@ export default function ClientDashboardLayout({ children }) {
       }}
     >
       <AppSidebar />
-      <SidebarInset className="flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-50">
+      <SidebarInset className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f2f3f5]">
         <div className="shrink-0">
           <ClientNavbar isDashboard={true} />
         </div>
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#fcfde3] p-4 md:p-8">
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#f2f3f5] p-4 md:p-8">
             {children}
           </div>
         </div>

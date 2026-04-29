@@ -8,30 +8,43 @@ export const mockups = [
 
 export const features = [
   {
-    title: "TRACK CLIENT PROGRESS, GENERATE REPORTS, AND IMPROVE PLANS",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    kicker: "Discovery & reach",
+    title: "Turn Your Coaching Into a Discoverable Brand",
+    description: [
+      "Most coaches do not struggle because they lack skill. They struggle because high-paying, serious clients never reach them consistently. ZeeFit changes that.",
+      "Instead of depending only on Instagram, referrals, or ads, your programs get placed in front of people who are already searching for results and are ready to invest in their health.",
+    ],
     subFeatures: [
-      "PROGRESS GRAPHS WEB APP",
-      "MEAL PLANS WEB APP",
-      "WORKOUT PLANS WEB APP",
+      "Program Discovery Platform",
+      "High-Intent User Traffic",
+      "Better Reach, Better Clients",
     ],
     imageSide: "left",
   },
   {
-    title: "ADD CLIENTS, MANAGE PLANS, HABITS, AND TRACK THEIR ACTIVITY",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    subFeatures: ["STEPS TRACKING CLIENT APP", "HABITS NUDGES SCREEN CLIENT APP"],
+    kicker: "Programs & offers",
+    title: "Turn Client Interest Into Program Sales",
+    description: [
+      "Getting attention is easy. Turning that attention into paying clients is the real challenge.",
+      "On ZeeFit, your coaching is shown as clear, structured programs that users can understand quickly and join with confidence. So when people find you, they are not just curious. They are much closer to starting.",
+    ],
+    subFeatures: [
+      "Create and List Your Programs",
+      "Clear Offers, Better Conversions",
+      "Ready-to-Join Experience",
+    ],
     imageSide: "right",
   },
   {
-    title: "BOOK APPOINTMENTS AND CREATE GROUP MEETINGS",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    kicker: "Client conversations",
+    title: "Connect With Clients at the Right Moment",
+    description: [
+      "ZeeFit helps people explore your programs and take the next step when their intent is already high. Whether they want to book a session, join a group plan, or ask a question, the interaction starts with more clarity and stronger intent. That means fewer random chats and better client conversations.",
+    ],
     subFeatures: [
-      "APPOINTMENTS CALENDAR WEB APP",
-      "CLUB MEETINGS SCREEN WEB APP",
+      "Direct Session Bookings",
+      "Group Program Access",
+      "High-Intent Client Enquiries",
     ],
     imageSide: "left",
   },

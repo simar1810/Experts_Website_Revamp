@@ -1,7 +1,7 @@
+import { parseLegalDocumentMarkdown } from "@/lib/legal/parseLegalMarkdown";
 import Link from "next/link";
 import LegalMarkdownBody from "./LegalMarkdownBody";
 import LegalSubnav from "./LegalSubnav";
-import { parseLegalDocumentMarkdown } from "@/lib/legal/parseLegalMarkdown";
 
 /**
  * Renders a legal document from full markdown (lib/constants/legal/*.md):
@@ -27,7 +27,7 @@ export default function LegalDocumentPage({
             ← {backLabel}
           </Link>
           <p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-neutral-500">
-            {brand || "WELLNESSZ EXPERTS"}
+            {brand || "Zeefit"}
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
             {title || "Legal"}

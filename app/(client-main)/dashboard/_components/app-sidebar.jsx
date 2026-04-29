@@ -1,26 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  Award,
-  CalendarCheck,
-  CalendarClock,
-  ChevronRight,
-  Footprints,
-  LayoutGrid,
-  MessageCircle,
-  Newspaper,
-  Search,
-  Settings,
-  Soup,
-  Store,
-  User,
-  Dumbbell,
-  Album,
-  UserCog,
-} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +10,16 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import {
+  Album,
+  ChevronRight,
+  MessageCircle,
+  Search,
+  User
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { label: "Profile Overview", href: "/dashboard", icon: User },
@@ -56,14 +45,14 @@ function WellnessLogo() {
     <div className="flex w-full justify-center">
       <Link
         href="/"
-        className="inline-flex w-fit max-w-full shrink-0 items-center justify-center rounded-md bg-white px-3 py-3 shadow-sm ring-1 ring-white/10"
+        className="inline-flex w-fit max-w-full shrink-0 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-white/10"
       >
         <Image
           src="/experts-logo.png"
-          alt="WellnessZ Experts"
+          alt="Zeefit"
           width={400}
           height={120}
-          className="h-[56px] w-auto max-w-full object-contain object-center sm:h-[68px]"
+          className="h-9 max-h-9 w-auto max-w-[min(100%,148px)] object-contain object-center sm:h-10 sm:max-h-10 sm:max-w-[168px]"
           priority
         />
       </Link>

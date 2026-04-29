@@ -1,15 +1,19 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, ThumbsUp } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { fetchAPI } from "@/lib/api";
+import { BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ensureClientThreadForListing } from "@/lib/expertListingChat";
+import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 
 export default function ExpertCard({
   expert,
   isTopExpert = false,
   profileHref,
 }) {
-  const { isAuthenticated, openLoginModal } = useAuth();
+  const { isAuthenticated, openLoginModal, openRegisterModal } = useAuth();
   const router = useRouter();
   const resolvedName = expert.coach?.name || expert.name || "Expert";
   const resolvedPhoto =
@@ -23,6 +27,7 @@ export default function ExpertCard({
     expert.id ||
     expert.coach?._id;
 
+  /* Not shown on cards for now (thumbs-up % + patient stories row)
   const agg =
     expert.ratingAgg?.overall ??
     expert.coach?.ratingAgg?.overall ??
@@ -59,6 +64,7 @@ export default function ExpertCard({
         expert.coach?.reviewAgg?.totalReviews ??
         expert.listing?.reviewAgg?.totalReviews,
     ) || 0;
+  */
 
   let specializations_string = "";
   const specs = expert.specializations || expert.expertiseTags || [];
@@ -72,6 +78,49 @@ export default function ExpertCard({
 
   const locationLine = [expert.city, expert.state].filter(Boolean).join(", ");
 
+  const offersOnlineRaw =
+    expert.offersOnline ??
+    expert.expertDetails?.offersOnline ??
+    expert.listing?.expertDetails?.offersOnline;
+  const consultationModeForPending = offersOnlineRaw
+    ? "online"
+    : "in_person";
+
+  const handleMessageCoach = async (e) => {
+    e.stopPropagation();
+    if (!resolvedListingId) {
+      toast.error("Could not open chat for this expert.");
+      return;
+    }
+    if (!isAuthenticated) {
+      setPendingExpertEnquiry({
+        listingId: String(resolvedListingId),
+        consultationMode: consultationModeForPending,
+      });
+      openRegisterModal();
+      return;
+    }
+    const dismiss = toast.loading("Opening chat…");
+    try {
+      const { threadId } = await ensureClientThreadForListing({
+        fetchAPI,
+        listingId: String(resolvedListingId),
+        offersOnline: Boolean(offersOnlineRaw),
+      });
+      toast.dismiss(dismiss);
+      router.push(
+        `/dashboard/enquiries?thread=${encodeURIComponent(threadId)}`,
+      );
+    } catch (err) {
+      toast.dismiss(dismiss);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Could not open chat. Please try again.",
+      );
+    }
+  };
+
   const handleCardClick = () => {
     if (!resolvedListingId) return;
 
@@ -82,6 +131,7 @@ export default function ExpertCard({
     }
   };
 
+  /* Not shown on cards for now
   const ratingBadge = (
     <div
       className={cn(
@@ -116,14 +166,12 @@ export default function ExpertCard({
       Patient Stories
     </span>
   );
+  */
 
   const messageButton = (className) => (
     <button
       type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        handleCardClick();
-      }}
+      onClick={handleMessageCoach}
       className={cn(
         "cursor-pointer text-white font-bold transition-all active:scale-[0.98]",
         "px-5 py-3 text-sm",
@@ -236,10 +284,7 @@ export default function ExpertCard({
           {isTopExpert ? (
             <>
               <div className="w-full border-t border-dashed border-gray-300 mt-4" />
-              <div className="flex flex-row items-center gap-3 flex-wrap mt-4">
-                {ratingBadge}
-                {patientStories}
-              </div>
+              {/* {ratingBadge} {patientStories} */}
               <div className="flex flex-row items-center gap-3 mt-4 w-full min-w-0">
                 <div className="min-w-0 flex-1">{messageButton("w-full")}</div>
                 {expert.responseTime ? (
@@ -251,10 +296,10 @@ export default function ExpertCard({
             </>
           ) : (
             <div className="mt-3 pt-3 border-t border-dashed border-gray-300 space-y-3">
-              <div className="flex flex-row items-center gap-3 flex-wrap">
+              {/* <div className="flex flex-row items-center gap-3 flex-wrap">
                 {ratingBadge}
                 {patientStories}
-              </div>
+              </div> */}
               <div className="flex flex-row items-center justify-end gap-3 w-full min-w-0">
                 {expert.responseTime ? (
                   <p className="text-[#66BB6A] text-xs sm:text-sm font-semibold shrink-0 leading-tight text-right">

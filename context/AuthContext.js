@@ -1,9 +1,49 @@
 "use client";
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { useRouter } from "next/navigation";
 import { fetchAPI } from "@/lib/api";
 
 const AuthContext = createContext();
+
+/** Same-tab relative path only; blocks protocol-relative and absolute URLs. */
+function isSafeInternalPath(p) {
+  if (typeof p !== "string" || p.length > 2000) return false;
+  if (!p.startsWith("/") || p.startsWith("//")) return false;
+  if (p.includes("://")) return false;
+  return true;
+}
+
+function getBrowserReturnPath() {
+  if (typeof window === "undefined") return "/";
+  const path = window.location.pathname + (window.location.search || "");
+  return path || "/";
+}
+
+/**
+ * Sets the post-auth return URL when opening login/register.
+ * After 401, the user is sent to `/` but the ref still holds the page they were on;
+ * opening the modal from the home header must not overwrite that with `/`.
+ */
+function applyReturnPathForModalOpen(ref) {
+  const next = getBrowserReturnPath();
+  const existing = ref.current;
+  if (
+    next === "/" &&
+    existing &&
+    existing !== "/" &&
+    isSafeInternalPath(existing)
+  ) {
+    return;
+  }
+  ref.current = next;
+}
 
 export function AuthProvider({ children }) {
   const router = useRouter();
@@ -12,6 +52,9 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const returnPathAfterAuthRef = useRef(null);
+  /** Passed from Login (number not registered) → GetStarted signup form pre-fill. Cleared after consume. */
+  const signupDraftRef = useRef(null);
 
   const refreshUser = useCallback(async () => {
     const storedToken = localStorage.getItem("client_token");
@@ -50,6 +93,7 @@ export function AuthProvider({ children }) {
     }
 
     const handleUnauthorized = () => {
+      returnPathAfterAuthRef.current = getBrowserReturnPath();
       logout();
       router.push("/");
       setIsLoginModalOpen(true);
@@ -67,6 +111,8 @@ export function AuthProvider({ children }) {
     }
     setToken(jwtToken);
     setIsAuthenticated(true);
+    setIsLoginModalOpen(false);
+    setIsRegisterModalOpen(false);
     refreshUser();
   };
 
@@ -77,17 +123,40 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(false);
   };
 
-  const openLoginModal = () => {
+  const openLoginModal = useCallback(() => {
+    applyReturnPathForModalOpen(returnPathAfterAuthRef);
     setIsRegisterModalOpen(false);
     setIsLoginModalOpen(true);
-  };
+  }, []);
+
   const closeLoginModal = () => setIsLoginModalOpen(false);
 
-  const openRegisterModal = () => {
+  const openRegisterModal = useCallback(() => {
+    applyReturnPathForModalOpen(returnPathAfterAuthRef);
     setIsLoginModalOpen(false);
     setIsRegisterModalOpen(true);
-  };
+  }, []);
+
   const closeRegisterModal = () => setIsRegisterModalOpen(false);
+
+  const presetSignupDraft = useCallback((phone, countryCode = "IN") => {
+    const p = typeof phone === "string" ? phone.trim() : "";
+    signupDraftRef.current =
+      p.length > 0 ? { phone: p, countryCode: countryCode || "IN" } : null;
+  }, []);
+
+  const consumeSignupDraft = useCallback(() => {
+    const v = signupDraftRef.current;
+    signupDraftRef.current = null;
+    return v;
+  }, []);
+
+  const consumeReturnPathAfterAuth = useCallback(() => {
+    const raw = returnPathAfterAuthRef.current;
+    returnPathAfterAuthRef.current = null;
+    if (raw && isSafeInternalPath(raw)) return raw;
+    return "/";
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -104,6 +173,9 @@ export function AuthProvider({ children }) {
         closeRegisterModal,
         isRegisterModalOpen,
         refreshUser,
+        consumeReturnPathAfterAuth,
+        presetSignupDraft,
+        consumeSignupDraft,
       }}
     >
       {children}

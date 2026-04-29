@@ -200,6 +200,7 @@ export default function Services({ details }) {
 
   const specializationsLeadText =
     details?.bio?.trim() ||
+    details?.about?.trim() ||
     (specializations[0]
       ? `Focused care in ${specializations[0].toLowerCase()}.${specializations[1] ? ` Additional depth in ${specializations[1].toLowerCase()}.` : ""}`
       : "Specialization details will be updated soon.");

@@ -24,6 +24,15 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
     el.scrollBy({ left: dir * step, behavior: "smooth" });
   };
 
+  const getProgramHref = (program) => {
+    const params = new URLSearchParams();
+    if (program?.programId || program?.id) {
+      params.set("programId", String(program.programId || program.id));
+    }
+    if (program?.name) params.set("search", program.name);
+    return `/discover-programs?${params.toString()}#top-selling-programs`;
+  };
+
   return (
     <section
       id="top-programs"
@@ -61,7 +70,12 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
           className=" scrollbar-hide mt-10 flex flex-col gap-6 sm:flex-row sm:snap-x sm:snap-mandatory sm:overflow-x-auto sm:pb-2 sm:pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
         >
           {programs.map((p) => (
-            <TopProgramCard key={p.id} {...p} />
+            <TopProgramCard
+              key={p.id}
+              {...p}
+              enrollLabel="VIEW PROGRAM"
+              enrollHref={getProgramHref(p)}
+            />
           ))}
         </div>
 

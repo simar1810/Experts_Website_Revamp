@@ -11,7 +11,7 @@ export default function LocationBlock({ coachData }) {
     ];
 
     return (
-        <section className="w-full bg-white px-4 sm:px-8 lg:px-16 py-12 lg:py-16">
+        <section id="coach-location" className="scroll-mt-24 w-full bg-white px-4 sm:px-8 lg:px-16 py-12 lg:py-16">
             <div className="max-w-7xl mx-auto bg-[#F0F5EE] rounded-[2.5rem] p-8 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-14">
 
                 {/* 1. Text Information */}

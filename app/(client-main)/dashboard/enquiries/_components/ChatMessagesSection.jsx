@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Search, Loader } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { fetchAPI } from "@/lib/api";
+import { normalizeThreadId } from "@/lib/utils";
 import { ClientChatProvider } from "@/features/client-experts-chat/state/ClientChatContext";
 import ClientChatListings from "@/features/client-experts-chat/components/ClientChatListings";
 import ClientChatbox from "@/features/client-experts-chat/components/ClientChatbox";
@@ -21,14 +30,26 @@ function ThreadsLoading() {
   );
 }
 
-function ChatShell({ threads }) {
+function ChatShell({
+  threads,
+  initialThreadId = "",
+  draftTargetThreadId = "",
+  composerDraftText = "",
+  onComposerDraftConsumed,
+}) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedThreadId, setSelectedThreadId] = useState("");
-  const { user } = useAuth();
-  const firstName =
-    user?.name && typeof user.name === "string"
-      ? user.name.trim().split(/\s+/)[0]
-      : "";
+  const [selectedThreadId, setSelectedThreadId] = useState(initialThreadId);
+
+  const resolvedComposerDraft = useMemo(() => {
+    if (!composerDraftText.trim() || !draftTargetThreadId) return "";
+    if (
+      normalizeThreadId(selectedThreadId) !==
+      normalizeThreadId(draftTargetThreadId)
+    ) {
+      return "";
+    }
+    return composerDraftText;
+  }, [selectedThreadId, draftTargetThreadId, composerDraftText]);
 
   const chatsColumn = (
     <div
@@ -83,6 +104,8 @@ function ChatShell({ threads }) {
         <ClientChatbox
           selectedThreadId={selectedThreadId}
           onClearSelection={() => setSelectedThreadId("")}
+          composerDraftText={resolvedComposerDraft}
+          onComposerDraftConsumed={onComposerDraftConsumed}
         />
       </div>
     </div>
@@ -109,6 +132,59 @@ function ChatShell({ threads }) {
   );
 }
 
+function ChatShellWithUrl({ threads }) {
+  const searchParams = useSearchParams();
+  const threadFromUrl = (searchParams.get("thread") || "").trim();
+  const draftParam = searchParams.get("draft");
+
+  const draftDecoded = useMemo(() => {
+    if (!draftParam) return "";
+    try {
+      return decodeURIComponent(draftParam);
+    } catch {
+      return draftParam;
+    }
+  }, [draftParam]);
+
+  /**
+   * Capture the first `draft` we see (sync) so it survives stripping `draft` from the URL
+   * before a useEffect can run; reset when `thread` in the URL changes.
+   */
+  const draftCaptureRef = useRef({ thread: "", text: "" });
+  if (draftCaptureRef.current.thread !== threadFromUrl) {
+    draftCaptureRef.current = { thread: threadFromUrl, text: "" };
+  }
+  if (draftDecoded.trim() && !draftCaptureRef.current.text) {
+    draftCaptureRef.current = {
+      thread: threadFromUrl,
+      text: draftDecoded,
+    };
+  }
+  const composerDraftForShell =
+    draftCaptureRef.current.text || draftDecoded;
+
+  const stripDraftFromUrl = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const u = new URLSearchParams(window.location.search);
+    if (!u.has("draft")) return;
+    u.delete("draft");
+    const path = window.location.pathname;
+    const q = u.toString();
+    window.history.replaceState(null, "", q ? `${path}?${q}` : path);
+  }, []);
+
+  return (
+    <ChatShell
+      key={threadFromUrl || "_no_thread_qs"}
+      threads={threads}
+      initialThreadId={threadFromUrl}
+      draftTargetThreadId={threadFromUrl}
+      composerDraftText={composerDraftForShell}
+      onComposerDraftConsumed={stripDraftFromUrl}
+    />
+  );
+}
+
 const ChatMessagesSection = () => {
   const { isAuthenticated, openLoginModal } = useAuth();
   const [threads, setThreads] = useState(null);
@@ -116,12 +192,12 @@ const ChatMessagesSection = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      setThreads(null);
-      setLoadError(null);
       return;
     }
     let cancelled = false;
     (async () => {
+      setThreads(null);
+      setLoadError(null);
       try {
         const data = await fetchAPI(
           "/experts/chat/threads-client",
@@ -188,7 +264,20 @@ const ChatMessagesSection = () => {
     );
   }
 
-  return <ChatShell threads={threads} />;
+  return (
+    <Suspense
+      fallback={
+        <ChatShell
+          threads={threads}
+          initialThreadId=""
+          draftTargetThreadId=""
+          composerDraftText=""
+        />
+      }
+    >
+      <ChatShellWithUrl threads={threads} />
+    </Suspense>
+  );
 };
 
 export default ChatMessagesSection;

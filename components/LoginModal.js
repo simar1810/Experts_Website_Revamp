@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowRightIcon, X } from "lucide-react";
+import Image from "next/image";
+import { Loader2, X } from "lucide-react";
 import { clientProfileFromVerifyResponse, fetchAPI } from "@/lib/api";
+import { probeClientSendOtp } from "@/lib/clientMobileStatus";
+import { submitPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const inputClass = (hasError) =>
   `w-full px-4 py-3.5 bg-white border text-sm font-medium rounded-xl focus:outline-none transition-all placeholder:text-gray-400 ${
@@ -13,8 +17,22 @@ const inputClass = (hasError) =>
       : "border-gray-200 focus:ring-2 focus:ring-lime-500/25 focus:border-[#84cc16]"
   }`;
 
+/** Same decorative corner as GetStartedModal */
+function GymIllustration() {
+  return (
+    <Image
+      className="pointer-events-none absolute right-3 top-16 z-0 h-24 w-24 select-none object-contain opacity-[0.1] sm:right-5 sm:top-[4.5rem] sm:h-28 sm:w-28"
+      src="/images/gym-illustration-with-dumbell.png"
+      alt=""
+      height={120}
+      width={120}
+      aria-hidden
+    />
+  );
+}
+
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
-  const { login } = useAuth();
+  const { login, consumeReturnPathAfterAuth, presetSignupDraft } = useAuth();
   const router = useRouter();
 
   const [showOtp, setShowOtp] = useState(false);
@@ -25,6 +43,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   const [error, setError] = useState(false);
   const [touched, setTouched] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [checkingMobile, setCheckingMobile] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -56,28 +75,62 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       setError(false);
       setTouched(false);
       setVerifying(false);
+      setCheckingMobile(false);
     }
   }, [isOpen]);
 
-  const handleSendOtp = async () => {
+  const digitsOnlyUpTo10 = (value) =>
+    String(value ?? "")
+      .replace(/\D/g, "")
+      .slice(0, 10);
+
+  const handlePhoneContinueLogin = async () => {
     setTouched(true);
-    if (!phone.trim()) {
+    const digitsOnly = digitsOnlyUpTo10(phone);
+
+    if (digitsOnly.length !== 10) {
       setError(true);
+      toast.error("Enter exactly 10 digits");
       return;
     }
+    setError(false);
+    setCheckingMobile(true);
 
     try {
-      await fetchAPI(
-        "/experts/client/send-otp",
-        {
-          mobileNumber: phone.trim(),
-        },
-        "POST",
+      const { branch } = await probeClientSendOtp(fetchAPI, {
+        mobileNumber: digitsOnly,
+        countryCode: "IN",
+      });
+
+      /** Unknown number (no SMS) → signup with this number prefilled */
+      if (branch === "signup") {
+        presetSignupDraft(digitsOnly, "IN");
+        onSwitchToRegister();
+        setCheckingMobile(false);
+        return;
+      }
+
+      /** Known number: send-otp already sent OTP (single call) */
+      if (branch === "login") {
+        setShowOtp(true);
+        return;
+      }
+
+      /** Ambiguous body — prefer signup to avoid duplicate send-otp */
+      toast.error(
+        "Could not confirm your number. Continuing to create an account—you can sign in if you already have one.",
       );
-      setShowOtp(true);
+      presetSignupDraft(digitsOnly, "IN");
+      onSwitchToRegister();
     } catch (err) {
-      console.error("Login OTP failed:", err);
-      setShowOtp(true);
+      console.error("Login OTP send failed:", err);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Could not send OTP. Try again shortly.",
+      );
+    } finally {
+      setCheckingMobile(false);
     }
   };
 
@@ -86,7 +139,8 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       await fetchAPI(
         "/experts/client/send-otp",
         {
-          mobileNumber: phone.trim(),
+          mobileNumber: digitsOnlyUpTo10(phone),
+          countryCode: "IN",
         },
         "POST",
       );
@@ -96,14 +150,19 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
     }
   };
 
-  const handleVerifyOtp = async () => {
+  const handleVerifyOtp = async (explicitCode) => {
+    const code = (explicitCode ?? otp.join("")).replace(/\D/g, "");
+    if (code.length !== 4) {
+      return;
+    }
+    if (verifying) return;
     setVerifying(true);
     try {
       const response = await fetchAPI(
         "/experts/client/verify-otp",
         {
-          mobileNumber: phone.trim(),
-          otp: otp.join(""),
+          mobileNumber: digitsOnlyUpTo10(phone),
+          otp: code,
         },
         "POST",
       );
@@ -113,11 +172,28 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
         return;
       }
       const profile = clientProfileFromVerifyResponse(response, {
-        mobileNumber: phone.trim(),
+        mobileNumber: digitsOnlyUpTo10(phone),
       });
       login(token, profile);
+      const returnTo = consumeReturnPathAfterAuth();
       onClose();
-      router.push("/");
+      const pending = await submitPendingExpertEnquiry(fetchAPI);
+      if (pending && !pending.skip && "threadId" in pending) {
+        const q = new URLSearchParams();
+        q.set("thread", String(pending.threadId));
+        if (
+          typeof pending.composerDraft === "string" &&
+          pending.composerDraft.trim() !== ""
+        ) {
+          q.set("draft", pending.composerDraft);
+        }
+        router.push(`/dashboard/enquiries?${q.toString()}`);
+        return;
+      }
+      if (pending && "error" in pending && pending.error) {
+        toast.error(pending.error);
+      }
+      router.push(returnTo);
     } catch (err) {
       console.error("Login verification failed:", err);
     } finally {
@@ -126,14 +202,40 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   };
 
   const handleOtpChange = (index, value) => {
-    if (value !== "" && !/^\d$/.test(value)) return;
+    if (verifying) return;
+    const digits = String(value ?? "").replace(/\D/g, "");
+    if (digits.length > 1) {
+      const newOtp = [...otp];
+      for (let i = 0; i < digits.length && index + i < 4; i += 1) {
+        newOtp[index + i] = digits[i];
+      }
+      setOtp(newOtp);
+      const joined = newOtp.join("");
+      if (/^\d{4}$/.test(joined)) {
+        void handleVerifyOtp(joined);
+      } else {
+        const nextFocus = Math.min(index + digits.length, 3);
+        requestAnimationFrame(() =>
+          document.getElementById(`login-otp-${nextFocus}`)?.focus(),
+        );
+      }
+      return;
+    }
+
+    if (value !== "" && !/^\d$/.test(digits)) return;
     const newOtp = [...otp];
-    newOtp[index] = value.substring(value.length - 1);
+    newOtp[index] = digits.slice(-1);
     setOtp(newOtp);
 
-    if (value && index < otp.length - 1) {
+    if (digits && index < otp.length - 1) {
       const nextInput = document.getElementById(`login-otp-${index + 1}`);
       nextInput?.focus();
+      return;
+    }
+
+    const joined = newOtp.join("");
+    if (/^\d{4}$/.test(joined)) {
+      void handleVerifyOtp(joined);
     }
   };
 
@@ -147,7 +249,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
   if (!isOpen) return null;
 
   return (
-    <div className="font-lato fixed inset-0 z-9999 flex items-center justify-center overflow-hidden p-4 sm:p-6">
+    <div className="font-lato fixed inset-0 z-9999 flex items-center justify-center overflow-hidden p-6">
       <div
         className="fixed inset-0 animate-in fade-in bg-neutral-800/55 backdrop-blur-[2px] duration-300"
         onClick={onClose}
@@ -155,136 +257,200 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       />
 
       <div className="relative z-10 w-full max-w-lg animate-in fade-in zoom-in duration-300 outline-none">
-        <div className="relative rounded-[1.75rem] border-2 border-[#84cc16] bg-white p-6 shadow-[0_24px_64px_rgba(0,0,0,0.12)] sm:rounded-[2rem] sm:p-10">
+        <div className="relative overflow-hidden rounded-[2rem] border-2 border-[#84cc16] bg-white p-10 pt-12 shadow-[0_24px_64px_rgba(0,0,0,0.12)]">
+          <GymIllustration />
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-4 top-4 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-700 sm:right-5 sm:top-5"
+            className="absolute right-5 top-5 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-700"
             aria-label="Close"
           >
             <X size={22} />
           </button>
 
-          <div className="relative mx-auto max-w-md">
-            <h2 className="font-lexend text-center text-[1.65rem] font-semibold leading-8 tracking-tight text-gray-900">
-              Welcome back to your
-              <br />
-              Wellness Journey
-            </h2>
-            <p className="mx-auto mt-3 max-w-sm text-center text-[0.9375rem] leading-5 text-gray-500 ">
-              Log in to explore trusted experts, manage bookings, and continue
-              where you left off.
-            </p>
+          <div className="relative z-10 mx-auto max-w-md">
+            {!showOtp ? (
+              <>
+                <h2 className="text-center text-[1.65rem] font-bold leading-tight tracking-tight text-gray-900">
+                  Welcome back to your
+                  <br />
+                  Wellness Journey
+                </h2>
+                <p className="mx-auto mt-3 max-w-sm text-center text-[0.9375rem] leading-relaxed text-gray-500">
+                  Enter your mobile number. We&apos;ll send a code to sign in—or
+                  guide you to create an account if you&apos;re new.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-center text-[1.65rem] font-semibold leading-tight tracking-tight text-gray-900">
+                  Sign in
+                </h2>
+                <p className="text-center text-[0.9375rem] text-gray-500">
+                  Enter the code we sent to your phone to continue.
+                </p>
+              </>
+            )}
 
             <form
-              className="mt-8 space-y-6"
+              className="relative z-10 mt-6 space-y-6"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (verifying) return;
                 if (showOtp) {
                   void handleVerifyOtp();
                 } else {
-                  void handleSendOtp();
+                  void handlePhoneContinueLogin();
                 }
               }}
             >
-              <div>
-                <div className="mb-1.5 flex items-center justify-between px-0.5">
-                  <label className="text-sm font-bold text-gray-900">
-                    Phone Number
-                  </label>
-                  {touched && error && (
-                    <span className="text-xs font-semibold text-red-500">
-                      Required
-                    </span>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  inputMode="tel"
-                  value={phone}
-                  onChange={(e) => {
-                    setPhone(e.target.value);
-                    if (touched && e.target.value) setError(false);
-                  }}
-                  placeholder="+91 9876543210"
-                  disabled={showOtp}
-                  readOnly={showOtp}
-                  className={`${inputClass(touched && error)} ${showOtp ? "bg-gray-50 text-gray-600" : ""}`}
-                />
-              </div>
-
-              {showOtp && (
-                <div>
-                  <label className="mb-3 block text-sm font-bold text-gray-900">
-                    One Time Password (OTP)
-                  </label>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                    <div className="flex flex-1 justify-center gap-2 sm:justify-start">
-                      {otp.map((val, idx) => (
-                        <input
-                          key={idx}
-                          id={`login-otp-${idx}`}
-                          type="text"
-                          maxLength={1}
-                          value={val}
-                          onChange={(e) => handleOtpChange(idx, e.target.value)}
-                          onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          className="h-12 w-10 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25 sm:h-12 sm:w-11"
-                        />
-                      ))}
+              {!showOtp ? (
+                <div className="space-y-4">
+                  <div>
+                    <div className="mb-1.5 px-0.5">
+                      <label
+                        htmlFor="login-modal-phone"
+                        className="text-sm font-bold text-gray-900"
+                      >
+                        Phone number
+                      </label>
+                      {touched && error ? (
+                        <p className="mt-1 text-xs font-semibold text-red-500">
+                          Enter exactly 10 digits
+                        </p>
+                      ) : null}
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleResendOtp}
-                      disabled={timer > 0}
-                      className={`shrink-0 rounded-xl border-2 px-4 py-2.5 text-sm font-bold transition-colors ${
-                        timer > 0
-                          ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400"
-                          : "border-[#84cc16] bg-white text-[#84cc16] hover:bg-lime-50"
-                      }`}
-                    >
-                      Resend OTP
-                    </button>
+                    <input
+                      id="login-modal-phone"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={10}
+                      value={phone}
+                      onChange={(e) => {
+                        setPhone(digitsOnlyUpTo10(e.target.value));
+                        if (touched && e.target.value) setError(false);
+                      }}
+                      placeholder="9876543210"
+                      autoComplete="tel"
+                      className={inputClass(touched && error)}
+                    />
                   </div>
-                  <p className="mt-2 text-sm text-gray-500">
-                    {timer > 0
-                      ? `Resend OTP in ${timer} Seconds`
-                      : "You can resend the OTP now."}
-                  </p>
-                </div>
-              )}
 
-              <div className="flex flex-col gap-4 pt-1">
-                <button
-                  type="submit"
-                  disabled={verifying}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
-                >
-                  {verifying ? (
-                    `Signing in…`
-                  ) : (
-                    <div className="flex items-center space-x-1">
-                      <div>Continue</div> <ArrowRightIcon className="w-4 h-4" />
-                    </div>
-                  )}
-                </button>
+                  <button
+                    type="submit"
+                    disabled={checkingMobile}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
+                  >
+                    {checkingMobile ? (
+                      <>
+                        <Loader2
+                          className="h-5 w-5 animate-spin"
+                          aria-hidden
+                        />
+                        Checking…
+                      </>
+                    ) : (
+                      <>Continue →</>
+                    )}
+                  </button>
 
-                {!showOtp && (
-                  <p className="text-center text-sm text-gray-500">
-                    Don&apos;t have an account?{" "}
+                  {/* <p className="text-center text-sm text-gray-500">
+                    Prefer to register first?{" "}
                     <button
                       type="button"
-                      onClick={onSwitchToRegister}
+                      onClick={() => {
+                        presetSignupDraft("");
+                        onSwitchToRegister();
+                      }}
                       className="font-bold text-[#84cc16] hover:underline"
                     >
-                      Register Now
+                      Get started
                     </button>
-                  </p>
-                )}
-              </div>
+                  </p> */}
+                </div>
+              ) : null}
+
+              {showOtp ? (
+                <div className="space-y-6">
+                  <div>
+                    <label className="mb-3 block text-sm font-bold text-gray-900">
+                      One Time Password (OTP)
+                    </label>
+                    <div className="flex flex-row flex-wrap items-center gap-3">
+                      <div className="flex flex-1 justify-start gap-2">
+                        {otp.map((val, idx) => (
+                          <input
+                            key={idx}
+                            id={`login-otp-${idx}`}
+                            type="text"
+                            maxLength={1}
+                            value={val}
+                            onChange={(e) =>
+                              handleOtpChange(idx, e.target.value)
+                            }
+                            onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                            disabled={verifying}
+                            inputMode="numeric"
+                            autoComplete="one-time-code"
+                            className="h-12 w-11 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25 disabled:cursor-not-allowed disabled:opacity-60"
+                          />
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleResendOtp}
+                        disabled={timer > 0}
+                        className={`shrink-0 rounded-xl border-2 px-4 py-2.5 text-sm font-bold transition-colors ${
+                          timer > 0
+                            ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400"
+                            : "border-[#84cc16] bg-white text-[#84cc16] hover:bg-lime-50"
+                        }`}
+                      >
+                        Resend OTP
+                      </button>
+                    </div>
+                    <p className="mt-2 text-sm text-gray-500">
+                      {timer > 0
+                        ? `Resend OTP in ${timer} Seconds`
+                        : "You can resend the OTP now."}
+                    </p>
+                  </div>
+
+                  <div className="flex w-full justify-center">
+                    <button
+                      type="submit"
+                      disabled={verifying || checkingMobile}
+                      className="inline-flex h-auto w-[200px] max-w-full flex-none items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
+                    >
+                      {verifying ? (
+                        <>
+                          <Loader2
+                            className="h-5 w-5 animate-spin"
+                            aria-hidden
+                          />
+                          Verifying…
+                        </>
+                      ) : (
+                        <>Continue →</>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="flex justify-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowOtp(false);
+                        setTimer(23);
+                        setOtp(["", "", "", ""]);
+                      }}
+                      className="text-sm font-semibold text-[#84cc16] underline underline-offset-2 hover:text-[#76b813]"
+                    >
+                      Wrong number? Go back
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </form>
           </div>
         </div>

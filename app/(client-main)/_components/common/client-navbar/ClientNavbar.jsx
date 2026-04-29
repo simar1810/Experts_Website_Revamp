@@ -28,7 +28,6 @@ function Container({ isDashboard = false }) {
     isAuthenticated,
     logout,
     isLoginModalOpen,
-    openLoginModal,
     closeLoginModal,
     isRegisterModalOpen,
     openRegisterModal,
@@ -55,6 +54,7 @@ function Container({ isDashboard = false }) {
     { name: "Home", href: "/" },
     { name: "Experts", href: "/find-experts" },
     { name: "Programs", href: "/discover-programs" },
+    // { name: "Pricing", href: "/pricing" },
 
     // { name: "Resources", href: "/blogs" },
   ];
@@ -93,7 +93,7 @@ function Container({ isDashboard = false }) {
           ) : null}
           {!isDashboard ? (
             <div className="flex shrink-0 items-center gap-2">
-              <WellnessZLogoLink href="/" />
+              <WellnessZLogoLink href="/" compact />
             </div>
           ) : null}
           {!isDashboard ? (
@@ -161,28 +161,16 @@ function Container({ isDashboard = false }) {
                 </Link>
               ))}
               {!isAuthenticated ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      openRegisterModal();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 rounded-lg text-sm bg-[#84cc16] text-white font-bold hover:bg-[#76b813] mt-2 flex items-center gap-2"
-                  >
-                    Get Started <ArrowLeftIcon className="w-3 h-3 rotate-180" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      openLoginModal();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 rounded-lg text-sm text-[#84cc16] font-bold hover:bg-gray-50 border border-[#84cc16]"
-                  >
-                    Log In
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => {
+                    openRegisterModal();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="mt-2 flex w-full items-center gap-2 rounded-lg bg-[#84cc16] px-4 py-3 text-left text-sm font-bold text-white hover:bg-[#76b813]"
+                >
+                  Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
+                </button>
               ) : (
                 <button
                   type="button"

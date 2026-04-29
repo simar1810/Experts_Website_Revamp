@@ -10,7 +10,7 @@ import {
 import { ClientResultsSection } from "./_components/landing/ClientResultsSection";
 
 export const metadata = {
-  title: "WellnessZ Experts | Elite Human Performance",
+  title: "Zeefit",
   description:
     "The curated marketplace connecting high-performance athletes with elite-level coaches. Dynamic, editorial-grade training.",
 };
