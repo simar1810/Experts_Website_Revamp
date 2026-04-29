@@ -28,6 +28,7 @@ function Container({ isDashboard = false }) {
     isAuthenticated,
     logout,
     isLoginModalOpen,
+    openLoginModal,
     closeLoginModal,
     isRegisterModalOpen,
     openRegisterModal,
@@ -53,10 +54,8 @@ function Container({ isDashboard = false }) {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Experts", href: "/find-experts" },
-    { name: "Programs", href: "/discover-programs" },
-    // { name: "Pricing", href: "/pricing" },
-
-    // { name: "Resources", href: "/blogs" },
+    { name: "Collections", href: "/collections" },
+    {name:"Programs", href:"/discover-programs"}
   ];
 
   return (
@@ -102,7 +101,7 @@ function Container({ isDashboard = false }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`${isActive(link.href)} text-sm transition-colors tracking-wider`}
+                  className={`${isActive(link.href)} whitespace-nowrap text-sm transition-colors tracking-wider`}
                 >
                   {link.name}
                 </Link>
@@ -121,6 +120,13 @@ function Container({ isDashboard = false }) {
                   className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-[#84cc16] px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-lime-500/10 transition-all hover:bg-[#76b813] sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
                 >
                   Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
+                </button>
+                <button
+                  type="button"
+                  onClick={openLoginModal}
+                  className="hidden whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-[11px] font-bold text-[#4b841e] shadow-md shadow-black/5 transition-all hover:border-[#84cc16] hover:text-[#66a51f] sm:block sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
+                >
+                  Log In
                 </button>
               </div>
             )}

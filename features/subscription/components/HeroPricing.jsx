@@ -16,18 +16,16 @@ const HeroPricing = function () {
           className="z-[0] rounded-[20px] object-cover md:rounded-[20px]"
           alt=""
         />
-        <div className="relative z-[1] flex h-[60vh] flex-col items-center justify-center leading-tight md:h-[75vh]">
+        <div className="relative z-[1] flex h-[60vh] -translate-y-8 flex-col items-center justify-center leading-tight md:h-[75vh] md:-translate-y-14">
           <h1 className="max-w-[20ch] px-2 text-[28px] font-bold tracking-tight md:max-w-none md:text-[52px] lg:text-[60px]">
             Built for Coaches Ready to Grow Beyond Referrals
           </h1>
-
           <p className="mx-auto mb-6 mt-4 max-w-[100ch] px-2 text-sm text-white/90 md:mb-8 md:mt-6 md:text-lg">
             Instagram views do not always become paying clients. ZeeFit helps your
             coaching get seen by people who are looking to start and are ready to
             commit.
           </p>
-
-          <div className="mb-6 inline-block max-w-2xl rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-medium leading-snug backdrop-blur-md sm:px-6 md:mb-10 md:text-sm">
+          <div className="mb-6 inline-block max-w-2xl rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-medium leading-snug backdrop-blur-md sm:px-6 md:mb-10 md:text-sm mx-5">
             Powered by the WellnessZ ecosystem • 7000+ coaches • 20000+ clients
             served
           </div>
@@ -45,7 +43,7 @@ const HeroPricing = function () {
       </div>
       <div
         id="pricing-hero-video"
-        className="w-full -translate-y-[60px] scroll-mt-24 px-4 md:translate-y-[-120px] md:scroll-mt-32"
+        className="w-full -translate-y-[80px] scroll-mt-24 px-4 md:translate-y-[-150px] md:scroll-mt-32"
       >
         <div
           className="

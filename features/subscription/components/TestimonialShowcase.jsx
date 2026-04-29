@@ -4,7 +4,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { googleDrivePreviewUrl } from "../utils/testimonialVideos";
+import {
+  googleDrivePreviewUrl,
+  googleDriveThumbnailUrl,
+} from "../utils/testimonialVideos";
 
 const SLOT_OFFSETS = [-3, -2, -1, 0, 1, 2, 3];
 
@@ -76,7 +79,7 @@ export default function TestimonialShowcase({
 
   return (
     <section className="relative mt-24 w-full overflow-hidden bg-[#1f7a34] p-6 pb-12 pt-10 md:mt-32 md:p-16">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:40px_40px] opacity-20" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-size-[40px_40px] opacity-20" />
 
       <h2 className="relative z-10 text-center text-2xl font-semibold text-white sm:text-3xl md:text-5xl">
         {"Don't Just Take Our Word for It"}
@@ -105,6 +108,9 @@ export default function TestimonialShowcase({
               const size = SLOT_SIZE[String(offset)];
               const drive = isGoogleDriveItem(video);
               const embedSrc = drive ? googleDrivePreviewUrl(video.driveId) : null;
+              const thumbnailSrc = drive
+                ? googleDriveThumbnailUrl(video.driveId)
+                : null;
               const label = (video.stripLabel || video.name).slice(0, 24);
 
               if (isCenter) {
@@ -147,7 +153,7 @@ export default function TestimonialShowcase({
                         />
                       ) : null}
 
-                      <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/0 to-black/0 p-3 md:p-4">
+                      <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/0 to-black/0 p-3 md:p-4">
                         <p className="line-clamp-2 text-left text-sm font-semibold text-white drop-shadow md:text-base">
                           {video.name}
                         </p>
@@ -192,30 +198,30 @@ export default function TestimonialShowcase({
                   onPointerEnter={() => {
                     if (videoIndex !== activeIndex) setActive(videoIndex);
                   }}
-                  className={`${size.w} ${size.h} group relative z-10 shrink-0 cursor-pointer overflow-hidden self-center rounded-lg border border-white/10 bg-zinc-900/95 shadow-md outline-none transition before:absolute before:inset-0 before:bg-gradient-to-b before:from-zinc-700/20 before:to-black/50 before:content-[''] hover:border-white/30 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white/50 active:scale-[0.99]`}
+                  className={`${size.w} ${size.h} group relative z-10 shrink-0 cursor-pointer overflow-hidden self-center rounded-lg border border-white/10 bg-zinc-900/95 shadow-md outline-none transition before:absolute before:inset-0 before:bg-linear-to-b before:from-zinc-700/20 before:to-black/50 before:content-[''] hover:border-white/30 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white/50 active:scale-[0.99]`}
                   aria-label={`Open testimonial: ${video.name}`}
                 >
                   {video.src && !drive ? (
                     <video
-                      className="h-full w-full object-cover opacity-50 grayscale [filter:grayscale(1)_brightness(0.55)]"
+                      className="h-full w-full object-cover opacity-50 grayscale filter-[grayscale(1)_brightness(0.55)]"
                       src={video.src}
                       muted
                       playsInline
                       preload="metadata"
                       aria-hidden
                     />
+                  ) : thumbnailSrc ? (
+                    <div
+                      className="h-full w-full bg-cover bg-center opacity-70 grayscale filter-[grayscale(1)_brightness(0.7)] transition group-hover:opacity-90 group-hover:filter-[grayscale(0.35)_brightness(0.85)]"
+                      style={{ backgroundImage: `url("${thumbnailSrc}")` }}
+                    />
                   ) : (
                     <div
-                      className="h-full w-full bg-gradient-to-b from-zinc-800 via-zinc-900 to-black"
-                      style={{
-                        backgroundImage: drive
-                          ? "radial-gradient(120% 80% at 30% 20%, rgba(34, 197, 94, 0.12), transparent)"
-                          : undefined,
-                      }}
+                      className="h-full w-full bg-linear-to-b from-emerald-800 via-zinc-900 to-black"
                     />
                   )}
-                  <div className="absolute inset-0 bg-black/45 transition group-hover:bg-black/30" />
-                  <span className="pointer-events-none absolute left-1/2 top-1/2 w-[8rem] -translate-x-1/2 -translate-y-1/2 -rotate-90 text-center text-[0.5rem] font-bold uppercase leading-tight tracking-[0.2em] text-white/90 sm:text-[0.55rem] md:text-[0.65rem]">
+                  <div className="absolute inset-0 bg-black/35 transition group-hover:bg-black/20" />
+                  <span className="pointer-events-none absolute left-1/2 top-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90 text-center text-[0.5rem] font-bold uppercase leading-tight tracking-[0.18em] text-white drop-shadow sm:text-[0.55rem] md:text-[0.65rem]">
                     {label}
                   </span>
                 </motion.button>

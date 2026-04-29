@@ -8,7 +8,6 @@ import PlanEnterprise from "./PlanEnterprise";
 import PlanPro from "./PlanPro";
 import PlanSales from "./PlanSales";
 import PlanFreeTier from "./PlanFreeTier";
-import { enterprisePlan } from "../utils/config";
 import PlanDurationSelection from "./PlanDurationSelection";
 import { Suspense } from "react";
 import CouponCode from "./CouponCode";
@@ -61,11 +60,6 @@ function Container() {
             );
         })}
       </div>
-      </div>
-      <div className="mb-8">
-        <div className="w-full">
-          <PlanEnterprise plan={enterprisePlan} months={noOfMonths} />
-        </div>
       </div>
     </div>
   );

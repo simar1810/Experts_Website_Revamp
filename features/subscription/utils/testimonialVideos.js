@@ -2,13 +2,13 @@
 export const PRICING_TESTIMONIAL_VIDEOS = [
   {
     driveId: "1b7gZm4sulnLe1dFE6-IGtaB33QosZbGx",
-    name: "Testimonial (Fitly)",
-    stripLabel: "Fitly",
+    name: "Fitly coach growth story",
+    stripLabel: "Fitly Coach",
   },
   {
     driveId: "1Iz0NL48D-TfW-4-G3BMg8JEfVSNErYxP",
-    name: "Testimonial",
-    stripLabel: "MOV",
+    name: "Coach visibility story",
+    stripLabel: "Visibility",
   },
   {
     driveId: "1rEbJ57PFkyoqSvRGte5zLFogx680WkZS",
@@ -32,21 +32,25 @@ export const PRICING_TESTIMONIAL_VIDEOS = [
   },
   {
     driveId: "1HqdMInVxMCWAODXDCb2Enhm8ET02TR1t",
-    name: "Fitness trainer",
+    name: "Fitness trainer experience",
     stripLabel: "Trainer",
   },
   {
     driveId: "1UgkyS885lYkUo-CCZqiPo5tNuHEG83Oi",
-    name: "Video 2",
-    stripLabel: "Video 2",
+    name: "Client management story",
+    stripLabel: "Client Wins",
   },
   {
     driveId: "1TEYWmcx2NB8aUEankQVj_ae7vwL4ymHi",
-    name: "Video 1",
-    stripLabel: "Video 1",
+    name: "Coach success story",
+    stripLabel: "Success Story",
   },
 ];
 
 export function googleDrivePreviewUrl(driveId) {
   return `https://drive.google.com/file/d/${driveId}/preview`;
+}
+
+export function googleDriveThumbnailUrl(driveId) {
+  return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
 }
