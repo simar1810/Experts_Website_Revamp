@@ -54,7 +54,7 @@ function Container({ isDashboard = false }) {
     { name: "Home", href: "/" },
     { name: "Experts", href: "/find-experts" },
     { name: "Programs", href: "/discover-programs" },
-    { name: "Pricing", href: "/pricing" },
+    // { name: "Pricing", href: "/pricing" },
 
     // { name: "Resources", href: "/blogs" },
   ];
