@@ -21,6 +21,16 @@ export default async function ExpertsListing({ partner }) {
       return <InvalidPartner />
     }
     const brandInfo = brand?.partner || {}
+    const resolveHtmlString = (value) => {
+      if (typeof value === "string") return value;
+      if (value && typeof value === "object" && typeof value.__html === "string") {
+        return value.__html;
+      }
+      return "";
+    };
+
+    const headerHtml = resolveHtmlString(brandInfo?.header);
+    const footerHtml = resolveHtmlString(brandInfo?.footer);
 
     return (
       <main
@@ -31,7 +41,7 @@ export default async function ExpertsListing({ partner }) {
       >
         <BrandDynamicHead brandInfo={brandInfo} />
         {/* <Navbar brand={brandInfo} /> */}
-        <div dangerouslySetInnerHTML={{ __html: brandInfo.header }} />
+        {headerHtml ? <div dangerouslySetInnerHTML={{ __html: headerHtml }} /> : null}
         <section className="relative w-full bg-white py-12 md:py-20 lg:py-24">
           <Image
             src="/images/experts-listing-hero-bg.png"
@@ -70,7 +80,7 @@ export default async function ExpertsListing({ partner }) {
         {brandInfo?.settings?.showOnlyAssignedExperts && <ExpertSection partner={partner} />}
         {brandInfo?.settings?.allowPublicPrograms && <ProgramsSection partner={partner} listingId={brandInfo._id} />}
         {/* <Footer brand={brandInfo} /> */}
-        <div dangerouslySetInnerHTML={{ __html: brandInfo.footer }} />
+        {footerHtml ? <div dangerouslySetInnerHTML={{ __html: footerHtml }} /> : null}
       </main>
     )
   } catch (error) {
