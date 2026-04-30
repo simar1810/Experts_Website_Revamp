@@ -84,8 +84,8 @@ export default function ClientChatListings({
               "flex w-full items-start gap-4 border-b border-gray-50 p-4 text-left transition-colors last:border-0 hover:bg-gray-50",
               isSelected &&
                 "bg-gray-50 ring-1 ring-inset ring-gray-200/80",
-              hasUnread && !isSelected && "border-l-4 border-l-[#84cc16] bg-lime-50/60",
-              hasUnread && isSelected && "border-l-4 border-l-[#84cc16]",
+              hasUnread && !isSelected && "border-l-4 border-l-[var(--brand-primary)] bg-lime-50/60",
+              hasUnread && isSelected && "border-l-4 border-l-[var(--brand-primary)]",
             )}
           >
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-200">
@@ -114,7 +114,7 @@ export default function ClientChatListings({
                 </h3>
                 <span className="flex shrink-0 items-center gap-1.5">
                   {hasUnread ? (
-                    <span className="rounded-full bg-[#84cc16] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                    <span className="rounded-full bg-[var(--brand-primary)] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
                       {unread > 9 ? "9+" : unread}
                     </span>
                   ) : null}

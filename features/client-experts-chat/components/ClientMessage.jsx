@@ -22,7 +22,7 @@ function timeLabel(createdAt) {
 
 function clientBubbleClass(isFirstInGroup, isLastInGroup) {
   const base =
-    "font-sans bg-[#84cc16] px-4 py-2.5 text-sm leading-relaxed text-white";
+    "font-sans bg-[var(--brand-primary)] px-4 py-2.5 text-sm leading-relaxed text-white";
   if (isFirstInGroup && isLastInGroup) {
     return `${base} rounded-xl rounded-tr-sm`;
   }

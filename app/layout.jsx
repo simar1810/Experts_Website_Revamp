@@ -1,5 +1,6 @@
 import { AuthProvider } from "@/context/AuthContext";
 import ExpertListing from "@/features/experts-landing/components/index";
+import BrandingProvider from "@/features/experts-landing/context/branding";
 import { Toaster } from "react-hot-toast";
 import {
   Geist,
@@ -56,7 +57,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const { success, partner } = await resolvePartner()
+  const { success, partner, pathname } = await resolvePartner()
   return (
     <html lang="en" className="overflow-x-clip h-full" suppressHydrationWarning>
       <body
@@ -83,7 +84,7 @@ export default async function RootLayout({ children }) {
               },
               success: {
                 iconTheme: {
-                  primary: "#84cc16",
+                  primary: "var(--brand-primary)",
                   secondary: "#fff",
                 },
               },
@@ -95,11 +96,14 @@ export default async function RootLayout({ children }) {
               },
             }}
           />
-          <SWRConfig value={{ revalidateOnFocus: false, revalidateIfStale: false }}>
-            {success && <ExpertListing partner={partner} />}
+``          <SWRConfig value={{ revalidateOnFocus: false, revalidateIfStale: false }}>
+            {success && ["", "/"].includes(pathname) && <ExpertListing partner={partner} />}
             <ValuesProvider>
-              {" "}
-              {!success && <ClientMainLayoutShell>{children}</ClientMainLayoutShell>}
+              {(!success || !["", "/"].includes(pathname)) && <BrandingProvider success={success} partner={partner}>
+                <ClientMainLayoutShell>
+                  {children}
+                </ClientMainLayoutShell>
+              </BrandingProvider>}
             </ValuesProvider>
           </SWRConfig>
         </AuthProvider>

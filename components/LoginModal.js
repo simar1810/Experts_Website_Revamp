@@ -14,7 +14,7 @@ const inputClass = (hasError) =>
   `w-full px-4 py-3.5 bg-white border text-sm font-medium rounded-xl focus:outline-none transition-all placeholder:text-gray-400 ${
     hasError
       ? "border-red-500 focus:ring-2 focus:ring-red-500/20"
-      : "border-gray-200 focus:ring-2 focus:ring-lime-500/25 focus:border-[#84cc16]"
+      : "border-gray-200 focus:ring-2 focus:ring-lime-500/25 focus:border-[var(--brand-primary)]"
   }`;
 
 /** Same decorative corner as GetStartedModal */
@@ -257,7 +257,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
       />
 
       <div className="relative z-10 w-full max-w-lg animate-in fade-in zoom-in duration-300 outline-none">
-        <div className="relative overflow-hidden rounded-[2rem] border-2 border-[#84cc16] bg-white p-10 pt-12 shadow-[0_24px_64px_rgba(0,0,0,0.12)]">
+        <div className="relative overflow-hidden rounded-[2rem] border-2 border-[var(--brand-primary)] bg-white p-10 pt-12 shadow-[0_24px_64px_rgba(0,0,0,0.12)]">
           <GymIllustration />
           <button
             type="button"
@@ -339,7 +339,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                   <button
                     type="submit"
                     disabled={checkingMobile}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--brand-primary)]"
                   >
                     {checkingMobile ? (
                       <>
@@ -362,7 +362,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                         presetSignupDraft("");
                         onSwitchToRegister();
                       }}
-                      className="font-bold text-[#84cc16] hover:underline"
+                      className="font-bold text-[var(--brand-primary)] hover:underline"
                     >
                       Get started
                     </button>
@@ -392,7 +392,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                             disabled={verifying}
                             inputMode="numeric"
                             autoComplete="one-time-code"
-                            className="h-12 w-11 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[#84cc16] focus:outline-none focus:ring-2 focus:ring-lime-500/25 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="h-12 w-11 rounded-lg border-2 border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-lime-500/25 disabled:cursor-not-allowed disabled:opacity-60"
                           />
                         ))}
                       </div>
@@ -403,7 +403,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                         className={`shrink-0 rounded-xl border-2 px-4 py-2.5 text-sm font-bold transition-colors ${
                           timer > 0
                             ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400"
-                            : "border-[#84cc16] bg-white text-[#84cc16] hover:bg-lime-50"
+                            : "border-[var(--brand-primary)] bg-white text-[var(--brand-primary)] hover:bg-lime-50"
                         }`}
                       >
                         Resend OTP
@@ -420,7 +420,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                     <button
                       type="submit"
                       disabled={verifying || checkingMobile}
-                      className="inline-flex h-auto w-[200px] max-w-full flex-none items-center justify-center gap-2 rounded-2xl bg-[#84cc16] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#84cc16]"
+                      className="inline-flex h-auto w-[200px] max-w-full flex-none items-center justify-center gap-2 rounded-2xl bg-[var(--brand-primary)] py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-[#76b813] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--brand-primary)]"
                     >
                       {verifying ? (
                         <>
@@ -444,7 +444,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
                         setTimer(23);
                         setOtp(["", "", "", ""]);
                       }}
-                      className="text-sm font-semibold text-[#84cc16] underline underline-offset-2 hover:text-[#76b813]"
+                      className="text-sm font-semibold text-[var(--brand-primary)] underline underline-offset-2 hover:text-[#76b813]"
                     >
                       Wrong number? Go back
                     </button>

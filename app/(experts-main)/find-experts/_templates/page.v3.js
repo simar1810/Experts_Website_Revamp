@@ -41,7 +41,7 @@ export default function ExpertsPage() {
 
                 <div className="relative z-10 max-w-5xl mx-auto space-y-3 sm:space-y-6 pt-6">
                     <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
-                        Find the right <span className="text-[#84cc16]">Expert</span> for your Health
+                        Find the right <span className="text-[var(--brand-primary)]">Expert</span> for your Health
                     </h1>
                     <div className="max-w-4xl mx-auto">
                         <p className="text-white/80 text-[10px] sm:text-sm md:text-base leading-relaxed font-medium max-w-lg mx-auto line-clamp-2 sm:line-clamp-none">
@@ -60,7 +60,7 @@ export default function ExpertsPage() {
                             theme="light"
                             containerClassName="bg-white rounded-xl p-1 shadow-2xl w-full border border-white/10"
                             inputWrapperClassName="border-b lg:border-b-0 lg:border-r border-gray-100 py-2 sm:py-3"
-                            buttonClassName="bg-[#84cc16] hover:bg-[#76b813] text-white px-8 py-2.5 rounded-lg font-black text-xs sm:text-sm w-full lg:w-auto"
+                            buttonClassName="bg-[var(--brand-primary)] hover:bg-[#76b813] text-white px-8 py-2.5 rounded-lg font-black text-xs sm:text-sm w-full lg:w-auto"
                             buttonText="Search Experts"
                             specialityIconColor="text-gray-300"
                             locationIconColor="text-gray-300"
@@ -80,7 +80,7 @@ export default function ExpertsPage() {
                         className="w-full flex items-center justify-between bg-white border border-gray-100 p-4 rounded-[1.5rem] shadow-sm active:scale-95 transition-transform"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-[#84cc16] rounded-xl flex items-center justify-center shadow-lg shadow-lime-500/20">
+                            <div className="w-10 h-10 bg-[var(--brand-primary)] rounded-xl flex items-center justify-center shadow-lg shadow-lime-500/20">
                                 <Filter className="w-5 h-5 text-white" />
                             </div>
                             <div className="text-left">
@@ -162,21 +162,21 @@ function ExpertCard({ expert }) {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-lime-50 rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                 <div className="relative w-28 h-28 sm:w-40 sm:h-40 shrink-0 mx-auto md:mx-0">
-                    <div className="w-full h-full rounded-[2.5rem] border-4 border-[#84cc16]/10 overflow-hidden shadow-inner group-hover:border-[#84cc16]/30 transition-colors">
+                    <div className="w-full h-full rounded-[2.5rem] border-4 border-[var(--brand-primary)]/10 overflow-hidden shadow-inner group-hover:border-[var(--brand-primary)]/30 transition-colors">
                         <img src={expert.profilePhoto || "/images/coach.png"} alt={expert.name} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-110" />
                     </div>
                     <div className="absolute -right-1 -bottom-1 bg-white rounded-2xl p-1.5 shadow-xl border border-gray-50">
-                        <CheckCircle2 className="w-5 h-5 sm:w-7 sm:h-7 text-[#84cc16] fill-white" />
+                        <CheckCircle2 className="w-5 h-5 sm:w-7 sm:h-7 text-[var(--brand-primary)] fill-white" />
                     </div>
                 </div>
 
                 <div className="flex-1 space-y-2 text-center md:text-left relative z-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                        <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight group-hover:text-[#84cc16] transition-colors">
+                        <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight group-hover:text-[var(--brand-primary)] transition-colors">
                             {expert.name || expert.coach?.name || "Expert"}
                         </h3>
                     </div>
-                    <p className="text-[#84cc16] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">{specializations_string}</p>
+                    <p className="text-[var(--brand-primary)] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">{specializations_string}</p>
                     <p className="text-gray-500 text-xs  font-medium opacity-80">{expert.yearsExperience} years experience overall</p>
 
                     <div className="flex items-center justify-center md:justify-start gap-2 text-gray-900 text-xs sm:text-sm font-bold pt-1">
@@ -189,7 +189,7 @@ function ExpertCard({ expert }) {
 
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-6 border-t border-gray-100 mt-6 gap-6">
                         <div className="flex items-center justify-center md:justify-start gap-6">
-                            <div className="flex items-center gap-2 bg-[#84cc16] text-white px-3 py-1.5 rounded-xl text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
+                            <div className="flex items-center gap-2 bg-[var(--brand-primary)] text-white px-3 py-1.5 rounded-xl text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
                                 <ThumbsUp className="w-3 h-3 fill-current" />
                                 <span>{((expert.recommendedScoreFinal) * 100).toPrecision(2)}%</span>
                             </div>
@@ -199,7 +199,7 @@ function ExpertCard({ expert }) {
                             </div>
                         </div>
                         <div className="flex flex-col items-center md:items-end gap-2 text-right">
-                            <p className="text-[#84cc16] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] leading-none">{expert.responseTime}</p>
+                            <p className="text-[var(--brand-primary)] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] leading-none">{expert.responseTime}</p>
                             <button onClick={handleCardClick} className="bg-gray-900 hover:bg-black text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all shadow-xl active:scale-95 uppercase tracking-widest mt-2">
                                 Message Coach
                             </button>
@@ -255,7 +255,7 @@ function CategoriesFilter({ setFilteredExperts, setSelectedSpecialities }) {
                 {availableCategories.map((cat, i) => (
                     <button
                         key={i}
-                        className={`px-4 sm:px-7 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border transition-all ${cat === selectedCategory ? 'bg-[#84cc16] text-white border-[#84cc16] shadow-lg shadow-lime-500/20' : 'bg-white text-gray-500 border-gray-100 hover:border-[#84cc16] hover:text-[#84cc16] hover:shadow-md'}`}
+                        className={`px-4 sm:px-7 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border transition-all ${cat === selectedCategory ? 'bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-lg shadow-lime-500/20' : 'bg-white text-gray-500 border-gray-100 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] hover:shadow-md'}`}
                         onClick={() => handleSelect(cat)}
                     >
                         {cat}
@@ -427,14 +427,14 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
         <div className="flex flex-col w-full bg-white rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm sticky top-24">
             {/* Theme Matched Header */}
             <div className="bg-white border-b border-gray-50 p-6 lg:p-7 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-[#84cc16]"></div>
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-[var(--brand-primary)]"></div>
                 <div className="flex items-center justify-between mb-2">
                     <h4 className="text-lg lg:text-xl font-black text-gray-900 tracking-tight">
                         Filters
                     </h4>
                     <button
                         onClick={handleClearFilters}
-                        className="text-[#84cc16] hover:text-[#76b813] text-[10px] font-black uppercase tracking-widest transition-colors"
+                        className="text-[var(--brand-primary)] hover:text-[#76b813] text-[10px] font-black uppercase tracking-widest transition-colors"
                     >
                         Clear All
                     </button>
@@ -449,7 +449,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                 <div className="p-4 bg-lime-50/50 rounded-2xl border border-lime-100/50">
                     <label className="flex items-center justify-between cursor-pointer group">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-[#84cc16] rounded-lg flex items-center justify-center shadow-md shadow-lime-500/10">
+                            <div className="w-8 h-8 bg-[var(--brand-primary)] rounded-lg flex items-center justify-center shadow-md shadow-lime-500/10">
                                 <CheckCircle2 className="w-4 h-4 text-white" />
                             </div>
                             <span className="text-sm font-black text-gray-900 tracking-tight italic">WZ Assured</span>
@@ -461,14 +461,14 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                 onChange={() => setWzAssured(!wzAssured)}
                                 className="sr-only peer"
                             />
-                            <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#84cc16]"></div>
+                            <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--brand-primary)]"></div>
                         </div>
                     </label>
                 </div>
 
                 {/* Consultation Mode */}
                 <div className="space-y-5">
-                    <h6 className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[#84cc16] pl-3">Consultation Mode</h6>
+                    <h6 className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[var(--brand-primary)] pl-3">Consultation Mode</h6>
                     <div className="space-y-3 pl-1">
                         {consultation_modes.map((mode) => (
                             <label key={mode} className="flex items-center gap-4 group cursor-pointer">
@@ -477,7 +477,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                         type="checkbox"
                                         checked={filterInputs.Consultation[mode] || false}
                                         onChange={() => handleFilterChange('Consultation', mode)}
-                                        className="w-5 h-5 cursor-pointer accent-[#84cc16] rounded border-gray-300"
+                                        className="w-5 h-5 cursor-pointer accent-[var(--brand-primary)] rounded border-gray-300"
                                     />
                                 </div>
                                 <span className={`text-sm font-bold transition-colors ${filterInputs.Consultation[mode] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'} capitalize`}>
@@ -491,7 +491,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                 {/* Collapsible: No. of Clients */}
                 <div className="space-y-5 border-t border-gray-50 pt-5">
                     <button onClick={() => toggleSection('clients')} className="flex items-center justify-between w-full text-left">
-                        <span className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[#84cc16] pl-3">No. of Clients</span>
+                        <span className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[var(--brand-primary)] pl-3">No. of Clients</span>
                         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${openSections.clients ? '' : 'rotate-180'}`} />
                     </button>
                     {openSections.clients && Object.keys(filterInputs.Clients_no).length > 0 && (
@@ -502,7 +502,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                         type="checkbox"
                                         checked={filterInputs.Clients_no[item] || false}
                                         onChange={() => handleFilterChange('Clients_no', item)}
-                                        className="w-5 h-5 cursor-pointer accent-[#84cc16]"
+                                        className="w-5 h-5 cursor-pointer accent-[var(--brand-primary)]"
                                     />
                                     <span className={`text-sm font-bold transition-colors ${filterInputs.Clients_no[item] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`}>{item}</span>
                                 </label>
@@ -514,7 +514,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                 {/* Collapsible: Languages */}
                 <div className="space-y-5 border-t border-gray-50 pt-5">
                     <button onClick={() => toggleSection('languages')} className="flex items-center justify-between w-full text-left">
-                        <span className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[#84cc16] pl-3">Languages</span>
+                        <span className="text-sm font-black text-gray-900 tracking-tight uppercase border-l-2 border-[var(--brand-primary)] pl-3">Languages</span>
                         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${openSections.languages ? '' : 'rotate-180'}`} />
                     </button>
                     {openSections.languages && Object.keys(filterInputs.Languages).length > 0 && (
@@ -526,7 +526,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                         name={item}
                                         checked={filterInputs.Languages[item] || false}
                                         onChange={() => handleFilterChange('Languages', item)}
-                                        className="w-5 h-5 cursor-pointer accent-[#84cc16]"
+                                        className="w-5 h-5 cursor-pointer accent-[var(--brand-primary)]"
                                     />
                                     <span className={`text-sm font-bold transition-colors ${filterInputs.Languages[item] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`}>{item}</span>
                                 </label>
@@ -538,7 +538,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                 {/* Collapsible: Distance Range */}
                 <div className="space-y-5 border-t border-gray-50 pt-5 pb-4">
                     <button onClick={() => toggleSection('distance')} className="flex items-center justify-between w-full text-left">
-                        <div className="flex items-baseline gap-1 border-l-2 border-[#84cc16] pl-3">
+                        <div className="flex items-baseline gap-1 border-l-2 border-[var(--brand-primary)] pl-3">
                             <span className="text-sm font-black text-gray-900 tracking-tight uppercase">Distance Range</span>
                             <span className="text-[9px] font-black text-gray-400 lowercase italic">(km)</span>
                         </div>
@@ -552,7 +552,7 @@ function Filters({ filteredExperts, setFilteredExperts, filteredExpertsCount, se
                                         type="checkbox"
                                         checked={filterInputs.Distance[item] || false}
                                         onChange={() => handleFilterChange('Distance', item)}
-                                        className="w-5 h-5 cursor-pointer accent-[#84cc16]"
+                                        className="w-5 h-5 cursor-pointer accent-[var(--brand-primary)]"
                                     />
                                     <span className={`text-sm font-bold transition-colors ${filterInputs.Distance[item] ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`}>{item}</span>
                                 </label>

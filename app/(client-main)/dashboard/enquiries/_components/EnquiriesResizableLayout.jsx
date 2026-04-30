@@ -81,7 +81,7 @@ function ColumnResizeHandle({ onDelta }) {
       <span
         className={cn(
           "pointer-events-none my-3 w-px flex-1 rounded-full bg-gray-200",
-          "transition-colors group-hover:bg-[#84cc16]/60 group-active:bg-[#84cc16]",
+          "transition-colors group-hover:bg-[var(--brand-primary)]/60 group-active:bg-[var(--brand-primary)]",
         )}
       />
     </div>
