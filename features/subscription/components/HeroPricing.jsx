@@ -20,7 +20,7 @@ const HeroPricing = function () {
         />
         <div className="relative z-[1] flex h-[60vh] flex-col items-center justify-center leading-tight md:h-[75vh]">
           <h1 className="max-w-[20ch] px-2 text-[28px] font-bold tracking-tight md:max-w-none md:text-[52px] lg:text-[60px]">
-            Get Discovered by People Already Ready to Start
+            Built for Coaches Ready to Grow Beyond Referrals
           </h1>
 
           <p className="mx-auto mb-6 mt-4 max-w-[100ch] px-2 text-sm text-white/90 md:mb-8 md:mt-6 md:text-lg">
@@ -35,13 +35,13 @@ const HeroPricing = function () {
           </div>
 
           <a
-            href="#pricing-hero-video"
+            href="#pricing-plans"
             className={cn(
               buttonVariants({ variant: "default", size: "default" }),
               "h-12 rounded-xl bg-white px-8 text-sm font-semibold text-[#1B5E20] hover:bg-white/90 hover:text-[#1B5E20] sm:w-auto md:h-14 md:text-base"
             )}
           >
-            See How It Works
+            Join Zeefit
           </a>
         </div>
       </div>

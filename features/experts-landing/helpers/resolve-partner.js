@@ -25,19 +25,22 @@ export const resolvePartner = async function () {
   let partner = null;
   let success = false;
 
-  if (parts.length >= 2) {
+  const isLocalhostDomain = parts[parts.length - 1] === "localhost";
+  const hasPartnerSubdomain = isLocalhostDomain ? parts.length >= 2 : parts.length >= 3;
+
+  if (hasPartnerSubdomain) {
     const potentialPartner = parts[0];
-    if (potentialPartner !== "localhost") {
+    if (potentialPartner && potentialPartner !== "localhost") {
       partner = potentialPartner;
       success = true;
     }
   }
 
-  const url = new URL(pathnameRaw)
+  const url = new URL(pathnameRaw);
 
   return {
     success,
     partner,
-    pathname: url.pathname || "/"
-  }
-}
+    pathname: url.pathname || "/",
+  };
+};
