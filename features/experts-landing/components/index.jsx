@@ -31,7 +31,7 @@ export default async function ExpertsListing({ partner }) {
       >
         <BrandDynamicHead brandInfo={brandInfo} />
         {/* <Navbar brand={brandInfo} /> */}
-        <div dangerouslySetInnerHTML={brandInfo.header} />
+        <div dangerouslySetInnerHTML={{ __html: brandInfo.header }} />
         <section className="relative w-full bg-white py-12 md:py-20 lg:py-24">
           <Image
             src="/images/experts-listing-hero-bg.png"
@@ -70,7 +70,7 @@ export default async function ExpertsListing({ partner }) {
         {brandInfo?.settings?.showOnlyAssignedExperts && <ExpertSection partner={partner} />}
         {brandInfo?.settings?.allowPublicPrograms && <ProgramsSection partner={partner} listingId={brandInfo._id} />}
         {/* <Footer brand={brandInfo} /> */}
-        <div dangerouslySetInnerHTML={brandInfo.footer} />
+        <div dangerouslySetInnerHTML={{ __html: brandInfo.footer }} />
       </main>
     )
   } catch (error) {
