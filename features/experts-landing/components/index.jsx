@@ -12,9 +12,9 @@ import Footer from "./footer"
 export default async function ExpertsListing({ partner }) {
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + "/experts/public/config", {
-      headers: {
+      headers: partner ? {
         'x-tenant': partner
-      }
+      } : {}
     })
     const brand = await response.json();
     if (brand.message === "Partner not found") {

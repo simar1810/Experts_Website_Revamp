@@ -24,9 +24,9 @@ function BrandingProviderContainer({ partner, children }) {
   const endpoint = useMemo(() => process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + "/experts/public/config", [partner]);
   const { isLoading, error, data } = useSWR(
     endpoint, () => fetchData(endpoint, {
-      headers: {
+      headers: partner ? {
         'x-tenant': partner
-      }
+      } : {}
     }));
 
   if (isLoading) {

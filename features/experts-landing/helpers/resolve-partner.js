@@ -2,6 +2,14 @@
 
 import { headers } from "next/headers";
 
+function normalizeHost(value = "") {
+  return String(value)
+    .split(",")[0]
+    .split(":")[0]
+    .trim()
+    .toLowerCase();
+}
+
 /**
  * Decide if the request is for a tenant-specific (whitelabel) experts listing.
  *
@@ -13,10 +21,11 @@ import { headers } from "next/headers";
  */
 export const resolvePartner = async function () {
   const headersList = await headers();
+  const forwardedHostHeader = headersList.get("x-forwarded-host") || "";
   const hostHeader = headersList.get("host") || "";
   const pathnameRaw = headersList.get("x-url") || "/";
 
-  const host = hostHeader.split(":")[0].toLowerCase();
+  const host = normalizeHost(forwardedHostHeader || hostHeader);
   let parts = host.split(".");
   if (parts[0] === "www") {
     parts.shift();

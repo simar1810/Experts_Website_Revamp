@@ -139,9 +139,9 @@ async function programsListingFetcher([_, listingId, tenant]) {
 export default function ProgramsSection({ partner, listingId }) {
   const endpoint = useMemo(() => process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + `/experts/listing/${listingId}/programs`, [partner]);
   const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetchData(endpoint,{
-    headers: {
+    headers: partner ? {
       "x-tenant": partner
-    }
+    } : {}
   }));
 
   if (isLoading || isValidating) {

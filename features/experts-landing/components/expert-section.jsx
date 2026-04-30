@@ -87,7 +87,7 @@ export default function ExpertSection({ partner }) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-tenant": partner
+      ...(partner ? { "x-tenant": partner } : {})
     },
     body: JSON.stringify({
       city: "",
