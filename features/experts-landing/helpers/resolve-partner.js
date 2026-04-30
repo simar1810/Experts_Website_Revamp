@@ -16,7 +16,7 @@ export const resolvePartner = async function () {
   const hostHeader = headersList.get("host") || "";
   const pathnameRaw = headersList.get("x-url") || "/";
 
-  const host = hostHeader.split(":")[0];
+  const host = hostHeader.split(":")[0].toLowerCase();
   let parts = host.split(".");
   if (parts[0] === "www") {
     parts.shift();
@@ -25,15 +25,17 @@ export const resolvePartner = async function () {
   let partner = null;
   let success = false;
 
-  const isLocalhostDomain = parts[parts.length - 1] === "localhost";
-  const hasPartnerSubdomain = isLocalhostDomain ? parts.length >= 2 : parts.length >= 3;
+  const normalizedHost = parts.join(".");
+  const isLocalhostDomain =
+    normalizedHost === "localhost" || normalizedHost.endsWith(".localhost");
+  const isZeefitTenantDomain = normalizedHost.endsWith(".zeefit.in");
 
-  if (hasPartnerSubdomain) {
-    const potentialPartner = parts[0];
-    if (potentialPartner && potentialPartner !== "localhost") {
-      partner = potentialPartner;
-      success = true;
-    }
+  if (isLocalhostDomain && parts.length >= 2) {
+    partner = parts[0];
+    success = true;
+  } else if (isZeefitTenantDomain && parts.length >= 3) {
+    partner = parts[0];
+    success = true;
   }
 
   const url = new URL(pathnameRaw);
