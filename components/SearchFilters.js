@@ -885,7 +885,7 @@ function SpecialitySelectorDropdown({
                 className={`text-sm font-medium ${
                   isDark
                     ? "text-gray-300 group-hover:text-lime-500"
-                    : "text-gray-700 group-hover:text-[#84cc16]"
+                    : "text-gray-700 group-hover:text-[var(--brand-primary)]"
                 }`}
               >
                 {spec}
@@ -894,7 +894,7 @@ function SpecialitySelectorDropdown({
                 className={`w-3 h-3 -rotate-90 transition-colors ${
                   isDark
                     ? "text-gray-500 group-hover:text-lime-500"
-                    : "text-gray-300 group-hover:text-[#84cc16]"
+                    : "text-gray-300 group-hover:text-[var(--brand-primary)]"
                 }`}
               />
             </button>

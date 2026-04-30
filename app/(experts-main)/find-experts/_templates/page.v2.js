@@ -43,19 +43,19 @@ function ExpertCard({ expert }) {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-lime-50 rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                 <div className="relative w-28 h-28 sm:w-40 sm:h-40 shrink-0 mx-auto md:mx-0">
-                    <div className="w-full h-full rounded-[2.5rem] border-4 border-[#84cc16]/10 overflow-hidden shadow-inner group-hover:border-[#84cc16]/30 transition-colors">
+                    <div className="w-full h-full rounded-[2.5rem] border-4 border-[var(--brand-primary)]/10 overflow-hidden shadow-inner group-hover:border-[var(--brand-primary)]/30 transition-colors">
                         <img src={expert.profilePhoto || "/images/coach.png"} alt={expert.name} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-110" />
                     </div>
                     <div className="absolute -right-1 -bottom-1 bg-white rounded-2xl p-1.5 shadow-xl border border-gray-50">
-                        <CheckCircle2 className="w-5 h-5 sm:w-7 sm:h-7 text-[#84cc16] fill-white" />
+                        <CheckCircle2 className="w-5 h-5 sm:w-7 sm:h-7 text-[var(--brand-primary)] fill-white" />
                     </div>
                 </div>
 
                 <div className="flex-1 space-y-2 text-center md:text-left relative z-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                        <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight group-hover:text-[#84cc16] transition-colors">{expert.coach.name}</h3>
+                        <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight group-hover:text-[var(--brand-primary)] transition-colors">{expert.coach.name}</h3>
                     </div>
-                    <p className="text-[#84cc16] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">{specializations_string}</p>
+                    <p className="text-[var(--brand-primary)] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">{specializations_string}</p>
                     <p className="text-gray-500 text-xs  font-medium opacity-80">{expert.yearsExperience} years experience overall</p>
 
                     <div className="flex items-center justify-center md:justify-start gap-2 text-gray-900 text-xs sm:text-sm font-bold pt-1">
@@ -68,7 +68,7 @@ function ExpertCard({ expert }) {
 
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-6 border-t border-gray-100 mt-6 gap-6">
                         <div className="flex items-center justify-center md:justify-start gap-6">
-                            <div className="flex items-center gap-2 bg-[#84cc16] text-white px-3 py-1.5 rounded-xl text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
+                            <div className="flex items-center gap-2 bg-[var(--brand-primary)] text-white px-3 py-1.5 rounded-xl text-[10px] sm:text-xs font-black shadow-lg shadow-lime-500/20">
                                 <ThumbsUp className="w-3 h-3 fill-current" />
                                 <span>{((expert.recommendedScoreFinal) * 100).toPrecision(2)}%</span>
                             </div>
@@ -78,7 +78,7 @@ function ExpertCard({ expert }) {
                             </div>
                         </div>
                         <div className="flex flex-col items-center md:items-end gap-2 text-right">
-                            <p className="text-[#84cc16] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] leading-none">{expert.responseTime}</p>
+                            <p className="text-[var(--brand-primary)] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] leading-none">{expert.responseTime}</p>
                             <button onClick={handleCardClick} className="bg-gray-900 hover:bg-black text-white px-8 sm:px-12 py-3 sm:py-3.5 rounded-2xl font-black text-[10px] sm:text-xs transition-all shadow-xl active:scale-95 uppercase tracking-widest mt-2">
                                 Message Coach
                             </button>
@@ -118,25 +118,25 @@ function Pagination({ totalPages, page, setPage }) {
 
     return (
         <div className="flex flex-wrap justify-center items-center gap-2.5 pt-12">
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 hover:border-[#84cc16] hover:text-[#84cc16] transition-colors"
+            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors"
                 onClick={() => setPage(1)}>«</button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 hover:border-[#84cc16] hover:text-[#84cc16] transition-colors"
+            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors"
                 onClick={decrementPage}>‹</button>
 
-            {totalPages > 1 && <button className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs sm:text-sm shadow-lg ${page === 1 ? 'bg-[#84cc16] text-white shadow-lime-500/20' : 'border border-gray-100 text-gray-500 hover:border-[#84cc16] hover:text-[#84cc16]'}`}
+            {totalPages > 1 && <button className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs sm:text-sm shadow-lg ${page === 1 ? 'bg-[var(--brand-primary)] text-white shadow-lime-500/20' : 'border border-gray-100 text-gray-500 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]'}`}
                 onClick={() => setPage(1)}>1</button>}
 
-            {totalPages > 2 && <button className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs sm:text-sm shadow-lg ${page === 2 ? 'bg-[#84cc16] text-white shadow-lime-500/20' : 'border border-gray-100 text-gray-500 hover:border-[#84cc16] hover:text-[#84cc16]'}`}
+            {totalPages > 2 && <button className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs sm:text-sm shadow-lg ${page === 2 ? 'bg-[var(--brand-primary)] text-white shadow-lime-500/20' : 'border border-gray-100 text-gray-500 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]'}`}
                 onClick={() => setPage(2)}>2</button>}
 
             {totalPages > 3 && <span className="text-gray-300 px-2">...</span>}
 
-            <button className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs sm:text-sm shadow-lg ${page === totalPages ? 'bg-[#84cc16] text-white shadow-lime-500/20' : 'border border-gray-100 text-gray-500 hover:border-[#84cc16] hover:text-[#84cc16]'}`}
+            <button className={`w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs sm:text-sm shadow-lg ${page === totalPages ? 'bg-[var(--brand-primary)] text-white shadow-lime-500/20' : 'border border-gray-100 text-gray-500 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]'}`}
                 onClick={() => setPage(totalPages)}>{totalPages}</button>
 
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-400 hover:border-[#84cc16] hover:text-[#84cc16] transition-colors"
+            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-400 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors"
                 onClick={incrementPage}>›</button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-400 hover:border-[#84cc16] hover:text-[#84cc16] transition-colors"
+            <button className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-400 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors"
                 onClick={() => setPage(totalPages)}>»</button>
         </div>
     )
@@ -158,7 +158,7 @@ function CategoriesFilter({setFilteredExperts}) {
                 {availableCategories.map((cat, i) => (
                     <button
                         key={i}
-                        className={`px-4 sm:px-7 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border transition-all ${cat === selectedCategory ? 'bg-[#84cc16] text-white border-[#84cc16] shadow-lg shadow-lime-500/20' : 'bg-white text-gray-500 border-gray-100 hover:border-[#84cc16] hover:text-[#84cc16] hover:shadow-md'}`}
+                        className={`px-4 sm:px-7 py-2 sm:py-2.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest border transition-all ${cat === selectedCategory ? 'bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] shadow-lg shadow-lime-500/20' : 'bg-white text-gray-500 border-gray-100 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] hover:shadow-md'}`}
                         onClick={() => setSelectedCategory(cat)}
                     >
                         {cat}
@@ -301,7 +301,7 @@ function ExpertsPage2Content() {
 
                 <div className="relative z-10 max-w-5xl mx-auto space-y-3 sm:space-y-6 pt-6">
                     <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
-                        Find the right <span className="text-[#84cc16]">Expert</span> for your Health
+                        Find the right <span className="text-[var(--brand-primary)]">Expert</span> for your Health
                     </h1>
                     <div className="max-w-4xl mx-auto">
                         <p className="text-white/80 text-[10px] sm:text-sm md:text-base leading-relaxed font-medium max-w-lg mx-auto line-clamp-2 sm:line-clamp-none">
@@ -321,7 +321,7 @@ function ExpertsPage2Content() {
                             theme="light"
                             containerClassName="bg-white rounded-xl p-1 shadow-2xl w-full border border-white/10"
                             inputWrapperClassName="border-b lg:border-b-0 lg:border-r border-gray-100 py-2 sm:py-3"
-                            buttonClassName="bg-[#84cc16] hover:bg-[#76b813] text-white px-8 py-2.5 rounded-lg font-black text-xs sm:text-sm w-full lg:w-auto"
+                            buttonClassName="bg-[var(--brand-primary)] hover:bg-[#76b813] text-white px-8 py-2.5 rounded-lg font-black text-xs sm:text-sm w-full lg:w-auto"
                             buttonText="Search Experts"
                             specialityIconColor="text-gray-300"
                             locationIconColor="text-gray-300"
@@ -347,7 +347,7 @@ function ExpertsPage2Content() {
                             <span className="text-sm font-bold text-gray-900 whitespace-nowrap tracking-tight">Consultation Type</span>
                             <div className="relative group min-w-[140px]">
                                 <select
-                                    className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-bold text-gray-800 focus:outline-none focus:border-[#84cc16] cursor-pointer transition-all shadow-sm pr-10"
+                                    className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-bold text-gray-800 focus:outline-none focus:border-[var(--brand-primary)] cursor-pointer transition-all shadow-sm pr-10"
                                     value={consultationType}
                                     onChange={(e) => setConsultationType(e.target.value)}
                                 >
@@ -355,7 +355,7 @@ function ExpertsPage2Content() {
                                     <option value="online">Online</option>
                                     <option value="both">Both</option>
                                 </select>
-                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#84cc16] pointer-events-none group-hover:scale-110 transition-transform" />
+                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--brand-primary)] pointer-events-none group-hover:scale-110 transition-transform" />
                             </div>
                         </div>
 
@@ -364,7 +364,7 @@ function ExpertsPage2Content() {
                             <span className="text-sm font-bold text-gray-900 whitespace-nowrap tracking-tight">Sort By</span>
                             <div className="relative group min-w-[170px]">
                                 <select
-                                    className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-bold text-gray-800 focus:outline-none focus:border-[#84cc16] cursor-pointer transition-all shadow-sm pr-10"
+                                    className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-5 py-2.5 text-sm font-bold text-gray-800 focus:outline-none focus:border-[var(--brand-primary)] cursor-pointer transition-all shadow-sm pr-10"
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
                                 >
@@ -373,7 +373,7 @@ function ExpertsPage2Content() {
                                     <option value="rating">Top Rated</option>
                                     <option value="experience">Experience</option>
                                 </select>
-                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#84cc16] pointer-events-none group-hover:scale-110 transition-transform" />
+                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--brand-primary)] pointer-events-none group-hover:scale-110 transition-transform" />
                             </div>
                         </div>
                     </div>
@@ -385,11 +385,11 @@ function ExpertsPage2Content() {
                             <div className="relative h-1.5 bg-gray-100 rounded-full overflow-visible">
                                 {/* Controlled green bar */}
                                 <div
-                                    className="absolute left-0 top-0 h-full bg-[#84cc16] rounded-full transition-all duration-300"
+                                    className="absolute left-0 top-0 h-full bg-[var(--brand-primary)] rounded-full transition-all duration-300"
                                     style={{ width: `${distanceRange}%` }}
                                 ></div>
                                 <div
-                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-[#84cc16] border-4 border-white rounded-full shadow-lg shadow-lime-500/30 cursor-pointer hover:scale-110 transition-all z-10"
+                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-[var(--brand-primary)] border-4 border-white rounded-full shadow-lg shadow-lime-500/30 cursor-pointer hover:scale-110 transition-all z-10"
                                     style={{ left: `${distanceRange}%` }}
                                 ></div>
 
@@ -406,11 +406,11 @@ function ExpertsPage2Content() {
                             </div>
                             {/* Labels */}
                             <div className="flex justify-between mt-4">
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 0 ? 'text-[#84cc16]' : 'text-gray-300'}`}>0 KM</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 25 ? 'text-[#84cc16]' : 'text-gray-300'}`}>25 KM</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 50 ? 'text-[#84cc16]' : 'text-gray-300'}`}>50 KM</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 75 ? 'text-[#84cc16]' : 'text-gray-300'}`}>75 KM</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 100 ? 'text-[#84cc16]' : 'text-gray-300'}`}>100 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 0 ? 'text-[var(--brand-primary)]' : 'text-gray-300'}`}>0 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 25 ? 'text-[var(--brand-primary)]' : 'text-gray-300'}`}>25 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 50 ? 'text-[var(--brand-primary)]' : 'text-gray-300'}`}>50 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 75 ? 'text-[var(--brand-primary)]' : 'text-gray-300'}`}>75 KM</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${distanceRange >= 100 ? 'text-[var(--brand-primary)]' : 'text-gray-300'}`}>100 KM</span>
                             </div>
                         </div>
                     </div>
@@ -439,7 +439,7 @@ function ExpertsPage2Content() {
 
                     {/* Promo Card Column */}
                     {/* <div className="lg:col-span-4 mt-8 lg:mt-0">
-                        <div className="sticky top-28 bg-gradient-to-br from-[#84cc16] to-[#4d7c0f] rounded-[2.8rem] p-2 relative overflow-hidden h-fit shadow-2xl shadow-lime-900/10">
+                        <div className="sticky top-28 bg-gradient-to-br from-[var(--brand-primary)] to-[#4d7c0f] rounded-[2.8rem] p-2 relative overflow-hidden h-fit shadow-2xl shadow-lime-900/10">
                             <div className="absolute -top-12 -left-12 w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
                             <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-black/10 rounded-full blur-3xl"></div>
 
@@ -448,10 +448,10 @@ function ExpertsPage2Content() {
                                 <p className="text-gray-900 text-lg sm:text-xl font-bold mb-3 leading-tight">This World Oral Health Day,</p>
 
                                 <h4 className="text-3xl sm:text-4xl leading-[1.1] font-black text-[#0a4d2e] mb-8 tracking-tighter">
-                                    Get a <span className="text-[#84cc16]">FREE</span> Appointment<span className="text-[#84cc16] text-xl align-top">*</span> with Top Dentists.
+                                    Get a <span className="text-[var(--brand-primary)]">FREE</span> Appointment<span className="text-[var(--brand-primary)] text-xl align-top">*</span> with Top Dentists.
                                 </h4>
 
-                                <div className="bg-[#84cc16]/10 text-[#84cc16] px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-black mb-10 uppercase tracking-widest border border-[#84cc16]/20">
+                                <div className="bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-black mb-10 uppercase tracking-widest border border-[var(--brand-primary)]/20">
                                     Limited Period Offer
                                 </div>
 

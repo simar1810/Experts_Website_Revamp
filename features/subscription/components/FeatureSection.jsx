@@ -4,6 +4,7 @@ import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { features } from "../utils/config";
 import { cn } from "@/lib/utils";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const VISUALS = [
   { variant: "discovery", accent: "from-[#0d4f1c]/90 via-[#1b5e20] to-[#2e7d32]" },
@@ -12,6 +13,8 @@ const VISUALS = [
 ];
 
 function FeatureVisual({ index }) {
+  const { displayName } = useBrandingContext()
+  console.log({ displayName })
   const n = String(index + 1).padStart(2, "0");
   const style = VISUALS[index % VISUALS.length];
 
@@ -80,7 +83,7 @@ function FeatureVisual({ index }) {
         )}
       </div>
       <p className="absolute bottom-4 right-4 max-w-[10rem] text-right text-[10px] font-medium uppercase tracking-[0.2em] text-white/50 md:bottom-6 md:right-6 md:text-xs">
-        ZeeFit for coaches
+        {displayName} for coaches
       </p>
     </div>
   );

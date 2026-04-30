@@ -46,7 +46,7 @@ function Container({ isDashboard = false }) {
 
   const isActive = (path) => {
     return isTabActive(path)
-      ? "text-[#84cc16] border-b-2 border-[#84cc16] pb-1 font-bold"
+      ? "text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)] pb-1 font-bold"
       : "text-gray-500 hover:text-gray-900 font-medium border-b-2 border-transparent pb-1";
   };
 
@@ -118,7 +118,7 @@ function Container({ isDashboard = false }) {
                 <button
                   type="button"
                   onClick={openRegisterModal}
-                  className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-[#84cc16] px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-lime-500/10 transition-all hover:bg-[#76b813] sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
+                  className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-[var(--brand-primary)] px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-lime-500/10 transition-all hover:bg-[#76b813] sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
                 >
                   Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
                 </button>
@@ -167,7 +167,7 @@ function Container({ isDashboard = false }) {
                     openRegisterModal();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="mt-2 flex w-full items-center gap-2 rounded-lg bg-[#84cc16] px-4 py-3 text-left text-sm font-bold text-white hover:bg-[#76b813]"
+                  className="mt-2 flex w-full items-center gap-2 rounded-lg bg-[var(--brand-primary)] px-4 py-3 text-left text-sm font-bold text-white hover:bg-[#76b813]"
                 >
                   Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
                 </button>

@@ -14,6 +14,7 @@ import { headers } from "next/headers";
 export const resolvePartner = async function () {
   const headersList = await headers();
   const hostHeader = headersList.get("host") || "";
+  const pathnameRaw = headersList.get("x-url") || "/";
 
   const host = hostHeader.split(":")[0];
   let parts = host.split(".");
@@ -32,8 +33,11 @@ export const resolvePartner = async function () {
     }
   }
 
+  const url = new URL(pathnameRaw)
+
   return {
     success,
-    partner
+    partner,
+    pathname: url.pathname || "/"
   }
 }

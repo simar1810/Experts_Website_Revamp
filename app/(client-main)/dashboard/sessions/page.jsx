@@ -243,7 +243,7 @@ export default function SessionsPage() {
         </p>
         <Button
           type="button"
-          className="mt-8 rounded-xl bg-[#84cc16] px-8 py-3 font-semibold text-white hover:bg-[#6ca832]"
+          className="mt-8 rounded-xl bg-[var(--brand-primary)] px-8 py-3 font-semibold text-white hover:bg-[#6ca832]"
           onClick={openLoginModal}
         >
           Log in
