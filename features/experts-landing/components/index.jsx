@@ -77,7 +77,7 @@ export default async function ExpertsListing({ partner }) {
             </div>
           </div>
         </section>
-        {brandInfo?.settings?.showOnlyAssignedExperts && <ExpertSection partner={partner} />}
+        {brandInfo?.settings?.showOnlyAssignedExperts !== false && <ExpertSection partner={partner} />}
         {brandInfo?.settings?.allowPublicPrograms && <ProgramsSection partner={partner} listingId={brandInfo._id} />}
         {/* <Footer brand={brandInfo} /> */}
         {footerHtml ? <div dangerouslySetInnerHTML={{ __html: footerHtml }} /> : null}

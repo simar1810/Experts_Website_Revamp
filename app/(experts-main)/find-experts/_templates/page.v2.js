@@ -178,8 +178,9 @@ async function searchExperts(locationQuery,selectedSpecialities,consultationType
             "radiusKm": debouncedDistanceRange,
             "page": page,
         };
-        const experts = await fetchAPI(`/experts/listing/search`, payload, "POST");
-        setFilteredExperts([...(experts?.free || []), ...(experts?.paid || [])]);
+        // const experts = await fetchAPI(`/experts/listing/search`, payload, "POST");
+        // setFilteredExperts([...(experts?.free || []), ...(experts?.paid || [])]);
+        setFilteredExperts([]);
         setShowPopularExperts(false);
     } catch (err) {
         console.error("Search failed:", err);
