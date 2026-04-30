@@ -1,5 +1,8 @@
-import Image from "next/image";
-import { discoverHeroContent } from "@/lib/data/discoverProgramsContent";
+import {
+  discoverHeroContent,
+  discoverHeroSlides,
+} from "@/lib/data/discoverProgramsContent";
+import { DiscoverHeroSlideshow } from "./DiscoverHeroSlideshow";
 
 export function DiscoverHero() {
   const c = discoverHeroContent;
@@ -9,13 +12,9 @@ export function DiscoverHero() {
       {/* Image: wide banner on mobile; flush right on lg */}
       <div className="relative order-1 aspect-video w-full sm:aspect-3/4 sm:min-h-88 lg:absolute lg:inset-y-0 lg:left-1/2 lg:right-0 lg:order-0 lg:aspect-auto lg:min-h-0 lg:h-full lg:w-auto">
         <div className="relative h-full w-full overflow-hidden rounded-bl-[2.5rem] rounded-br-none rounded-tr-none sm:rounded-bl-[4.5rem] lg:rounded-bl-[5rem]">
-          <Image
-            src={c.imageSrc}
-            alt={c.imageAlt}
-            fill
-            priority
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
+          <DiscoverHeroSlideshow
+            slides={discoverHeroSlides}
+            intervalMs={c.heroSlideIntervalMs}
           />
         </div>
       </div>

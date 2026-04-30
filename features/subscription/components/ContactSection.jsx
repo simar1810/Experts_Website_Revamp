@@ -38,7 +38,8 @@ export default function ContactSection() {
                             className="border-b border-gray-300 bg-transparent pb-3 text-sm outline-none placeholder:text-gray-500 focus:border-black transition"
                         />
                         <input
-                            placeholder="Phone Number (optional)"
+                            placeholder="Phone Number"
+                            required
                             className="border-b border-gray-300 bg-transparent pb-3 text-sm outline-none placeholder:text-gray-500 focus:border-black transition"
                         />
                     </div>

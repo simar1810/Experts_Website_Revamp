@@ -1,7 +1,7 @@
 export default function DashboardHeading({ text }) {
   return (
     <div className="inline-flex w-fit max-w-full flex-col items-start gap-2.5 mb-5">
-      <h2 className="font-lato text-2xl font-extrabold italic uppercase tracking-wide text-black">
+      <h2 className="font-lexend text-2xl font-bold uppercase tracking-wide text-black">
         {text}
       </h2>
       <span

@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { resolveListingId } from "@/lib/curatedShowcaseFromListing";
 import ExpertCard from "../ExpertCard";
+import { TopExpertsCarouselSkeleton } from "../ExpertsSectionSkeletons";
 import { useRouter } from "next/navigation";
-import { generateNavigationLink } from "@/lib/helpers"
+import { generateNavigationLink } from "@/lib/helpers";
 
 
 
@@ -76,23 +77,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
   };
 
   if (loading) {
-    return (
-      <section className="relative z-0 max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
-        <div>
-          <h2 className="text-lg sm:text-3xl font-black text-gray-900 tracking-tight">
-            {/* Top Experts */}
-          </h2>
-        </div>
-        <div className="flex gap-4 overflow-hidden animate-pulse">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="min-w-[280px] h-48 rounded-2xl bg-lime-100/50"
-            />
-          ))}
-        </div>
-      </section>
-    );
+    return <TopExpertsCarouselSkeleton />;
   }
 
   if (!experts.length) return null;

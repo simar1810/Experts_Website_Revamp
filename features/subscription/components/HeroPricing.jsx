@@ -1,22 +1,50 @@
+"use client";
+
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useEffect, useRef } from "react";
 
-const DRIVE_VIDEO_ID = "1uVk6JXnrRxUqNcPo8IP24tQwtJS5EVyY";
-const DRIVE_PREVIEW = `https://drive.google.com/file/d/${DRIVE_VIDEO_ID}/preview`;
+function pauseAndMuteVideos(root) {
+  root?.querySelectorAll("video").forEach((video) => {
+    video.pause();
+    video.muted = true;
+  });
+}
 
 const HeroPricing = function () {
+  const videoSectionRef = useRef(null);
+
+  useEffect(() => {
+    const section = videoSectionRef.current;
+    if (!section || typeof IntersectionObserver === "undefined") {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          pauseAndMuteVideos(section);
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="relative w-full p-4">
-      <div className="relative mx-auto max-w-[1400px] rounded-[20px] bg-gradient-to-br pb-0 pt-16 text-center text-white md:rounded-[40px] md:pt-24">
+      <div className="relative mx-auto max-w-[1400px] rounded-[20px] bg-linear-to-br pb-0 pt-16 text-center text-white md:rounded-[40px] md:pt-24">
         <Image
           fill
           priority
           src="/images/pricing-hero.svg"
-          className="z-[0] rounded-[20px] object-cover md:rounded-[20px]"
+          className="z-0 rounded-[20px] object-cover md:rounded-[20px]"
           alt=""
         />
-        <div className="relative z-[1] flex h-[60vh] -translate-y-8 flex-col items-center justify-center leading-tight md:h-[75vh] md:-translate-y-14">
+        <div className="relative z-1 flex h-[60vh] -translate-y-8 flex-col items-center justify-center leading-tight md:h-[75vh] md:-translate-y-14">
           <h1 className="max-w-[20ch] px-2 text-[28px] font-bold tracking-tight md:max-w-none md:text-[52px] lg:text-[60px]">
             Built for Coaches Ready to Grow Beyond Referrals
           </h1>
@@ -42,21 +70,24 @@ const HeroPricing = function () {
         </div>
       </div>
       <div
+        ref={videoSectionRef}
         id="pricing-hero-video"
         className="w-full -translate-y-[80px] scroll-mt-24 px-4 md:translate-y-[-150px] md:scroll-mt-32"
       >
         <div
           className="
             relative mx-auto max-w-3xl aspect-video overflow-hidden rounded-2xl border-4 border-[#67BC2A] bg-black
-            after:absolute after:inset-0 after:rounded-[inherit] after:border-2 after:border-[#D9D9D9] after:content-[''] after:rotate-[3deg] after:-z-10
+            after:absolute after:inset-0 after:rounded-[inherit] after:border-2 after:border-[#D9D9D9] after:content-[''] after:rotate-3 after:-z-10
           "
         >
-          <iframe
-            title="ZeeFit — how it works"
-            src={DRIVE_PREVIEW}
-            className="h-full w-full"
-            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-            allowFullScreen
+          <video
+            className="h-full w-full object-cover"
+            src="/mp4/pricing/pricing-hero.mp4"
+            controls
+            controlsList="nodownload"
+            playsInline
+            preload="auto"
+            suppressHydrationWarning
           />
         </div>
       </div>

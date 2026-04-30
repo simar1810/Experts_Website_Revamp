@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const faqs = [
   {
@@ -35,94 +36,42 @@ const faqs = [
   },
 ];
 
+const appMockups = [
+  {
+    src: "/images/pricing/mockups/Mock-2.png",
+    alt: "WellnessZ app meals and recipes screen",
+  },
+  {
+    src: "/images/pricing/mockups/Mock-3.png",
+    alt: "WellnessZ app progress screen",
+  },
+];
+
 function ZeeFitAppMockup() {
-  const stats = [
-    { label: "Clients", value: "128" },
-    { label: "Programs", value: "14" },
-    { label: "Enquiries", value: "36" },
-  ];
-
   return (
-    <div className="relative flex min-h-[520px] w-full items-center justify-center overflow-hidden">
-      <div className="absolute h-[420px] w-[420px] rounded-full bg-[#67BC2A]/15 blur-3xl" />
-      <div className="absolute left-1/2 top-16 h-[410px] w-[220px] -translate-x-[62%] rotate-[-9deg] rounded-[34px] bg-[#0d1f14] shadow-2xl ring-1 ring-white/20" />
+    <div className="relative -mx-8 flex min-h-[600px] w-[calc(100%+4rem)] items-center justify-center overflow-visible px-8">
+      <div className="absolute h-[540px] w-[540px] rounded-full bg-[#67BC2A]/15 blur-3xl" />
 
-      <div className="relative z-10 h-[470px] w-[245px] overflow-hidden rounded-[38px] border-8 border-[#0d1f14] bg-[#f8faf7] shadow-[0_30px_80px_rgba(15,31,22,0.22)]">
-        <div className="absolute left-1/2 top-2 h-5 w-24 -translate-x-1/2 rounded-full bg-[#0d1f14]" />
-        <div className="bg-linear-to-br from-[#1f7a34] via-[#2e7d32] to-[#67BC2A] px-5 pb-7 pt-10 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.24em] text-white/70">
-                ZeeFit
-              </p>
-              <h3 className="mt-1 text-xl font-bold leading-tight">
-                Coach Hub
-              </h3>
-            </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
-              Z
-            </div>
+      <div className="relative flex w-full max-w-[640px] items-center justify-center">
+        {appMockups.map((mockup, index) => (
+          <div
+            key={mockup.src}
+            className={`relative aspect-[9/19.5] w-[58%] max-w-[280px] sm:w-[52%] ${
+              index === 0
+                ? "translate-x-10 rotate-[-5deg] sm:translate-x-16"
+                : "-translate-x-10 translate-y-10 rotate-[5deg] sm:-translate-x-16"
+            }`}
+          >
+            <Image
+              src={mockup.src}
+              alt={mockup.alt}
+              fill
+              sizes="(max-width: 768px) 58vw, 280px"
+              className="object-cover"
+              priority={index === 0}
+            />
           </div>
-
-          <div className="mt-6 rounded-2xl bg-white/15 p-3 backdrop-blur">
-            <p className="text-xs text-white/75">This week</p>
-            <p className="mt-1 text-2xl font-bold">42 new leads</p>
-          </div>
-        </div>
-
-        <div className="-mt-4 space-y-4 px-4 pb-5">
-          <div className="grid grid-cols-3 gap-2">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-2xl bg-white p-2 text-center shadow-sm ring-1 ring-black/5"
-              >
-                <p className="text-sm font-bold text-[#1f7a34]">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-[9px] font-medium text-gray-500">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-bold text-gray-900">Active programs</p>
-              <span className="rounded-full bg-[#ecfdf3] px-2 py-1 text-[9px] font-bold text-[#1f7a34]">
-                Live
-              </span>
-            </div>
-            <div className="space-y-3">
-              {["Weight Loss", "Strength Plan", "Lifestyle Reset"].map(
-                (program, index) => (
-                  <div key={program} className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#f0f9e8] text-xs font-bold text-[#2e7d32]">
-                      {index + 1}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-gray-900">
-                        {program}
-                      </p>
-                      <div className="mt-1 h-1.5 rounded-full bg-gray-100">
-                        <div
-                          className="h-full rounded-full bg-[#67BC2A]"
-                          style={{ width: `${70 - index * 14}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-[#0f1f16] p-3 text-white">
-            <p className="text-[10px] text-white/60">Next enquiry</p>
-            <p className="mt-1 text-sm font-semibold">Ready to start today</p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

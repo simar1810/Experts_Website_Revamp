@@ -121,13 +121,6 @@ function Container({ isDashboard = false }) {
                 >
                   Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
                 </button>
-                <button
-                  type="button"
-                  onClick={openLoginModal}
-                  className="hidden whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-[11px] font-bold text-[#4b841e] shadow-md shadow-black/5 transition-all hover:border-[#84cc16] hover:text-[#66a51f] sm:block sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
-                >
-                  Log In
-                </button>
               </div>
             )}
 

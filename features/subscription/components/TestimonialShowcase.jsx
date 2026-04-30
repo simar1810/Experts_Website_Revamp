@@ -16,7 +16,7 @@ const SLOT_SIZE = {
   "-3": { h: "h-[110px] sm:h-[128px] md:h-[150px]", w: "w-7 sm:w-9 md:w-11" },
   "-2": { h: "h-[140px] sm:h-[160px] md:h-[180px]", w: "w-7 sm:w-9 md:w-11" },
   "-1": { h: "h-[180px] sm:h-[200px] md:h-[230px]", w: "w-8 sm:w-10 md:w-12" },
-  0: { h: "h-[min(52vh,380px)] md:h-[480px]", w: "w-[min(88vw,420px)]" },
+  0: { h: "aspect-[3/4]", w: "w-[min(88vw,420px)]" },
   1: { h: "h-[180px] sm:h-[200px] md:h-[230px]", w: "w-8 sm:w-10 md:w-12" },
   2: { h: "h-[140px] sm:h-[160px] md:h-[180px]", w: "w-7 sm:w-9 md:w-11" },
   3: { h: "h-[110px] sm:h-[128px] md:h-[150px]", w: "w-7 sm:w-9 md:w-11" },
@@ -30,6 +30,17 @@ function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
+function getVideoKey(video, fallback) {
+  return video?.src || video?.driveId || String(fallback);
+}
+
+function pauseAndMuteVideos(root) {
+  root?.querySelectorAll("video").forEach((video) => {
+    video.pause();
+    video.muted = true;
+  });
+}
+
 export default function TestimonialShowcase({
   videos,
   testimonialsHref = "/testimonials",
@@ -40,29 +51,29 @@ export default function TestimonialShowcase({
     const l = videos?.length ?? 0;
     return l > 0 ? Math.min(Math.floor(l / 2), l - 1) : 0;
   });
+  const sectionRef = useRef(null);
+  const sectionInViewRef = useRef(true);
   const centerVideoRef = useRef(null);
+  const playSelectedRef = useRef(false);
   const activeIndex = n > 0 ? mod(active, n) : 0;
 
-  const goPrev = useCallback(() => setActive((a) => mod(a - 1, n)), [n]);
-  const goNext = useCallback(() => setActive((a) => mod(a + 1, n)), [n]);
+  const selectVideo = useCallback(
+    (index, { play = true } = {}) => {
+      if (!n) return;
+      playSelectedRef.current = play;
+      setActive(mod(index, n));
+    },
+    [n],
+  );
 
-  const handleCenterPointerEnter = useCallback(() => {
-    const v = centerVideoRef.current;
-    if (!v) return;
-    v.muted = true;
-    v.play().catch(() => {});
-  }, []);
-
-  const handleCenterPointerLeave = useCallback(() => {
-    const v = centerVideoRef.current;
-    if (!v) return;
-    v.pause();
-    try {
-      v.currentTime = 0;
-    } catch {
-      // ignore
-    }
-  }, []);
+  const goPrev = useCallback(() => {
+    playSelectedRef.current = true;
+    setActive((a) => mod(a - 1, n));
+  }, [n]);
+  const goNext = useCallback(() => {
+    playSelectedRef.current = true;
+    setActive((a) => mod(a + 1, n));
+  }, [n]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -73,12 +84,71 @@ export default function TestimonialShowcase({
     return () => window.removeEventListener("keydown", onKey);
   }, [goPrev, goNext]);
 
+  useEffect(() => {
+    const v = centerVideoRef.current;
+    if (!v) {
+      playSelectedRef.current = false;
+      return undefined;
+    }
+
+    if (!sectionInViewRef.current) {
+      pauseAndMuteVideos(sectionRef.current);
+      playSelectedRef.current = false;
+      return undefined;
+    }
+
+    v.muted = false;
+    v.defaultMuted = false;
+    try {
+      v.currentTime = 0;
+    } catch {
+      // Some browsers can reject currentTime before metadata is ready.
+    }
+
+    if (!playSelectedRef.current) {
+      return undefined;
+    }
+
+    const raf = window.requestAnimationFrame(() => {
+      v.play().catch(() => {});
+      playSelectedRef.current = false;
+    });
+
+    return () => window.cancelAnimationFrame(raf);
+  }, [activeIndex]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === "undefined") {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const inView = entry.isIntersecting;
+        sectionInViewRef.current = inView;
+
+        if (!inView) {
+          playSelectedRef.current = false;
+          pauseAndMuteVideos(section);
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   if (!n) {
     return null;
   }
 
   return (
-    <section className="relative mt-24 w-full overflow-hidden bg-[#1f7a34] p-6 pb-12 pt-10 md:mt-32 md:p-16">
+    <section
+      ref={sectionRef}
+      className="relative mt-24 w-full overflow-hidden bg-[#1f7a34] p-6 pb-12 pt-10 md:mt-32 md:p-16"
+    >
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-size-[40px_40px] opacity-20" />
 
       <h2 className="relative z-10 text-center text-2xl font-semibold text-white sm:text-3xl md:text-5xl">
@@ -100,7 +170,7 @@ export default function TestimonialShowcase({
 
       <div className="relative z-10 mx-auto mt-10 max-w-[1200px] md:mt-16">
         <LayoutGroup>
-          <div className="flex min-h-0 max-w-full items-center justify-center gap-0.5 overflow-x-auto px-1 sm:gap-1 md:gap-2 md:overflow-visible">
+          <div className="flex min-h-0 max-w-full items-center justify-center gap-0.5 overflow-hidden px-1 sm:gap-1 md:gap-2 md:overflow-visible">
             {SLOT_OFFSETS.map((offset) => {
               const videoIndex = mod(activeIndex + offset, n);
               const video = videos[videoIndex];
@@ -112,24 +182,19 @@ export default function TestimonialShowcase({
                 ? googleDriveThumbnailUrl(video.driveId)
                 : null;
               const label = (video.stripLabel || video.name).slice(0, 24);
+              const videoKey = getVideoKey(video, videoIndex);
+              const layoutId = `testimonial-card-${videoKey}`;
 
               if (isCenter) {
                 return (
                   <motion.div
-                    key={`c-${activeIndex}`}
+                    key={videoKey}
                     layout
+                    layoutId={layoutId}
                     transition={{ type: "spring", stiffness: 360, damping: 34 }}
                     className={`relative z-20 mx-0.5 shrink-0 self-center ${size.w} ${size.h}`}
                   >
-                    <div
-                      className="group relative h-full w-full overflow-hidden rounded-2xl bg-black ring-1 ring-white/25 shadow-2xl transition-[box-shadow,transform] duration-300 hover:ring-2 hover:ring-white/40 md:hover:scale-[1.01]"
-                      onPointerEnter={() => {
-                        if (!drive && video.src) handleCenterPointerEnter();
-                      }}
-                      onPointerLeave={() => {
-                        if (!drive && video.src) handleCenterPointerLeave();
-                      }}
-                    >
+                    <div className="group relative h-full w-full overflow-hidden rounded-2xl bg-black ring-1 ring-white/25 shadow-2xl transition-[box-shadow,transform] duration-300 hover:ring-2 hover:ring-white/40 md:hover:scale-[1.01]">
                       {drive && embedSrc ? (
                         <iframe
                           key={video.driveId}
@@ -143,22 +208,25 @@ export default function TestimonialShowcase({
                         <video
                           key={video.src}
                           ref={centerVideoRef}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-contain object-top"
                           src={video.src}
                           loop
-                          muted
+                          controls
+                          controlsList="nodownload"
                           playsInline
                           preload="auto"
                           suppressHydrationWarning
                         />
                       ) : null}
 
-                      <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/0 to-black/0 p-3 md:p-4">
+                      <div className="pointer-events-none absolute inset-x-0 top-0 bg-linear-to-b from-black/75 via-black/25 to-transparent p-3 md:p-4">
                         <p className="line-clamp-2 text-left text-sm font-semibold text-white drop-shadow md:text-base">
                           {video.name}
                         </p>
                         <p className="text-left text-xs text-white/80">Coach</p>
-                        <div className="pointer-events-auto mt-3 flex items-center justify-center gap-2">
+                      </div>
+                      <div className="pointer-events-none absolute inset-x-0 bottom-12 flex justify-center md:bottom-14">
+                        <div className="pointer-events-auto flex items-center justify-center gap-2">
                           <button
                             type="button"
                             onClick={(e) => {
@@ -190,20 +258,18 @@ export default function TestimonialShowcase({
 
               return (
                 <motion.button
-                  key={offset}
+                  key={videoKey}
                   type="button"
                   layout
+                  layoutId={layoutId}
                   transition={{ type: "spring", stiffness: 360, damping: 34 }}
-                  onClick={() => setActive(videoIndex)}
-                  onPointerEnter={() => {
-                    if (videoIndex !== activeIndex) setActive(videoIndex);
-                  }}
+                  onClick={() => selectVideo(videoIndex)}
                   className={`${size.w} ${size.h} group relative z-10 shrink-0 cursor-pointer overflow-hidden self-center rounded-lg border border-white/10 bg-zinc-900/95 shadow-md outline-none transition before:absolute before:inset-0 before:bg-linear-to-b before:from-zinc-700/20 before:to-black/50 before:content-[''] hover:border-white/30 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white/50 active:scale-[0.99]`}
                   aria-label={`Open testimonial: ${video.name}`}
                 >
                   {video.src && !drive ? (
                     <video
-                      className="h-full w-full object-cover opacity-50 grayscale filter-[grayscale(1)_brightness(0.55)]"
+                      className="h-full w-full object-contain object-top opacity-50 grayscale filter-[grayscale(1)_brightness(0.55)]"
                       src={video.src}
                       muted
                       playsInline

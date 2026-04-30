@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  Suspense,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { useValues } from "@/context/valuesContext";
 import { useExpertsListingSearch } from "@/hooks/useExpertsListingSearch";
@@ -41,8 +48,10 @@ function ExpertsPageInner() {
   const [searchClientLocation, setSearchClientLocation] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const mobileFiltersRef = useRef(null);
-  /** Scroll target: start of the left-hand filter rail (lg+); passed to PopularExpertsSection when filters change. */
+  /** Scroll target: start of the left-hand filter rail (lg+); used when "Search Experts" runs. */
   const filterRailScrollTargetRef = useRef(null);
+  /** Bumps only when the hero "Search Experts" button completes a search → scroll results into view. */
+  const [searchExpertsScrollNonce, setSearchExpertsScrollNonce] = useState(0);
   const isMinLg = useIsMinLg();
   const { values } = useValues();
 
@@ -92,9 +101,14 @@ function ExpertsPageInner() {
     nameQuery,
   });
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     await listing.runSearch();
-  };
+  }, [listing.runSearch]);
+
+  const handleSearchExpertsButtonClick = useCallback(async () => {
+    await handleSearch();
+    setSearchExpertsScrollNonce((n) => n + 1);
+  }, [handleSearch]);
 
   const locationLabel = useGeo
     ? "your area"
@@ -135,44 +149,6 @@ function ExpertsPageInner() {
   const handleMobileFilterSheetOpenChange = (open) => {
     setIsMobileFiltersOpen(open);
   };
-
-  /** Stable fingerprint of *applied* filters (not current page). When it changes, PopularExpertsSection smoothly scrolls to the filter rail (see `filterRailScrollTargetRef`). */
-  const appliedFiltersScrollKey = useMemo(() => {
-    try {
-      return JSON.stringify({
-        spec: [...selectedSpecialities].sort(),
-        loc: locationFilter,
-        geo:
-          searchClientLocation?.coordinates &&
-          Array.isArray(searchClientLocation.coordinates)
-            ? [
-                searchClientLocation.coordinates[0],
-                searchClientLocation.coordinates[1],
-              ]
-            : null,
-        name: (nameQuery || "").trim(),
-        langs: [...(listing.languages || [])].sort(),
-        mode: listing.consultationMode || "",
-        r: Number(listing.radiusKm) || 0,
-        cr: listing.clientsRanges || {},
-        wz: !!listing.wzAssured,
-        ps: listing.pageSize,
-      });
-    } catch {
-      return "";
-    }
-  }, [
-    selectedSpecialities,
-    locationFilter,
-    searchClientLocation,
-    nameQuery,
-    listing.languages,
-    listing.consultationMode,
-    listing.radiusKm,
-    listing.clientsRanges,
-    listing.wzAssured,
-    listing.pageSize,
-  ]);
 
   const filterSidebarProps = {
     showDistanceFilter,
@@ -228,6 +204,7 @@ function ExpertsPageInner() {
             nameQuery={nameQuery}
             setNameQuery={setNameQuery}
             onSearch={handleSearch}
+            onSearchButtonClick={handleSearchExpertsButtonClick}
           />
         </div>
       </section>
@@ -280,7 +257,7 @@ function ExpertsPageInner() {
               <PopularExpertsSection
                 experts={listing.displayFree}
                 loading={listing.loading}
-                appliedFiltersScrollKey={appliedFiltersScrollKey}
+                scrollToResultsNonce={searchExpertsScrollNonce}
                 filtersScrollTargetRef={filterRailScrollTargetRef}
                 page={listing.page}
                 onPageChange={listing.setPage}
