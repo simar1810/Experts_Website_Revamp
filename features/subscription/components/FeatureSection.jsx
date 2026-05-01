@@ -123,7 +123,7 @@ export default function FeatureSection() {
                         className="h-12 rounded-xl bg-[#2E7D32] px-7 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628] md:h-12 md:px-8"
                       >
                         <a href="#pricing-hero-video" className="inline-flex items-center gap-2">
-                          See How It Works
+                          JOIN ZEEFIT
                           <ArrowRight className="h-4 w-4 opacity-90" />
                         </a>
                       </Button>

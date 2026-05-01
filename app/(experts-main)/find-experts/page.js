@@ -182,13 +182,12 @@ function ExpertsPageInner() {
 
         <div className="relative z-10 w-full max-w-5xl mx-auto space-y-3 sm:space-y-5 pt-8 md:pt-10 max-lg:hidden">
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
-            Find the right <span className="text-[#70C136]">Expert</span> for
-            your Health
+            <span className="text-[#70C136]">ZeeFit</span> gives you access to top fitness experts.
           </h1>
           <div className="max-w-4xl mx-auto">
             <p className="text-white/80 text-[10px] sm:text-sm md:text-base leading-relaxed font-medium max-w-lg mx-auto line-clamp-2 sm:line-clamp-none">
-              Search from 7,000+ verified wellness experts and connect with the
-              right expert for your health goals.
+              Search from 7,000+ verified fitness experts and connect with the
+              right fitness expert for your health goals.
             </p>
           </div>
 

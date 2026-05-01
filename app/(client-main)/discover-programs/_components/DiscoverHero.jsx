@@ -25,7 +25,7 @@ export function DiscoverHero() {
           <span className="mb-3 inline-flex w-fit rounded-full bg-[#ACF847] px-3 py-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[#457000] sm:mb-4 sm:px-4 sm:py-2 sm:text-[0.6875rem]">
             {c.badge}
           </span>
-          <h1 className="font-lexend text-5xl font-bold max-md:leading-12 leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl xl:text-7xl">
+          <h1 className="font-lexend text-5xl font-bold max-md:leading-12 leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl xl:text-[3rem]">
             {c.titleBefore}
             <br />
             <span className="text-[#67BC2A]">{c.titleHighlight}</span>

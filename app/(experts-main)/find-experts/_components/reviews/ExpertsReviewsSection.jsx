@@ -10,11 +10,10 @@ export default function ExpertsReviewsSection() {
 
       <div className="max-w-7xl mx-auto px-6 mb-12 text-center text-white relative z-10">
         <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter">
-          Our Reviews Speak <span className="text-lime-200">For Themselves</span>
+          Trusted by People Starting  <span className="text-lime-200">Real Journeys</span>
         </h2>
         <p className="text-lime-50/80 text-sm md:text-base max-w-2xl mx-auto font-medium leading-relaxed">
-          Join hundreds of professionals who have leveled up their careers through our 
-          curated elite coaching network.
+          From finding the right coach to starting the right program, here’s what users are saying about ZeeFit.
         </p>
       </div>
 

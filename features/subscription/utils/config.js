@@ -11,8 +11,7 @@ export const features = [
     kicker: "Discovery & reach",
     title: "Turn Your Coaching Into a Discoverable Brand",
     description: [
-      "Most coaches do not struggle because they lack skill. They struggle because high-paying, serious clients never reach them consistently. ZeeFit changes that.",
-      "Instead of depending only on Instagram, referrals, or ads, your programs get placed in front of people who are already searching for results and are ready to invest in their health.",
+      "Most coaches don’t lack skill they lack a steady flow of serious, high paying clients. ZeeFit connects your programs with people are ready to invest in.",
     ],
     subFeatures: [
       "Program Discovery Platform",
@@ -25,8 +24,7 @@ export const features = [
     kicker: "Programs & offers",
     title: "Turn Client Interest Into Program Sales",
     description: [
-      "Getting attention is easy. Turning that attention into paying clients is the real challenge.",
-      "On ZeeFit, your coaching is shown as clear, structured programs that users can understand quickly and join with confidence. So when people find you, they are not just curious. They are much closer to starting.",
+      "Getting attention is easy. Turning it into paying clients is the real challenge. ZeeFit helps people understand your programs and take the next step.",
     ],
     subFeatures: [
       "Create and List Your Programs",
@@ -39,7 +37,7 @@ export const features = [
     kicker: "Client conversations",
     title: "Connect With Clients at the Right Moment",
     description: [
-      "ZeeFit helps people explore your programs and take the next step when their intent is already high. Whether they want to book a session, join a group plan, or ask a question, the interaction starts with more clarity and stronger intent. That means fewer random chats and better client conversations.",
+      "ZeeFit shows your programs to people who are ready to start. So you get fewer random chats and more serious client conversations.",
     ],
     subFeatures: [
       "Direct Session Bookings",

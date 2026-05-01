@@ -127,11 +127,11 @@ export default function PopularExpertsSection({
           <>
             <div>
               <h2 className="text-lg font-black tracking-tight text-gray-900 sm:text-3xl md:text-left">
-                <span className="md:hidden">Top Experts</span>
-                <span className="hidden md:inline">Popular Experts</span>
+
+                <span className="md:inline">Popular Experts</span>
               </h2>
               <p className="mt-1 hidden text-[10px] font-bold uppercase tracking-widest text-gray-400 sm:block sm:text-sm">
-                Top rated wellness experts available for you
+                Highly rated experts you can choose from
               </p>
             </div>
             {typeof onPageSizeChange === "function" ? (

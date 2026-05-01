@@ -6,6 +6,7 @@ import {
   MomentumSection,
   PrecisionSelectionSection,
   TopProgramsSection,
+  SecondaryHeroSection
 } from "./_components/landing";
 import { ClientResultsSection } from "./_components/landing/ClientResultsSection";
 
@@ -26,6 +27,7 @@ export default async function ClientLandingPage() {
   return (
     <main className="min-h-screen bg-white font-lato text-neutral-900">
       <HeroSection />
+      <SecondaryHeroSection />
       <PrecisionSelectionSection />
       <TopProgramsSection programs={topPrograms} />
       <CuratedEliteSection />

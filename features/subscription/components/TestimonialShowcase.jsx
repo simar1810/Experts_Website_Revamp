@@ -11,15 +11,16 @@ import {
 
 const SLOT_OFFSETS = [-3, -2, -1, 0, 1, 2, 3];
 
-/* Side columns are short; outer slots shortest; all mid-aligned in the row. */
+/* Side cards: shared width; height steps down from the main card toward the outer edges. */
+const SIDE_CARD_W = "w-12 sm:w-14 md:w-36";
 const SLOT_SIZE = {
-  "-3": { h: "h-[110px] sm:h-[128px] md:h-[150px]", w: "w-7 sm:w-9 md:w-11" },
-  "-2": { h: "h-[140px] sm:h-[160px] md:h-[180px]", w: "w-7 sm:w-9 md:w-11" },
-  "-1": { h: "h-[180px] sm:h-[200px] md:h-[230px]", w: "w-8 sm:w-10 md:w-12" },
-  0: { h: "aspect-[3/4]", w: "w-[min(88vw,420px)]" },
-  1: { h: "h-[180px] sm:h-[200px] md:h-[230px]", w: "w-8 sm:w-10 md:w-12" },
-  2: { h: "h-[140px] sm:h-[160px] md:h-[180px]", w: "w-7 sm:w-9 md:w-11" },
-  3: { h: "h-[110px] sm:h-[128px] md:h-[150px]", w: "w-7 sm:w-9 md:w-11" },
+  "-3": { h: "h-[142px] sm:h-[168px] md:h-[212px]", w: SIDE_CARD_W },
+  "-2": { h: "h-[197px] sm:h-[233px] md:h-[356px]", w: SIDE_CARD_W },
+  "-1": { h: "h-[252px] sm:h-[298px] md:h-[542px]", w: SIDE_CARD_W },
+  0:   { h: "aspect-[9/16]", w: "w-[min(88vw,420px)]" },
+  1:  { h: "h-[252px] sm:h-[298px] md:h-[542px]", w: SIDE_CARD_W },
+  2:  { h: "h-[197px] sm:h-[233px] md:h-[356px]", w: SIDE_CARD_W },
+  3:  { h: "h-[142px] sm:h-[168px] md:h-[212px]", w: SIDE_CARD_W },
 };
 
 function isGoogleDriveItem(video) {
@@ -269,7 +270,7 @@ export default function TestimonialShowcase({
                 >
                   {video.src && !drive ? (
                     <video
-                      className="h-full w-full object-contain object-top opacity-50 grayscale filter-[grayscale(1)_brightness(0.55)]"
+                      className="h-full w-full object-cover object-center opacity-50 grayscale filter-[grayscale(1)_brightness(0.55)]"
                       src={video.src}
                       muted
                       playsInline
@@ -278,7 +279,7 @@ export default function TestimonialShowcase({
                     />
                   ) : thumbnailSrc ? (
                     <div
-                      className="h-full w-full bg-cover bg-center opacity-70 grayscale filter-[grayscale(1)_brightness(0.7)] transition group-hover:opacity-90 group-hover:filter-[grayscale(0.35)_brightness(0.85)]"
+                      className="h-full w-full bg-cover bg-center bg-no-repeat opacity-70 grayscale filter-[grayscale(1)_brightness(0.7)] transition group-hover:opacity-90 group-hover:filter-[grayscale(0.35)_brightness(0.85)]"
                       style={{ backgroundImage: `url("${thumbnailSrc}")` }}
                     />
                   ) : (
@@ -287,9 +288,6 @@ export default function TestimonialShowcase({
                     />
                   )}
                   <div className="absolute inset-0 bg-black/35 transition group-hover:bg-black/20" />
-                  <span className="pointer-events-none absolute left-1/2 top-1/2 w-32 -translate-x-1/2 -translate-y-1/2 -rotate-90 text-center text-[0.5rem] font-bold uppercase leading-tight tracking-[0.18em] text-white drop-shadow sm:text-[0.55rem] md:text-[0.65rem]">
-                    {label}
-                  </span>
                 </motion.button>
               );
             })}

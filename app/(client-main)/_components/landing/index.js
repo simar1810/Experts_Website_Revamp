@@ -9,3 +9,4 @@ export { PrecisionSelectionSection } from "./PrecisionSelectionSection";
 export { SectionHeading } from "./SectionHeading";
 export { TopProgramsSection } from "./TopProgramsSection";
 export { ClientTransformations } from "./ClientTransformations";
+export { SecondaryHeroSection} from "./SecondaryHeroSection";

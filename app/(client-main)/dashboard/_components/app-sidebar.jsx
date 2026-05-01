@@ -45,7 +45,7 @@ function WellnessLogo() {
     <div className="flex w-full justify-center">
       <Link
         href="/"
-        className="inline-flex w-fit max-w-full shrink-0 items-center justify-center rounded-md bg-white px-2 py-2 shadow-sm ring-1 ring-white/10"
+        className="inline-flex w-fit max-w-full shrink-0 items-center justify-center rounded-md bg-transparent px-2 py-2 shadow-sm"
       >
         <Image
           src="/experts-logo.png"

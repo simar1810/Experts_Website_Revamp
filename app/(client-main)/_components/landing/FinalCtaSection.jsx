@@ -12,15 +12,15 @@ export function FinalCtaSection() {
         </span>
 
         <h2 className="font-extrabold uppercase leading-[1.08] tracking-tight text-[#064E3B]">
-          <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-[3.8rem]">
+          <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-[4.1rem]">
             {c.line1}
           </span>
-          <span className="relative mx-auto mt-1 font-black block w-fit pb-1 text-4xl sm:text-5xl md:text-6xl lg:text-[4.1rem]">
+          <span className="relative mx-auto mt-6 font-black block w-fit pb-1 text-4xl sm:text-5xl md:text-6xl lg:text-[3rem]">
             <span className="bg-linear-to-r from-[#03632C] to-[#67BC2A] bg-clip-text text-transparent">
               {c.line2}
             </span>
           </span>
-          <span className="mx-auto mt-4 block w-fit pb-1 text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
+          <span className="mx-auto font-black mt-1 block w-fit pb-1 text-2xl sm:text-3xl md:text-4xl lg:text-[3.6rem]">
             {c.line3}
           </span>
         </h2>
