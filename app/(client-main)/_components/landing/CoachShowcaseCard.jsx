@@ -86,7 +86,7 @@ export function CoachShowcaseCard({
         </div>
 
         <div className="absolute inset-0 z-[2] overflow-hidden rounded-[22px] bg-gradient-to-br from-[#edf9df] via-[#f7fff0] to-[#dbf3c8] p-4 [backface-visibility:hidden] [transform:rotateY(180deg)] pointer-events-none group-hover/card:pointer-events-auto group-focus-within/card:pointer-events-auto md:rounded-3xl md:p-5">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#84cc16]/20 blur-2xl" />
+          <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[var(--brand-primary)]/20 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -left-10 h-40 w-40 rounded-full bg-[#4ca848]/16 blur-2xl" />
 
           <div className="relative h-full rounded-2xl border border-[#dff0cf] bg-gradient-to-br from-[#f9fff5] via-[#f0fae6] to-[#e7f6d8] p-4 shadow-[0_12px_28px_-14px_rgba(3,99,44,0.45)] backdrop-blur-sm sm:p-5">
@@ -142,7 +142,7 @@ export function CoachShowcaseCard({
                 href={websiteHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative z-[3] mt-4 block cursor-pointer text-center text-[11px] font-bold uppercase tracking-[0.08em] text-[#03632C] underline decoration-[#84cc16]/60 underline-offset-4 hover:decoration-[#84cc16]"
+                className="relative z-[3] mt-4 block cursor-pointer text-center text-[11px] font-bold uppercase tracking-[0.08em] text-[#03632C] underline decoration-[var(--brand-primary)]/60 underline-offset-4 hover:decoration-[var(--brand-primary)]"
               >
                 Visit Website
               </a>

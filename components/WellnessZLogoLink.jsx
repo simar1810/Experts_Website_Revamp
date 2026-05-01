@@ -1,7 +1,9 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 export default function WellnessZLogoLink({
   href = "/",
@@ -11,6 +13,7 @@ export default function WellnessZLogoLink({
   className,
   ...props
 }) {
+  const { logo, displayName } = useBrandingContext();
   return (
     <Link
       href={href}
@@ -26,8 +29,8 @@ export default function WellnessZLogoLink({
     >
       <span className="inline-flex w-full items-center">
         <Image
-          src="/experts-logo.png"
-          alt="Zeefit"
+          src={logo || "/experts-logo.png"}
+          alt={displayName || "Zeefit"}
           width={400}
           height={120}
           className={cn(

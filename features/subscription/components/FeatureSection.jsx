@@ -5,6 +5,7 @@ import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { features } from "../utils/config";
 import { cn } from "@/lib/utils";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const VISUALS = [
   { src: "/images/Brand-1.png", alt: "ZeeFit brand discovery visual" },
@@ -13,7 +14,12 @@ const VISUALS = [
 ];
 
 function FeatureVisual({ index }) {
-  const visual = VISUALS[index % VISUALS.length];
+const visual = VISUALS[index % VISUALS.length];
+  const { displayName } = useBrandingContext()
+  console.log({ displayName })
+  const n = String(index + 1).padStart(2, "0");
+  const style = VISUALS[index % VISUALS.length];
+
 
   return (
     <div
@@ -31,7 +37,7 @@ function FeatureVisual({ index }) {
         className="object-cover"
         priority={index === 0}
       />
-    </div>
+      </div>
   );
 }
 

@@ -2,6 +2,14 @@
 
 import { headers } from "next/headers";
 
+function normalizeHost(value = "") {
+  return String(value)
+    .split(",")[0]
+    .split(":")[0]
+    .trim()
+    .toLowerCase();
+}
+
 /**
  * Decide if the request is for a tenant-specific (whitelabel) experts listing.
  *
@@ -13,9 +21,11 @@ import { headers } from "next/headers";
  */
 export const resolvePartner = async function () {
   const headersList = await headers();
+  const forwardedHostHeader = headersList.get("x-forwarded-host") || "";
   const hostHeader = headersList.get("host") || "";
+  const pathnameRaw = headersList.get("x-url") || "/";
 
-  const host = hostHeader.split(":")[0];
+  const host = normalizeHost(forwardedHostHeader || hostHeader);
   let parts = host.split(".");
   if (parts[0] === "www") {
     parts.shift();
@@ -24,16 +34,24 @@ export const resolvePartner = async function () {
   let partner = null;
   let success = false;
 
-  if (parts.length >= 2) {
-    const potentialPartner = parts[0];
-    if (potentialPartner !== "localhost") {
-      partner = potentialPartner;
-      success = true;
-    }
+  const normalizedHost = parts.join(".");
+  const isLocalhostDomain =
+    normalizedHost === "localhost" || normalizedHost.endsWith(".localhost");
+  const isZeefitTenantDomain = normalizedHost.endsWith(".zeefit.in");
+
+  if (isLocalhostDomain && parts.length >= 2) {
+    partner = parts[0];
+    success = true;
+  } else if (isZeefitTenantDomain && parts.length >= 3) {
+    partner = parts[0];
+    success = true;
   }
+
+  const url = new URL(pathnameRaw);
 
   return {
     success,
-    partner
-  }
-}
+    partner,
+    pathname: url.pathname || "/",
+  };
+};

@@ -79,12 +79,24 @@ function ExpertCard({ expert }) {
 }
 
 export default function ExpertSection({ partner }) {
-  const endpoint = useMemo(() => process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + "/experts/listing/search", [partner])
+  const endpoint = useMemo(() => {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+    return `${apiBase.replace(/\/$/, "")}/experts/listing/search`;
+  }, []);
   const { isLoading, isValidating, error, data, mutate } = useSWR(endpoint, () => fetchData(endpoint, {
     method: "POST",
-    hreader: {
-      "x-tenant": partner
-    }
+    headers: {
+      "Content-Type": "application/json",
+      ...(partner ? { "x-tenant": partner } : {})
+    },
+    body: JSON.stringify({
+      city: "",
+      consultationMode: "both",
+      expertiseTags: [],
+      languages: [],
+      radiusKm: "",
+      page: 1,
+    }),
   }));
 
   if (isLoading || isValidating) return (
@@ -131,7 +143,11 @@ export default function ExpertSection({ partner }) {
     </div>
   )
 
-  const experts = Array.isArray(data?.free) ? data?.free : []
+  const freeExperts = Array.isArray(data?.free) ? data.free : [];
+  const paidExperts = Array.isArray(data?.paid) ? data.paid : [];
+  const experts = [...paidExperts, ...freeExperts];
+
+  if (experts.length === 0) return null;
 
   return (
     <section className="bg-gray-50 py-16 px-6">

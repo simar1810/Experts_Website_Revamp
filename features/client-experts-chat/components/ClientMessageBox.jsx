@@ -113,7 +113,7 @@ export default function ClientMessageBox({
         />
         <button
           type="submit"
-          className="flex h-10 shrink-0 items-center justify-center text-[#84cc16] transition-colors hover:text-[#6ca832] disabled:opacity-40"
+          className="flex h-10 shrink-0 items-center justify-center text-[var(--brand-primary)] transition-colors hover:text-[#6ca832] disabled:opacity-40"
           disabled={disabled || text.trim() === ""}
           aria-label="Send message"
         >

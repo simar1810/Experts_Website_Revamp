@@ -40,7 +40,7 @@ const ClientNavbarDropdown = () => {
           {user?.name}
         </Button> */}
         <Button className="h-auto flex items-center gap-2 border border-gray-200 rounded-xl px-2 py-1.5 sm:px-4 sm:py-2 bg-white hover:bg-gray-50 transition-colors shadow-sm">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#84cc16] rounded-full flex items-center justify-center text-white shadow-inner shrink-0">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[var(--brand-primary)] rounded-full flex items-center justify-center text-white shadow-inner shrink-0">
             <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
           <span className="hidden sm:inline text-gray-800">{user?.name}</span>

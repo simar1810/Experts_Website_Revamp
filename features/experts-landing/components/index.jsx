@@ -1,45 +1,36 @@
 "use server"
 import Image from "next/image";
-import Navbar from "./navbar"
 import ExpertSection from "./expert-section"
 import ProgramsSection from "./programs-section"
 import BrandDynamicHead from "./build-dynamic-head"
-import Footer from "./footer"
+import InvalidPartner from "./invalid-partner"
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
+import Navbar from "./navbar"
+import Footer from "./footer"
 
 export default async function ExpertsListing({ partner }) {
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_PARTNER_ENDPOINT + "/experts/public/config", {
-      headers: {
+      headers: partner ? {
         'x-tenant': partner
-      }
+      } : {}
     })
     const brand = await response.json();
     if (brand.message === "Partner not found") {
-      return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
-          <div className="absolute inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#b1271c10_100%)]" />
-
-          <div className="max-w-md">
-            <div className="mb-6 flex justify-center">
-              <div className="rounded-2xl bg-red-50 p-4 ring-1 ring-red-100">
-                <AlertCircle className="h-12 w-12 text-[#b1271c]" />
-              </div>
-            </div>
-
-            <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-black sm:text-5xl">
-              Partner <span className="text-[#b1271c]">Not Found</span>
-            </h1>
-
-            <p className="mb-10 text-lg font-medium text-[#7d778d]">
-              The wellness portal you're looking for doesn't seem to exist or has been moved. Please check the URL or contact support.
-            </p>
-          </div>
-        </div>
-      )
+      return <InvalidPartner />
     }
     const brandInfo = brand?.partner || {}
+    const resolveHtmlString = (value) => {
+      if (typeof value === "string") return value;
+      if (value && typeof value === "object" && typeof value.__html === "string") {
+        return value.__html;
+      }
+      return "";
+    };
+
+    const headerHtml = resolveHtmlString(brandInfo?.header);
+    const footerHtml = resolveHtmlString(brandInfo?.footer);
 
     return (
       <main
@@ -49,7 +40,8 @@ export default async function ExpertsListing({ partner }) {
         }}
       >
         <BrandDynamicHead brandInfo={brandInfo} />
-        <Navbar brand={brandInfo} />
+        {/* <Navbar brand={brandInfo} /> */}
+        {headerHtml ? <div dangerouslySetInnerHTML={{ __html: headerHtml }} /> : null}
         <section className="relative w-full bg-white py-12 md:py-20 lg:py-24">
           <Image
             src="/images/experts-listing-hero-bg.png"
@@ -85,9 +77,10 @@ export default async function ExpertsListing({ partner }) {
             </div>
           </div>
         </section>
-        {brandInfo?.settings?.showOnlyAssignedExperts && <ExpertSection partner={partner} />}
+        {brandInfo?.settings?.showOnlyAssignedExperts !== false && <ExpertSection partner={partner} />}
         {brandInfo?.settings?.allowPublicPrograms && <ProgramsSection partner={partner} listingId={brandInfo._id} />}
-        <Footer brand={brandInfo} />
+        {/* <Footer brand={brandInfo} /> */}
+        {footerHtml ? <div dangerouslySetInnerHTML={{ __html: footerHtml }} /> : null}
       </main>
     )
   } catch (error) {

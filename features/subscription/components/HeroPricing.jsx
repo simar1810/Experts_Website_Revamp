@@ -1,6 +1,7 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
@@ -13,6 +14,7 @@ function pauseAndMuteVideos(root) {
 }
 
 const HeroPricing = function () {
+  const { displayName } = useBrandingContext()
   const videoSectionRef = useRef(null);
 
   useEffect(() => {
@@ -49,9 +51,9 @@ const HeroPricing = function () {
             Built for Coaches Ready to Grow Beyond Referrals
           </h1>
           <p className="mx-auto mb-6 mt-4 max-w-[100ch] px-2 text-sm text-white/90 md:mb-8 md:mt-6 md:text-lg">
-            Instagram views do not always become paying clients. ZeeFit helps your
-            coaching get seen by people who are looking to start and are ready to
-            commit.
+            {displayName} helps you go beyond Instagram, referrals, and random leads. Get
+            seen by serious users who are already looking for a coach, a program, or
+            a real fitness solution.
           </p>
           <div className="mb-6 inline-block max-w-2xl rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-medium leading-snug backdrop-blur-md sm:px-6 md:mb-10 md:text-sm mx-5">
             Powered by the WellnessZ ecosystem • 7000+ coaches • 20000+ clients

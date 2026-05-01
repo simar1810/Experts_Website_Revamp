@@ -171,7 +171,7 @@ export default function FeaturedExperts() {
         <div className="mt-16 flex justify-center">
           <button
             onClick={() => router.push("/find-experts")}
-            className="w-full sm:w-auto min-w-[300px] bg-[#f0f0f0] hover:bg-[#e8e8e8] text-[#84cc16] px-12 py-4 rounded-lg font-bold text-base transition-colors"
+            className="w-full sm:w-auto min-w-[300px] bg-[#f0f0f0] hover:bg-[#e8e8e8] text-[var(--brand-primary)] px-12 py-4 rounded-lg font-bold text-base transition-colors"
           >
             View all Experts
           </button>

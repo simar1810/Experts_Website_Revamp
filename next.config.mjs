@@ -18,6 +18,14 @@ const nextConfig = {
         hostname: "media.istockphoto.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "*",
+      },
+      {
+        protocol: "http",
+        hostname: "*",
+      },
     ],
   },
 };

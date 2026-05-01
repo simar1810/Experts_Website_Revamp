@@ -9,7 +9,7 @@ export default function PaymentsSection() {
                 </span>
 
                 <h2 className="text-4xl sm:text-6xl font-[900] text-gray-900 leading-[1.1] tracking-[-0.04em] mb-8">
-                    Seamless <span className="text-[#84cc16]">Payments</span>
+                    Seamless <span className="text-[var(--brand-primary)]">Payments</span>
                 </h2>
 
                 <p className="text-gray-500 text-lg sm:text-2xl font-medium leading-relaxed max-w-3xl mx-auto opacity-90">
