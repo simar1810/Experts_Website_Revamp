@@ -7,13 +7,14 @@ import { BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ensureClientThreadForListing } from "@/lib/expertListingChat";
 import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
+import { prettyExpertProfileUrlFromListingLike } from "@/lib/prettyExpertProfileUrl";
 
 export default function ExpertCard({
   expert,
   isTopExpert = false,
   profileHref,
 }) {
-  const { isAuthenticated, openLoginModal, openRegisterModal } = useAuth();
+  const { isAuthenticated, openRegisterModal } = useAuth();
   const router = useRouter();
   const resolvedName = expert.coach?.name || expert.name || "Expert";
   const resolvedPhoto =
@@ -123,12 +124,9 @@ export default function ExpertCard({
 
   const handleCardClick = () => {
     if (!resolvedListingId) return;
-
-    if (!isAuthenticated) {
-      openLoginModal();
-    } else {
-      if (profileHref) router.push(profileHref);
-    }
+    const href =
+      profileHref || prettyExpertProfileUrlFromListingLike(expert);
+    if (href && href !== "/find-experts") router.push(href);
   };
 
   /* Not shown on cards for now
@@ -187,6 +185,7 @@ export default function ExpertCard({
 
   return (
     <div
+      onClick={handleCardClick}
       className={cn(
         "block cursor-pointer h-full",
         isTopExpert && "w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto",
