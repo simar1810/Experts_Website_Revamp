@@ -90,24 +90,30 @@ export default function Footer() {
             <div className="hidden sm:flex items-center justify-center sm:justify-start gap-5 text-white/70">
               <a
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://www.facebook.com/profile.php?id=61553253021745&mibextid=ZbWKwL/"
                 className="hover:text-white transition-colors"
+                aria-label="Zeefit on Facebook"
               >
-                <Facebook size={20} />
+                <Facebook size={20} aria-hidden />
               </a>
               <a
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://instagram.com/wellnessz_official?igshid=MzMyNGUyNmU2YQ=="
                 className="hover:text-white transition-colors"
+                aria-label="Zeefit on Instagram"
               >
-                <Instagram size={20} />
+                <Instagram size={20} aria-hidden />
               </a>
               <a
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://www.linkedin.com/company/wellnessz/"
                 className="hover:text-white transition-colors"
+                aria-label="Zeefit on LinkedIn"
               >
-                <Linkedin size={20} />
+                <Linkedin size={20} aria-hidden />
               </a>
             </div>
 
@@ -127,14 +133,32 @@ export default function Footer() {
         </div>
 
         <div className="flex sm:hidden justify-center gap-5 mt-6 text-white/70">
-          <a href="#" className="hover:text-white transition-colors">
-            <Facebook size={20} />
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.facebook.com/profile.php?id=61553253021745&mibextid=ZbWKwL/"
+            className="hover:text-white transition-colors"
+            aria-label="Zeefit on Facebook"
+          >
+            <Facebook size={20} aria-hidden />
           </a>
-          <a href="#" className="hover:text-white transition-colors">
-            <Instagram size={20} />
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://instagram.com/wellnessz_official?igshid=MzMyNGUyNmU2YQ=="
+            className="hover:text-white transition-colors"
+            aria-label="Zeefit on Instagram"
+          >
+            <Instagram size={20} aria-hidden />
           </a>
-          <a href="#" className="hover:text-white transition-colors">
-            <Linkedin size={20} />
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.linkedin.com/company/wellnessz/"
+            className="hover:text-white transition-colors"
+            aria-label="Zeefit on LinkedIn"
+          >
+            <Linkedin size={20} aria-hidden />
           </a>
         </div>
 

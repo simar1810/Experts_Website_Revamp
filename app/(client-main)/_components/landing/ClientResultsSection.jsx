@@ -115,6 +115,8 @@ export function ClientResultsSection() {
                     sizes="(max-width: 640px) 46vw, (max-width: 1024px) 288px, 320px"
                     className="rounded-3xl object-contain object-center"
                     priority={i === 1}
+                    loading={i === 1 ? undefined : "lazy"}
+                    fetchPriority={i === 1 ? "high" : "low"}
                   />
                 </div>
               </div>

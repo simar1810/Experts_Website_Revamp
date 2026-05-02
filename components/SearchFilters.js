@@ -661,23 +661,6 @@ export const LocationSearchField = forwardRef(function LocationSearchField(
     locationPickOnly,
   ]);
 
-  useEffect(() => {
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setCoordinateLocation({ latitude, longitude });
-          },
-          (err) => {
-            // console.log("failed to fetch location", err);
-          },
-        );
-      }
-    }
-    getLocation();
-  }, []);
-
   const handleUseMyLocation = async () => {
     cancelLocationBlurClose();
 

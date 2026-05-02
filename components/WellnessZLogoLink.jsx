@@ -14,6 +14,8 @@ export default function WellnessZLogoLink({
   ...props
 }) {
   const { logo, displayName } = useBrandingContext();
+  const brandLabel = displayName || "Zeefit";
+  const { "aria-label": ariaLabelOverride, ...restProps } = props;
   return (
     <Link
       href={href}
@@ -25,7 +27,8 @@ export default function WellnessZLogoLink({
         isFooter && "block w-full max-w-[240px] sm:max-w-[260px]",
         className,
       )}
-      {...props}
+      {...restProps}
+      aria-label={ariaLabelOverride ?? `${brandLabel} home`}
     >
       <span className="inline-flex w-full items-center">
         <Image
