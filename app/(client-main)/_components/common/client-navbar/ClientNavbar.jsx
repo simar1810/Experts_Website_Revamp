@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import GetStartedModal from "@/components/GetStartedModal";
 import LoginModal from "@/components/LoginModal";
 import { Menu, X, ArrowLeftIcon, LogOut } from "lucide-react";
 
@@ -14,6 +14,19 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import WellnessZLogoLink from "@/components/WellnessZLogoLink";
 import Image from "next/image";
 
+const GetStartedModal = dynamic(() => import("@/components/GetStartedModal"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/45"
+      role="progressbar"
+      aria-label="Loading sign up"
+      aria-busy="true"
+    >
+      <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-white/25 border-t-white" />
+    </div>
+  ),
+});
 export default function ClientNavbar({ isDashboard }) {
   const pathname = usePathname()
   if (["/experts"].includes(pathname)) return <></>
@@ -34,6 +47,11 @@ function Container({ isDashboard = false }) {
     openRegisterModal,
     closeRegisterModal,
   } = useAuth();
+
+  const [registerModalHydrated, setRegisterModalHydrated] = useState(false);
+  useEffect(() => {
+    if (isRegisterModalOpen) setRegisterModalHydrated(true);
+  }, [isRegisterModalOpen]);
 
   const handleLogout = () => {
     logout();
@@ -128,17 +146,23 @@ function Container({ isDashboard = false }) {
             {!isDashboard && (
               <button
                 type="button"
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="client-nav-mobile-menu"
+                aria-label={
+                  isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"
+                }
                 className="rounded-lg p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-black md:hidden"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5 shrink-0" aria-hidden />
                 ) : (
                   <Image
                     src="/svg/hamburger.svg"
                     height={20}
                     width={20}
-                    alt="Hamburger menu"
+                    alt=""
+                    aria-hidden
                   />
                 )}
               </button>
@@ -147,7 +171,10 @@ function Container({ isDashboard = false }) {
         </nav>
 
         {!isDashboard && isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100">
+          <div
+            id="client-nav-mobile-menu"
+            className="md:hidden bg-white border-t border-gray-100"
+          >
             <div className="flex flex-col p-4 space-y-2">
               {navLinks.map((link) => (
                 <Link
@@ -185,10 +212,12 @@ function Container({ isDashboard = false }) {
         )}
       </header>
 
-      <GetStartedModal
-        isOpen={isRegisterModalOpen}
-        onClose={closeRegisterModal}
-      />
+      {registerModalHydrated ? (
+        <GetStartedModal
+          isOpen={isRegisterModalOpen}
+          onClose={closeRegisterModal}
+        />
+      ) : null}
 
       <LoginModal
         isOpen={isLoginModalOpen}

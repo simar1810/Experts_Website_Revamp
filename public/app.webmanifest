@@ -1,0 +1,16 @@
+{
+  "name": "Zeefit",
+  "short_name": "Zeefit",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#67BC2A",
+  "icons": [
+    {
+      "src": "/experts-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

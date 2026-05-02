@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   images: {
     remotePatterns: [
       {
@@ -15,6 +18,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "firebasestorage.googleapis.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "media.istockphoto.com",
         pathname: "/**",
       },

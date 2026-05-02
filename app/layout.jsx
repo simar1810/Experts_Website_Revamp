@@ -2,14 +2,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import ExpertListing from "@/features/experts-landing/components/index";
 import BrandingProvider from "@/features/experts-landing/context/branding";
 import { Toaster } from "react-hot-toast";
-import {
-  Geist,
-  Geist_Mono,
-  Lato,
-  Lexend,
-  Manrope,
-  Playfair_Display,
-} from "next/font/google";
+import { Geist, Lato, Lexend, Manrope, Playfair_Display } from "next/font/google";
 import ClientMainLayoutShell from "./(client-main)/ClientMainLayoutShell";
 import { ValuesProvider } from "@/context/valuesContext";
 import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner"
@@ -18,11 +11,6 @@ import "./globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -61,7 +49,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className="overflow-x-clip h-full" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} ${lexend.variable} ${manrope.variable} ${playfair.variable} antialiased overflow-x-clip h-full`}
+        className={`${geistSans.variable} ${lato.variable} ${lexend.variable} ${manrope.variable} ${playfair.variable} antialiased overflow-x-clip h-full`}
         suppressHydrationWarning
       >
         <AuthProvider>

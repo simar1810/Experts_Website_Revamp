@@ -72,8 +72,10 @@ export function HeroSection() {
                 alt={c.heroImageAlt}
                 fill
                 priority
+                fetchPriority="high"
+                quality={82}
                 className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 560px"
+                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 52vw, 560px"
               />
 
               {/* <div className="absolute -bottom-10 sm:-left-10 -left-3 flex size-30 flex-col items-center justify-center rounded-full bg-wz-lime p-2 text-center shadow-[0_12px_30px_-8px_rgba(0,0,0,0.40)] sm:size-40 -rotate-[20deg]">

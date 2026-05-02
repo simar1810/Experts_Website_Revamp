@@ -43,6 +43,8 @@ export function SecondaryHeroSection() {
             src={c.imageSrc}
             alt={c.imageAlt}
             fill
+            loading="lazy"
+            fetchPriority="low"
             className="object-cover object-top"
             sizes="100vw"
           />
