@@ -96,7 +96,7 @@ export default async function RootLayout({ children }) {
               },
             }}
           />
-``          <SWRConfig value={{ revalidateOnFocus: false, revalidateIfStale: false }}>
+          <SWRConfig value={{ revalidateOnFocus: false, revalidateIfStale: false }}>
             {success && ["", "/"].includes(pathname) && <ExpertListing partner={partner} />}
             <ValuesProvider>
               {(!success || !["", "/"].includes(pathname)) && <BrandingProvider success={success} partner={partner}>
