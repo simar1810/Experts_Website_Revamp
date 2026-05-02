@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  Suspense,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { useValues } from "@/context/valuesContext";
 import { useExpertsListingSearch } from "@/hooks/useExpertsListingSearch";
@@ -41,8 +48,10 @@ function ExpertsPageInner() {
   const [searchClientLocation, setSearchClientLocation] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const mobileFiltersRef = useRef(null);
-  /** Scroll target: start of the left-hand filter rail (lg+); passed to PopularExpertsSection when filters change. */
+  /** Scroll target: start of the left-hand filter rail (lg+); used when "Search Experts" runs. */
   const filterRailScrollTargetRef = useRef(null);
+  /** Bumps only when the hero "Search Experts" button completes a search → scroll results into view. */
+  const [searchExpertsScrollNonce, setSearchExpertsScrollNonce] = useState(0);
   const isMinLg = useIsMinLg();
   const { values } = useValues();
 
@@ -92,9 +101,14 @@ function ExpertsPageInner() {
     nameQuery,
   });
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     await listing.runSearch();
-  };
+  }, [listing.runSearch]);
+
+  const handleSearchExpertsButtonClick = useCallback(async () => {
+    await handleSearch();
+    setSearchExpertsScrollNonce((n) => n + 1);
+  }, [handleSearch]);
 
   const locationLabel = useGeo
     ? "your area"
@@ -136,44 +150,6 @@ function ExpertsPageInner() {
     setIsMobileFiltersOpen(open);
   };
 
-  /** Stable fingerprint of *applied* filters (not current page). When it changes, PopularExpertsSection smoothly scrolls to the filter rail (see `filterRailScrollTargetRef`). */
-  const appliedFiltersScrollKey = useMemo(() => {
-    try {
-      return JSON.stringify({
-        spec: [...selectedSpecialities].sort(),
-        loc: locationFilter,
-        geo:
-          searchClientLocation?.coordinates &&
-          Array.isArray(searchClientLocation.coordinates)
-            ? [
-                searchClientLocation.coordinates[0],
-                searchClientLocation.coordinates[1],
-              ]
-            : null,
-        name: (nameQuery || "").trim(),
-        langs: [...(listing.languages || [])].sort(),
-        mode: listing.consultationMode || "",
-        r: Number(listing.radiusKm) || 0,
-        cr: listing.clientsRanges || {},
-        wz: !!listing.wzAssured,
-        ps: listing.pageSize,
-      });
-    } catch {
-      return "";
-    }
-  }, [
-    selectedSpecialities,
-    locationFilter,
-    searchClientLocation,
-    nameQuery,
-    listing.languages,
-    listing.consultationMode,
-    listing.radiusKm,
-    listing.clientsRanges,
-    listing.wzAssured,
-    listing.pageSize,
-  ]);
-
   const filterSidebarProps = {
     showDistanceFilter,
     locationLabel,
@@ -206,13 +182,12 @@ function ExpertsPageInner() {
 
         <div className="relative z-10 w-full max-w-5xl mx-auto space-y-3 sm:space-y-5 pt-8 md:pt-10 max-lg:hidden">
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
-            Find the right <span className="text-[#70C136]">Expert</span> for
-            your Health
+            <span className="text-[#70C136]">ZeeFit</span> gives you access to top fitness experts.
           </h1>
           <div className="max-w-4xl mx-auto">
             <p className="text-white/80 text-[10px] sm:text-sm md:text-base leading-relaxed font-medium max-w-lg mx-auto line-clamp-2 sm:line-clamp-none">
-              Search from 7,000+ verified wellness experts and connect with the
-              right expert for your health goals.
+              Search from 7,000+ verified fitness experts and connect with the
+              right fitness expert for your health goals.
             </p>
           </div>
 
@@ -228,6 +203,7 @@ function ExpertsPageInner() {
             nameQuery={nameQuery}
             setNameQuery={setNameQuery}
             onSearch={handleSearch}
+            onSearchButtonClick={handleSearchExpertsButtonClick}
           />
         </div>
       </section>
@@ -280,7 +256,7 @@ function ExpertsPageInner() {
               <PopularExpertsSection
                 experts={listing.displayFree}
                 loading={listing.loading}
-                appliedFiltersScrollKey={appliedFiltersScrollKey}
+                scrollToResultsNonce={searchExpertsScrollNonce}
                 filtersScrollTargetRef={filterRailScrollTargetRef}
                 page={listing.page}
                 onPageChange={listing.setPage}

@@ -8,7 +8,7 @@ import { NumberTicker } from "@/components/ui/number-ticker";
 
 export function MomentumSection() {
   const c = momentumContent;
-  const [a, b, stat3] = c.stats;
+  const [a, b, stat3, stat4] = c.stats;
 
   return (
     <section className="relative overflow-hidden bg-[#03632C] py-14 sm:py-20">
@@ -21,7 +21,6 @@ export function MomentumSection() {
           <div>
             <MomentumHeadingTyping
               titleTrusted={c.titleTrusted}
-              titleExperts={c.titleExperts}
               titleGreen={c.titleGreen}
             />
 
@@ -69,6 +68,21 @@ export function MomentumSection() {
                 </div>
                 <p className="mt-2 text-[10px] font-bold uppercase leading-snug tracking-[0.12em] text-white sm:text-[11px]">
                   {stat3.label}
+                </p>
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <div className="flex">
+                  <NumberTicker
+                    value={stat4.value}
+                    startValue={0}
+                    className="text-[clamp(1.75rem,3.2vw,2.25rem)] font-semibold leading-none text-[#9AF45D]"
+                  />
+                  <p className="text-[clamp(1.75rem,3.2vw,2.25rem)] font-semibold leading-none text-[#9AF45D]">
+                    +
+                  </p>
+                </div>
+                <p className="mt-2 text-[10px] font-bold uppercase leading-snug tracking-[0.12em] text-white sm:text-[11px]">
+                  {stat4.label}
                 </p>
               </div>
             </div>

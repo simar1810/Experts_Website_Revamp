@@ -9,11 +9,11 @@ export function HeroSection() {
 
   /** Fixed scale at all breakpoints (matches prior ~lg sizes) */
   const headlineLight =
-    "text-[4rem] max-sm:text-[2.4rem] font-light leading-[1.12] text-neutral-900";
+    "text-[3.5rem] max-sm:text-[2.4rem] font-semibold leading-[1.12] text-neutral-900";
   const headlineExpert =
-    "text-[4.6rem] max-sm:text-[2.8rem] font-bold leading-[1.12] text-[#03632C]";
+    "text-[4rem] max-sm:text-[2.8rem] font-bold leading-[1.12] text-[#67BC2A]";
   const headlineGoals =
-    "text-[4.6rem] max-sm:text-[2.8rem]  font-extrabold leading-[1.05] text-[#03632C]";
+    "text-[4rem] max-sm:text-[2.8rem]  font-extrabold leading-[1.05] text-[#67BC2A]";
 
   return (
     <section className="relative overflow-hidden bg-white pb-10 pt-6 font-manrope sm:pb-16 sm:pt-8 lg:pt-10">
@@ -65,15 +65,15 @@ export function HeroSection() {
         </div>
 
         <div className=" order-1 lg:order-2 relative grid-cols-1 flex justify-center lg:justify-end max-sm:p-6">
-          <div className="relative w-full max-w-[450px]">
-            <div className="relative aspect-[3/4] rounded-xl">
+          <div className="relative w-full max-w-[520px]">
+            <div className="relative aspect-square overflow-hidden rounded-2xl">
               <Image
                 src={c.heroImageSrc}
                 alt={c.heroImageAlt}
                 fill
                 priority
-                className="object-contain rounded-2xl"
-                sizes="(max-width: 1024px) 100vw, 448px"
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 560px"
               />
 
               {/* <div className="absolute -bottom-10 sm:-left-10 -left-3 flex size-30 flex-col items-center justify-center rounded-full bg-wz-lime p-2 text-center shadow-[0_12px_30px_-8px_rgba(0,0,0,0.40)] sm:size-40 -rotate-[20deg]">

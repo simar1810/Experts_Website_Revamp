@@ -75,7 +75,7 @@ export default function Footer() {
             </p>
             <button
               type="button"
-              onClick={() => router.push("/experts")}
+              onClick={() => router.push("/pricing")}
               className="rounded-lg border border-white/40 px-8 py-3.5 text-[10px] font-black tracking-widest text-white/40 transition-all hover:bg-white hover:text-black sm:px-10 sm:py-4 sm:text-xs"
             >
               GET LISTED

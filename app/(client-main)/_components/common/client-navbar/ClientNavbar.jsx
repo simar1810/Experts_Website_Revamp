@@ -28,6 +28,7 @@ function Container({ isDashboard = false }) {
     isAuthenticated,
     logout,
     isLoginModalOpen,
+    openLoginModal,
     closeLoginModal,
     isRegisterModalOpen,
     openRegisterModal,
@@ -52,11 +53,9 @@ function Container({ isDashboard = false }) {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Experts", href: "/find-experts" },
-    { name: "Programs", href: "/discover-programs" },
-    // { name: "Pricing", href: "/pricing" },
-
-    // { name: "Resources", href: "/blogs" },
+    { name: "Find Experts", href: "/find-experts" },
+    { name: "Collections", href: "/collections" },
+    {name:"Browse Programs", href:"/discover-programs"}
   ];
 
   return (
@@ -102,7 +101,7 @@ function Container({ isDashboard = false }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`${isActive(link.href)} text-sm transition-colors tracking-wider`}
+                  className={`${isActive(link.href)} whitespace-nowrap text-sm transition-colors tracking-wider`}
                 >
                   {link.name}
                 </Link>

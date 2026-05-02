@@ -110,7 +110,7 @@ export default function FeaturedExperts() {
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Top Rated Experts
           </h2>
-          <p className="text-gray-500 text-sm sm:text-base max-w-2xl leading-relaxed">
+          <p className="max-w-full wrap-break-word text-gray-500 text-sm leading-relaxed sm:text-base">
             {sectionBlurb}
           </p>
         </div>

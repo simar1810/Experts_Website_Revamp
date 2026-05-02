@@ -59,7 +59,7 @@ function ChatShell({
       )}
     >
       <div className="shrink-0 border-b border-gray-100 p-4">
-        <div className="mb-4 flex items-center gap-2 font-serif text-lg font-bold text-gray-900">
+        <div className="mb-4 flex items-center gap-2 font-lato text-lg font-bold text-gray-900">
           <span>Chats</span>
           <span className="rounded-full bg-gray-100 px-2 py-0.5 font-sans text-xs font-bold text-gray-600">
             {threads.length}
@@ -228,7 +228,7 @@ const ChatMessagesSection = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="mx-auto flex min-h-0 flex-1 max-w-lg flex-col items-center justify-center py-16 px-6 text-center">
+      <div className="mx-auto font-lato flex min-h-0 flex-1 max-w-lg flex-col items-center justify-center py-16 px-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900">Your chats</h1>
         <p className="mt-3 text-gray-600">
           Sign in to see enquiries and message experts you&apos;ve contacted.

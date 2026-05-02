@@ -1,52 +1,62 @@
-/** Google Drive file IDs for pricing-page testimonial embeds (use /preview URL in iframe). */
+/** MP4/MOV files under `public/mp4/testimonials` (encoded for spaces / punctuation). */
+export function pricingTestimonialVideoSrc(filename) {
+  return `/mp4/testimonials/${encodeURIComponent(filename)}`;
+}
+
 export const PRICING_TESTIMONIAL_VIDEOS = [
   {
-    driveId: "1b7gZm4sulnLe1dFE6-IGtaB33QosZbGx",
-    name: "Testimonial (Fitly)",
-    stripLabel: "Fitly",
+    src: pricingTestimonialVideoSrc("testmonial fitly.mp4"),
+    name: "Fitly coach growth story",
+    stripLabel: "Fitly Coach",
   },
   {
-    driveId: "1Iz0NL48D-TfW-4-G3BMg8JEfVSNErYxP",
-    name: "Testimonial",
-    stripLabel: "MOV",
+    src: pricingTestimonialVideoSrc("Video 1.mp4"),
+    name: "Coach visibility story",
+    stripLabel: "Visibility",
   },
   {
-    driveId: "1rEbJ57PFkyoqSvRGte5zLFogx680WkZS",
+    src: pricingTestimonialVideoSrc("Love the interface of the app.mp4"),
     name: "Love the app interface",
     stripLabel: "Interface",
   },
   {
-    driveId: "1VWo4RF0RY-548is-_jGjxPG51TYOx0Sp",
+    src: pricingTestimonialVideoSrc("Sales have boosted alot!!.mp4"),
     name: "Sales have boosted a lot",
     stripLabel: "Sales",
   },
   {
-    driveId: "1qWA1b2muj85lKvZml4wj_DLSfeLGV8iS",
+    src: pricingTestimonialVideoSrc(
+      "After using WellnessZ app by Mr. Pradeep Kumar Arya.mp4",
+    ),
     name: "After using WellnessZ — Pradeep Kumar Arya",
     stripLabel: "Pradeep A.",
   },
   {
-    driveId: "1lbQgH1DB-skQEe-hxoggTY7YrkIBxjUX",
+    src: pricingTestimonialVideoSrc("The app handles my clients so well!.mp4"),
     name: "The app handles my clients well",
     stripLabel: "Clients",
   },
   {
-    driveId: "1HqdMInVxMCWAODXDCb2Enhm8ET02TR1t",
-    name: "Fitness trainer",
+    src: pricingTestimonialVideoSrc("fitness trainer.mp4"),
+    name: "Fitness trainer experience",
     stripLabel: "Trainer",
   },
   {
-    driveId: "1UgkyS885lYkUo-CCZqiPo5tNuHEG83Oi",
-    name: "Video 2",
-    stripLabel: "Video 2",
+    src: pricingTestimonialVideoSrc("video 2.mp4"),
+    name: "Client management story",
+    stripLabel: "Client Wins",
   },
   {
-    driveId: "1TEYWmcx2NB8aUEankQVj_ae7vwL4ymHi",
-    name: "Video 1",
-    stripLabel: "Video 1",
+    src: pricingTestimonialVideoSrc("testimonial.MOV"),
+    name: "Coach success story",
+    stripLabel: "Success Story",
   },
 ];
 
 export function googleDrivePreviewUrl(driveId) {
   return `https://drive.google.com/file/d/${driveId}/preview`;
+}
+
+export function googleDriveThumbnailUrl(driveId) {
+  return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
 }

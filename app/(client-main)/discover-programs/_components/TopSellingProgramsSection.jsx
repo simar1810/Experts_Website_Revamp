@@ -476,12 +476,13 @@ export function TopSellingProgramsSection({
                       <TopProgramCard
                         key={p.id}
                         className={gridCardClassName}
+                        emphasizeHover
                         badgeLabel={p.badgeLabel}
                         name={p.name}
                         features={p.features}
                         price={p.price}
                         enrollLabel={
-                          alreadyEnrolled ? "GO TO PROGRAM" : p.enrollLabel
+                          alreadyEnrolled ? "Go to program" : p.enrollLabel
                         }
                         enrollHref={p.enrollHref}
                         deliveryTags={p.deliveryTags}

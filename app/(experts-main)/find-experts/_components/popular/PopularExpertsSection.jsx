@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { resolveListingId } from "@/lib/curatedShowcaseFromListing";
 import ExpertList from "../ExpertList";
+import {
+  PopularExpertsHeaderSkeleton,
+  PopularExpertsListSkeleton,
+} from "../ExpertsSectionSkeletons";
 import ExpertsPagination from "./ExpertsPagination";
 
 const DEFAULT_PAGE_SIZES = [10, 20, 50];
@@ -13,8 +17,8 @@ const FILTERS_SCROLL_OFFSET_PX = 96;
 export default function PopularExpertsSection({
   experts = [],
   loading = false,
-  /** When applied filters / page size change (not page number), smoothly scroll toward the filter rail start (desktop) or Popular Experts heading (mobile fallback). */
-  appliedFiltersScrollKey,
+  /** Increments only when the user clicks "Search Experts" in the hero; triggers smooth scroll toward results. */
+  scrollToResultsNonce = 0,
   filtersScrollTargetRef,
   page,
   onPageChange,
@@ -27,7 +31,7 @@ export default function PopularExpertsSection({
 }) {
   const [profilePaths, setProfilePaths] = useState({});
   const sectionTopRef = useRef(null);
-  const appliedFilterKeyPrevRef = useRef(null);
+  const scrollNoncePrevRef = useRef(null);
 
   const scrollListingHeaderIntoPlace = (behavior = "smooth") => {
     requestAnimationFrame(() => {
@@ -42,12 +46,11 @@ export default function PopularExpertsSection({
   };
 
   useEffect(() => {
-    if (appliedFiltersScrollKey === undefined) return;
-    const prev = appliedFilterKeyPrevRef.current;
-    appliedFilterKeyPrevRef.current = appliedFiltersScrollKey;
+    const prev = scrollNoncePrevRef.current;
+    scrollNoncePrevRef.current = scrollToResultsNonce;
     if (prev === null) return;
-    if (prev === appliedFiltersScrollKey) return;
-    /** Double rAF: let list height settle, then smoothly scroll toward the filters rail (desktop) or listing header (fallback). */
+    if (prev === scrollToResultsNonce) return;
+    /** Double rAF: let list height settle after fetch, then smoothly scroll toward the filters rail (desktop) or listing header (fallback). */
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const target =
@@ -63,7 +66,7 @@ export default function PopularExpertsSection({
         });
       });
     });
-  }, [appliedFiltersScrollKey, filtersScrollTargetRef]);
+  }, [scrollToResultsNonce, filtersScrollTargetRef]);
 
   const profilePathIdsKey = useMemo(
     () =>
@@ -108,51 +111,55 @@ export default function PopularExpertsSection({
     scrollListingHeaderIntoPlace("smooth");
   };
 
+  const listSkeletonCount = Math.min(Math.max(Number(pageSize) || 10, 3), 8);
+
   return (
     <div className="flex-1 min-w-0">
       <div
         ref={sectionTopRef}
-        className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6 sm:mb-8 text-left"
+        className="mb-6 flex flex-col gap-4 text-left sm:mb-8 sm:flex-row sm:items-end sm:justify-between"
       >
-        <div>
-          <h2 className="text-lg sm:text-3xl font-black text-gray-900 tracking-tight md:text-left">
-            <span className="md:hidden">Top Experts</span>
-            <span className="hidden md:inline">Popular Experts</span>
-          </h2>
-          <p className="text-gray-400 text-[10px] sm:text-sm mt-1 uppercase tracking-widest font-bold hidden sm:block">
-            Top rated wellness experts available for you
-          </p>
-        </div>
-        {typeof onPageSizeChange === "function" ? (
-          <label className="flex w-full shrink-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center">
-            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500 sm:text-xs">
-              Experts per page
-            </span>
-            <select
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm outline-none transition-colors hover:border-[#70C136] focus-visible:ring-2 focus-visible:ring-[#70C136]/35"
-              value={pageSize}
-              aria-label="Experts per page"
-              onChange={(e) => {
-                onPageSizeChange(Number(e.target.value));
-              }}
-              disabled={loading}
-            >
-              {pageSizeOptions.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
+        {loading ? (
+          <PopularExpertsHeaderSkeleton
+            showPageSize={typeof onPageSizeChange === "function"}
+          />
+        ) : (
+          <>
+            <div>
+              <h2 className="text-lg font-black tracking-tight text-gray-900 sm:text-3xl md:text-left">
+
+                <span className="md:inline">Popular Experts</span>
+              </h2>
+              <p className="mt-1 hidden text-[10px] font-bold uppercase tracking-widest text-gray-400 sm:block sm:text-sm">
+                Highly rated experts you can choose from
+              </p>
+            </div>
+            {typeof onPageSizeChange === "function" ? (
+              <label className="flex w-full shrink-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center">
+                <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500 sm:text-xs">
+                  Experts per page
+                </span>
+                <select
+                  className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm outline-none transition-colors hover:border-[#70C136] focus-visible:ring-2 focus-visible:ring-[#70C136]/35"
+                  value={pageSize}
+                  aria-label="Experts per page"
+                  onChange={(e) => {
+                    onPageSizeChange(Number(e.target.value));
+                  }}
+                >
+                  {pageSizeOptions.map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </>
+        )}
       </div>
 
-      {loading && (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-40 bg-gray-100 rounded-2xl" />
-          <div className="h-40 bg-gray-100 rounded-2xl" />
-        </div>
-      )}
+      {loading && <PopularExpertsListSkeleton count={listSkeletonCount} />}
 
       {!loading && experts.length === 0 && (
         <p className="text-center text-gray-500 font-medium py-16">

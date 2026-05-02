@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { topProgramsContent } from "@/lib/data/landingContent";
+import { cn } from "@/lib/utils";
 import { TopProgramCard } from "./TopProgramCard";
 
 /** Horizontal “TOP PROGRAMS” strip (forest panel) — separate from THE TOP EXPERTS. */
@@ -13,16 +13,22 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
     Array.isArray(programsFromApi) && programsFromApi.length > 0
       ? programsFromApi
       : c.programs;
-  const stripRef = useRef(null);
 
-  const scrollStrip = (dir) => {
-    const el = stripRef.current;
-    if (!el) return;
-    const card = el.querySelector("[data-program-card]");
-    const gap = 24;
-    const step = (card?.offsetWidth ?? 552) + gap;
-    el.scrollBy({ left: dir * step, behavior: "smooth" });
-  };
+  const [marqueePaused, setMarqueePaused] = useState(false);
+  const marqueeHoverDepth = useRef(0);
+
+  const onMarqueeCardEnter = useCallback(() => {
+    marqueeHoverDepth.current += 1;
+    setMarqueePaused(true);
+  }, []);
+
+  const onMarqueeCardLeave = useCallback(() => {
+    marqueeHoverDepth.current -= 1;
+    if (marqueeHoverDepth.current <= 0) {
+      marqueeHoverDepth.current = 0;
+      setMarqueePaused(false);
+    }
+  }, []);
 
   const getProgramHref = (program) => {
     const params = new URLSearchParams();
@@ -33,50 +39,52 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
     return `/discover-programs?${params.toString()}#top-selling-programs`;
   };
 
+  const marqueePrograms = [...programs, ...programs];
+
   return (
     <section
       id="top-programs"
       className="scroll-mt-24 bg-[#03632C] py-14 sm:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-row items-center justify-between gap-4 sm:items-end">
-          <h2 className="text-2xl sm:text-3xl lg:text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
-            <span className="text-white">{c.titleLight}</span>
-            <span className="text-[#9AF45D]">{c.titleHighlight}</span>
-          </h2>
-          <div className="hidden sm:flex shrink-0 justify-end gap-2 sm:pb-0.5">
-            <button
-              type="button"
-              aria-label="Previous programs"
-              onClick={() => scrollStrip(-1)}
-              className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
-            >
-              <ArrowLeft className="size-5" strokeWidth={2} />
-            </button>
-            <button
-              type="button"
-              aria-label="Next programs"
-              onClick={() => scrollStrip(1)}
-              className="flex size-11 items-center justify-center rounded-full border border-white/40 bg-transparent text-white transition-colors hover:bg-white/10"
-            >
-              <ArrowRight className="size-5" strokeWidth={2} />
-            </button>
-          </div>
-        </div>
+        <h2 className="text-2xl sm:text-3xl lg:text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
+          <span className="text-white">{c.titleLight}</span>
+          <span className="text-[#9AF45D]">{c.titleHighlight}</span>
+        </h2>
 
-        <div
-          ref={stripRef}
-          // className="scrollbar-hide mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
-          className=" scrollbar-hide mt-10 flex flex-col gap-6 sm:flex-row sm:snap-x sm:snap-mandatory sm:overflow-x-auto sm:pb-2 sm:pl-0.5 sm:mt-12 sm:-mx-2 sm:px-2"
-        >
+        <div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:hidden">
           {programs.map((p) => (
             <TopProgramCard
               key={p.id}
               {...p}
+              emphasizeHover
               enrollLabel="VIEW PROGRAM"
               enrollHref={getProgramHref(p)}
             />
           ))}
+        </div>
+
+        <div className="relative mt-10 hidden sm:mt-12 sm:block sm:overflow-hidden sm:pb-2 sm:-mx-2 sm:px-2">
+          <div
+            className={cn(
+              "flex w-max gap-6 animate-top-programs-marquee motion-reduce:animate-none",
+            )}
+            style={{
+              animationPlayState: marqueePaused ? "paused" : "running",
+            }}
+          >
+            {marqueePrograms.map((p, i) => (
+              <TopProgramCard
+                key={`${p.id}-marquee-${i}`}
+                {...p}
+                emphasizeHover
+                enrollLabel="VIEW PROGRAM"
+                enrollHref={getProgramHref(p)}
+                onMarqueeHoverEnter={onMarqueeCardEnter}
+                onMarqueeHoverLeave={onMarqueeCardLeave}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="mt-10 flex justify-center sm:mt-12">

@@ -6,7 +6,7 @@ import { curatedContent } from "@/lib/data/landingContent";
 import { SectionHeading } from "./SectionHeading";
 import { CoachShowcaseCard } from "./CoachShowcaseCard";
 
-/** Same experts as `/experts` static list; original section layout/typography unchanged. */
+/** Same experts as `/experts` static list; original section layout/typography unchanged except heading. */
 export function CuratedEliteSection() {
   const c = curatedContent;
 
@@ -28,13 +28,19 @@ export function CuratedEliteSection() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center mb-16">
           <SectionHeading
-            title={c.titleBefore}
-            titleHighlight={c.titleHighlight}
+            title={
+              <>
+                <span className="block">{c.headingLine1}</span>
+                <span className="block">
+                  {c.headingLine2Prefix}
+                  <span className="text-wz-top-green">{c.headingLine2Highlight}</span>
+                </span>
+              </>
+            }
             subtitle={c.description}
             align="center"
             className="max-w-3xl"
-            headingClassName="text-4xl md:text-5xl font-black tracking-tight text-neutral-900"
-            highlightClassName="text-wz-top-green"
+            headingClassName="space-x-0 font-black uppercase tracking-tight text-neutral-900 text-[1.65rem] leading-[1.08] sm:text-3xl md:text-[2.75rem] md:leading-[1.06] lg:text-5xl"
             subtitleClassName="mt-6 text-lg text-neutral-600 font-medium leading-relaxed"
           />
         </div>

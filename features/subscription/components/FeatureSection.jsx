@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { features } from "../utils/config";
@@ -7,85 +8,36 @@ import { cn } from "@/lib/utils";
 import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const VISUALS = [
-  { variant: "discovery", accent: "from-[#0d4f1c]/90 via-[#1b5e20] to-[#2e7d32]" },
-  { variant: "programs", accent: "from-[#14532d] via-[#166534] to-[#22c55e]/80" },
-  { variant: "connect", accent: "from-[#0f3d1a] to-[#4ade80]/60" },
+  { src: "/images/Brand-1.png", alt: "ZeeFit brand discovery visual" },
+  { src: "/images/Brand-2.png", alt: "ZeeFit brand reach visual" },
+  { src: "/images/Brand-3.png", alt: "ZeeFit brand join visual" },
 ];
 
 function FeatureVisual({ index }) {
+const visual = VISUALS[index % VISUALS.length];
   const { displayName } = useBrandingContext()
   console.log({ displayName })
   const n = String(index + 1).padStart(2, "0");
   const style = VISUALS[index % VISUALS.length];
 
+
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-2xl md:rounded-3xl",
-        "aspect-[4/3] min-h-[220px] sm:aspect-[5/4] md:min-h-0 md:aspect-[3/4]",
-        "ring-1 ring-black/[0.04] ring-inset"
+        "relative w-full overflow-hidden rounded-2xl bg-[#a6cf88] md:rounded-3xl",
+        "aspect-4/5 min-h-[260px] md:min-h-0",
+        "ring-1 ring-black/4 ring-inset"
       )}
     >
-      <div
-        className={cn(
-          "absolute inset-0 bg-gradient-to-br",
-          style.accent
-        )}
+      <Image
+        src={visual.src}
+        alt={visual.alt}
+        fill
+        sizes="(min-width: 768px) 50vw, 100vw"
+        className="object-cover"
+        priority={index === 0}
       />
-      {/* Soft light bloom */}
-      <div className="absolute -right-1/4 -top-1/4 h-3/4 w-3/4 rounded-full bg-white/20 blur-3xl" />
-      <div className="absolute -bottom-1/4 -left-1/4 h-1/2 w-1/2 rounded-full bg-[#bbf7d0]/30 blur-3xl" />
-      {/* Grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.12]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 32V0h32' fill='none' stroke='white' stroke-width='0.5'/%3E%3C/svg%3E")`,
-        }}
-      />
-      {/* Large step number */}
-      <div className="absolute left-4 top-4 md:left-6 md:top-6">
-        <span
-          className="text-[4.5rem] font-black leading-none tracking-tighter text-white/[0.12] sm:text-7xl md:text-8xl"
-          aria-hidden
-        >
-          {n}
-        </span>
       </div>
-      {/* Center mark — abstract Z / brand shape */}
-      <div className="absolute inset-0 flex items-center justify-center p-8">
-        {style.variant === "discovery" && (
-          <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-sm md:h-32 md:w-32">
-            <svg viewBox="0 0 40 40" className="h-14 w-14 text-white/90 md:h-16 md:w-16" fill="currentColor" aria-hidden>
-              <path d="M8 8h24l-8 10h6L12 32h8l10-12h-5l3-4H8V8z" opacity="0.95" />
-            </svg>
-          </div>
-        )}
-        {style.variant === "programs" && (
-          <div className="grid grid-cols-2 gap-2 md:gap-3">
-            {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-12 w-12 rounded-lg border border-white/25 bg-white/10 shadow-lg backdrop-blur-sm md:h-14 md:w-14"
-              />
-            ))}
-          </div>
-        )}
-        {style.variant === "connect" && (
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-2 w-20 rounded-full bg-white/30" />
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-white/90" />
-              <div className="h-0.5 w-12 bg-white/40" />
-              <div className="h-3 w-3 rounded-full border-2 border-white/60 bg-white/20" />
-            </div>
-            <div className="h-2 w-16 rounded-full bg-white/20" />
-          </div>
-        )}
-      </div>
-      <p className="absolute bottom-4 right-4 max-w-[10rem] text-right text-[10px] font-medium uppercase tracking-[0.2em] text-white/50 md:bottom-6 md:right-6 md:text-xs">
-        {displayName} for coaches
-      </p>
-    </div>
   );
 }
 
@@ -115,7 +67,7 @@ export default function FeatureSection() {
                 >
                   <div
                     className={cn(
-                      "p-4 sm:p-6 md:p-0",
+                      "p-4 sm:p-6 md:p-6",
                       isReversed ? "md:pr-8 md:pl-10" : "md:pl-8 md:pr-6"
                     )}
                   >
@@ -171,7 +123,7 @@ export default function FeatureSection() {
                         className="h-12 rounded-xl bg-[#2E7D32] px-7 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628] md:h-12 md:px-8"
                       >
                         <a href="#pricing-hero-video" className="inline-flex items-center gap-2">
-                          See How It Works
+                          JOIN ZEEFIT
                           <ArrowRight className="h-4 w-4 opacity-90" />
                         </a>
                       </Button>

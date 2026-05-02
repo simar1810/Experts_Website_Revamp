@@ -4,7 +4,6 @@ import FeatureSection from "@/features/subscription/components/FeatureSection"
 import HeroPricing from "@/features/subscription/components/HeroPricing"
 import PricingSection from "@/features/subscription/components/PricingSection"
 import TestimonialShowcase from "@/features/subscription/components/TestimonialShowcase"
-import ZCoachSection from "@/features/subscription/components/ZCoachSection"
 import { PRICING_TESTIMONIAL_VIDEOS } from "@/features/subscription/utils/testimonialVideos"
 
 export default function Page() {
@@ -19,7 +18,6 @@ export default function Page() {
 			/>
 			<DeliverySection />
 			<PricingSection />
-			<ZCoachSection />
 		</main>
 	)
 }

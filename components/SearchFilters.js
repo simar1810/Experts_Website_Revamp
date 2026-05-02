@@ -911,6 +911,7 @@ export default function SearchFilters({
   locationQuery,
   setLocationQuery,
   onSearch,
+  onSearchButtonClick,
   /** When set, search uses backend geo + radius (km); cleared when user types or picks a city from the list */
   clientLocation,
   setClientLocation,
@@ -1016,6 +1017,17 @@ export default function SearchFilters({
       }
     }, 0);
   }, [onSearch]);
+
+  const runSearchFromButton = useCallback(() => {
+    locationFieldRef.current?.syncBeforeSearch?.();
+    setTimeout(() => {
+      if (typeof onSearchButtonClick === "function") {
+        onSearchButtonClick();
+      } else if (typeof onSearch === "function") {
+        onSearch();
+      }
+    }, 0);
+  }, [onSearch, onSearchButtonClick]);
 
   const specialityMatches = useMemo(
     () =>
@@ -1164,7 +1176,7 @@ export default function SearchFilters({
 
       <button
         type="button"
-        onClick={runSearch}
+        onClick={runSearchFromButton}
         className={`shrink-0 transition-all active:scale-[0.98] whitespace-nowrap ${buttonClassName}`}
       >
         {buttonText === "Search" && (

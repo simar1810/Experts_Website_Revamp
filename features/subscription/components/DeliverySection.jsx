@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const faqs = [
   {
@@ -35,6 +36,47 @@ const faqs = [
   },
 ];
 
+const appMockups = [
+  {
+    src: "/images/pricing/mockups/Mock-2.png",
+    alt: "WellnessZ app meals and recipes screen",
+  },
+  {
+    src: "/images/pricing/mockups/Mock-3.png",
+    alt: "WellnessZ app progress screen",
+  },
+];
+
+function ZeeFitAppMockup() {
+  return (
+    <div className="relative -mx-8 flex min-h-[600px] w-[calc(100%+4rem)] items-center justify-center overflow-visible px-8">
+      <div className="absolute h-[540px] w-[540px] rounded-full bg-[#67BC2A]/15 blur-3xl" />
+
+      <div className="relative flex w-full max-w-[640px] items-center justify-center">
+        {appMockups.map((mockup, index) => (
+          <div
+            key={mockup.src}
+            className={`relative aspect-[9/19.5] w-[58%] max-w-[280px] sm:w-[52%] ${
+              index === 0
+                ? "translate-x-10 rotate-[-5deg] sm:translate-x-16"
+                : "-translate-x-10 translate-y-10 rotate-[5deg] sm:-translate-x-16"
+            }`}
+          >
+            <Image
+              src={mockup.src}
+              alt={mockup.alt}
+              fill
+              sizes="(max-width: 768px) 58vw, 280px"
+              className="object-cover"
+              priority={index === 0}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function DeliverySection() {
   const [openIndex, setOpenIndex] = useState(0);
 
@@ -45,11 +87,7 @@ export default function DeliverySection() {
           Have questions before you get started?
         </h2>
         <div className="grid items-center gap-12 md:grid-cols-2">
-          <div className="relative flex justify-center">
-            <div className="absolute left-10 top-10 h-[420px] w-[220px] rotate-[-8deg] rounded-[32px] bg-black shadow-2xl" />
-
-            <div className="relative z-10 h-[460px] w-[240px] rounded-[36px] border border-gray-200 bg-gradient-to-br from-gray-200 to-gray-300 shadow-2xl" />
-          </div>
+          <ZeeFitAppMockup />
 
           <div className="rounded-2xl bg-gray-50 p-8 md:p-10">
             <div className="space-y-4">

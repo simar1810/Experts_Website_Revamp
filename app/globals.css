@@ -4,6 +4,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@keyframes top-programs-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
 /* Prevent horizontal overflow without breaking position: sticky (hidden forces overflow-y: auto). */
 html,
 body {
@@ -46,6 +55,17 @@ html {
 
   .font-playfair {
     font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+  }
+
+  .animate-top-programs-marquee {
+    animation: top-programs-marquee 50s linear infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-top-programs-marquee {
+      animation: none;
+    }
   }
 }
 
