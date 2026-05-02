@@ -1,7 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LoginModal from "@/components/LoginModal";
@@ -13,27 +12,17 @@ import { cn } from "@/lib/utils";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import WellnessZLogoLink from "@/components/WellnessZLogoLink";
 import Image from "next/image";
+import GetStartedModal from "@/components/GetStartedModal";
 
-const GetStartedModal = dynamic(() => import("@/components/GetStartedModal"), {
-  ssr: false,
-  loading: () => (
-    <div
-      className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/45"
-      role="progressbar"
-      aria-label="Loading sign up"
-      aria-busy="true"
-    >
-      <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-white/25 border-t-white" />
-    </div>
-  ),
-});
-export default function ClientNavbar({ isDashboard }) {
-  const pathname = usePathname()
-  if (["/experts"].includes(pathname)) return <></>
-  return <Container isDashboard={isDashboard} />
+export default function ClientNavbar({ isDashboard, hideNavLinks = false }) {
+  const pathname = usePathname();
+  if (["/experts"].includes(pathname)) return <></>;
+  return (
+    <Container isDashboard={isDashboard} hideNavLinks={hideNavLinks} />
+  );
 }
 
-function Container({ isDashboard = false }) {
+function Container({ isDashboard = false, hideNavLinks = false }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -47,11 +36,6 @@ function Container({ isDashboard = false }) {
     openRegisterModal,
     closeRegisterModal,
   } = useAuth();
-
-  const [registerModalHydrated, setRegisterModalHydrated] = useState(false);
-  useEffect(() => {
-    if (isRegisterModalOpen) setRegisterModalHydrated(true);
-  }, [isRegisterModalOpen]);
 
   const handleLogout = () => {
     logout();
@@ -146,23 +130,17 @@ function Container({ isDashboard = false }) {
             {!isDashboard && (
               <button
                 type="button"
-                aria-expanded={isMobileMenuOpen}
-                aria-controls="client-nav-mobile-menu"
-                aria-label={
-                  isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"
-                }
                 className="rounded-lg p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-black md:hidden"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? (
-                  <X className="h-5 w-5 shrink-0" aria-hidden />
+                  <X className="h-5 w-5" />
                 ) : (
                   <Image
                     src="/svg/hamburger.svg"
                     height={20}
                     width={20}
-                    alt=""
-                    aria-hidden
+                    alt="Hamburger menu"
                   />
                 )}
               </button>
@@ -170,7 +148,7 @@ function Container({ isDashboard = false }) {
           </div>
         </nav>
 
-        {!isDashboard && isMobileMenuOpen && (
+        {!isDashboard && !hideNavLinks && isMobileMenuOpen && (
           <div
             id="client-nav-mobile-menu"
             className="md:hidden bg-white border-t border-gray-100"
@@ -212,12 +190,10 @@ function Container({ isDashboard = false }) {
         )}
       </header>
 
-      {registerModalHydrated ? (
-        <GetStartedModal
-          isOpen={isRegisterModalOpen}
-          onClose={closeRegisterModal}
-        />
-      ) : null}
+      <GetStartedModal
+        isOpen={isRegisterModalOpen}
+        onClose={closeRegisterModal}
+      />
 
       <LoginModal
         isOpen={isLoginModalOpen}

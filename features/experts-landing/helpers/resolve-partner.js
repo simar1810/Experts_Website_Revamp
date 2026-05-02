@@ -1,20 +1,14 @@
 "use server";
 
 import { headers } from "next/headers";
-
-function normalizeHost(value = "") {
-  return String(value)
-    .split(",")[0]
-    .split(":")[0]
-    .trim()
-    .toLowerCase();
-}
+import { normalizeHost } from "@/lib/shopHost";
 
 /**
  * Decide if the request is for a tenant-specific (whitelabel) experts listing.
  *
  * Host examples:
  * - zeefit.in, www.zeefit.in → main marketing site (no tenant)
+ * - shop.zeefit.in → product shop host (not a tenant; no partner)
  * - acme.zeefit.in → tenant "acme"
  * - brand.localhost → tenant "brand" (local dev)
  * - localhost, localhost:3000 → main site
@@ -29,6 +23,15 @@ export const resolvePartner = async function () {
   let parts = host.split(".");
   if (parts[0] === "www") {
     parts.shift();
+  }
+
+  if (parts[0] === "shop") {
+    const url = new URL(pathnameRaw);
+    return {
+      success: false,
+      partner: null,
+      pathname: url.pathname || "/",
+    };
   }
 
   let partner = null;

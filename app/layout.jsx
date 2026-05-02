@@ -5,7 +5,9 @@ import { Toaster } from "react-hot-toast";
 import { Geist, Lato, Lexend, Manrope, Playfair_Display } from "next/font/google";
 import ClientMainLayoutShell from "./(client-main)/ClientMainLayoutShell";
 import { ValuesProvider } from "@/context/valuesContext";
-import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner"
+import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner";
+import { headers } from "next/headers";
+import { isShopRequestHost, normalizeHost } from "@/lib/shopHost";
 import { SWRConfig } from "swr";
 import "./globals.css"
 
@@ -45,7 +47,15 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const { success, partner, pathname } = await resolvePartner()
+  const { success, partner, pathname } = await resolvePartner();
+  const headersList = await headers();
+  const host = normalizeHost(
+    headersList.get("x-forwarded-host") || headersList.get("host") || "",
+  );
+  const hideShopNavLinks = isShopRequestHost(
+    host,
+    process.env.SHOP_HOSTNAME || "shop.zeefit.in",
+  );
   return (
     <html lang="en" className="overflow-x-clip h-full" suppressHydrationWarning>
       <body
@@ -88,7 +98,7 @@ export default async function RootLayout({ children }) {
             {success && ["", "/"].includes(pathname) && <ExpertListing partner={partner} />}
             <ValuesProvider>
               {(!success || !["", "/"].includes(pathname)) && <BrandingProvider success={success} partner={partner}>
-                <ClientMainLayoutShell>
+                <ClientMainLayoutShell hideShopNavLinks={hideShopNavLinks}>
                   {children}
                 </ClientMainLayoutShell>
               </BrandingProvider>}
