@@ -11,7 +11,7 @@ export const features = [
     kicker: "Discovery & reach",
     title: "Turn Your Coaching Into a Discoverable Brand",
     description: [
-      "Most coaches don’t lack skill they lack a steady flow of serious, high paying clients. ZeeFit connects your programs with people are ready to invest in.",
+      "Most coaches don’t lack skill they lack a steady flow of serious, high paying clients. Zeefit connects your programs with people are ready to invest in.",
     ],
     subFeatures: [
       "Program Discovery Platform",
@@ -24,7 +24,7 @@ export const features = [
     kicker: "Programs & offers",
     title: "Turn Client Interest Into Program Sales",
     description: [
-      "Getting attention is easy. Turning it into paying clients is the real challenge. ZeeFit helps people understand your programs and take the next step.",
+      "Getting attention is easy. Turning it into paying clients is the real challenge. Zeefit helps people understand your programs and take the next step.",
     ],
     subFeatures: [
       "Create and List Your Programs",
@@ -37,7 +37,7 @@ export const features = [
     kicker: "Client conversations",
     title: "Connect With Clients at the Right Moment",
     description: [
-      "ZeeFit shows your programs to people who are ready to start. So you get fewer random chats and more serious client conversations.",
+      "Zeefit shows your programs to people who are ready to start. So you get fewer random chats and more serious client conversations.",
     ],
     subFeatures: [
       "Direct Session Bookings",
