@@ -17,7 +17,7 @@ export default function LocationBlock({ coachData }) {
                 {/* 1. Text Information */}
                 <div className="flex-1 space-y-10">
                     <h2 className="text-3xl sm:text-4xl font-black text-[#0D3B1E] tracking-tight">
-                        Visit the Office
+                        On-site location 
                     </h2>
 
                     <div className="space-y-8">
