@@ -132,22 +132,7 @@ export default function DeliverySection() {
               })}
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-gray-500">
-                My question is not here.
-              </p>
-
-              <Button
-                asChild
-                className="w-full bg-black text-white hover:bg-black/90 sm:w-auto"
-              >
-                <a
-                  href={supportHref}
-                >
-                  CONNECT US ↗
-                </a>
-              </Button>
-            </div>
+            
           </div>
         </div>
       </div>
