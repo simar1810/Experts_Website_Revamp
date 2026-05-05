@@ -585,8 +585,8 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                   })}
               </div>
             </section>
-
-            <section className="py-4">
+            {/* TODO: Future Scope */}
+            {/* <section className="py-4">
               <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-3">
                 <input
                   type="checkbox"
@@ -603,7 +603,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                   </span>
                 </span>
               </label>
-            </section>
+            </section> */}
 
             <section className="py-4">
               <button
@@ -816,7 +816,8 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
               ))}
             </div>
           </div>
-          <div className="space-y-4 border-t border-gray-100 pt-6">
+          {/* TODO: Future Scope */}
+          {/* <div className="space-y-4 border-t border-gray-100 pt-6">
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/90 px-3 py-3">
               <input
                 type="checkbox"
@@ -833,7 +834,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                 </span>
               </span>
             </label>
-          </div>
+          </div> */}
           <div className="space-y-4 border-t border-gray-100 pt-6">
             <button
               type="button"
