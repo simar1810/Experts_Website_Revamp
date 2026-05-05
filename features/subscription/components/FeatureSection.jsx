@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const VISUALS = [
-  { src: "/images/Brand-1.png", alt: "Zeefit brand discovery visual" },
+  { src: "/images/Brand-4.png", alt: "Zeefit brand discovery visual" },
   { src: "/images/Brand-2.png", alt: "Zeefit brand reach visual" },
   { src: "/images/Brand-3.png", alt: "Zeefit brand join visual" },
 ];
