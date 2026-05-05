@@ -1024,7 +1024,7 @@ export default function SearchFilters({
 
   return (
     <div
-      className={`relative z-[1] flex flex-col lg:flex-row items-stretch gap-1 ${containerClassName}`}
+      className={`relative flex flex-col lg:flex-row items-stretch gap-1 ${containerClassName}`}
     >
       {/* Speciality Input — choose from list only (typing filters). */}
       <div className="flex w-full min-w-0 flex-col gap-1.5 sm:contents">

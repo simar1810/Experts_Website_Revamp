@@ -131,7 +131,7 @@ export function PrecisionSelectionSection() {
               theme="light"
               specialityFieldLabel={c.field1Label}
               locationFieldLabel={c.field2Label}
-              containerClassName="relative z-10 flex w-full flex-col gap-3 overflow-visible bg-transparent sm:flex-row sm:flex-wrap sm:gap-4"
+              containerClassName="relative z-40 flex w-full flex-col gap-3 overflow-visible bg-transparent sm:flex-row sm:flex-wrap sm:gap-4"
               inputWrapperClassName="min-h-[3rem] rounded-xl border-0 border-b-0 bg-[#A7A7A71A] py-2.5 sm:flex-1 sm:min-w-0"
               buttonClassName="basis-full w-full rounded-xl bg-gradient-to-r from-wz-lime to-wz-forest py-[1.05rem] text-[0.8125rem] font-extrabold uppercase tracking-[0.12em] text-white shadow-md hover:opacity-95 sm:text-sm sm:tracking-[0.22em]"
               buttonText={c.submitLabel}
