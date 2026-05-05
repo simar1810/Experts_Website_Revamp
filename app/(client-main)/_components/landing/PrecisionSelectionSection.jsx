@@ -1,28 +1,29 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
+import { Smile } from "lucide-react";
 import SearchFilters from "@/components/SearchFilters";
-import { useValues } from "@/context/valuesContext";
-import { availableSpecialities } from "@/lib/data/specialities";
 import { precisionContent } from "@/lib/data/landingContent";
+
+const LANDING_SPECIALITY_OPTIONS = [
+  "Yoga",
+  "Strength Training",
+  "Pilates",
+  "Zumba",
+  "HIIT",
+  "Physiotherapy",
+  "Sports Nutrition",
+  "Clinical Nutrition",
+  "Home Workouts",
+  "Weightlifting",
+];
 
 export function PrecisionSelectionSection() {
   const router = useRouter();
-  const { values } = useValues();
   const c = precisionContent;
 
-  const specialityOptions = useMemo(() => {
-    const v = values?.expertise_categories;
-    if (Array.isArray(v) && v.length > 0) {
-      const merged = [...new Set(v.filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b, undefined, { sensitivity: "base" }),
-      );
-      if (merged.length > 0) return merged;
-    }
-    return availableSpecialities;
-  }, [values?.expertise_categories]);
+  const specialityOptions = useMemo(() => LANDING_SPECIALITY_OPTIONS, []);
 
   const [selectedSpecialities, setSelectedSpecialities] = useState([]);
   const [locationQuery, setLocationQuery] = useState("");
@@ -83,15 +84,7 @@ export function PrecisionSelectionSection() {
             >
               <div className="flex items-center gap-2.5 rounded-xl border border-wz-deep-forest/8 bg-wz-mint/90 px-3 py-2.5 shadow-[0_10px_28px_-10px_rgba(0,77,0,0.28)] backdrop-blur-[2px] sm:gap-3 sm:rounded-2xl sm:px-3.5 sm:py-3">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#25D366] sm:size-11">
-                  <Image
-                    src="/icons/campaign.png"
-                    alt=""
-                    width={27}
-                    height={21}
-                    className="h-5 w-auto object-contain sm:h-4 sm:w-auto"
-                    sizes="27px"
-                    aria-hidden
-                  />
+                  <Smile className="size-5 text-white sm:size-6" aria-hidden />
                 </div>
                 <div className="min-w-0 text-left">
                   <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-neutral-600 sm:text-[10px] italic">
