@@ -143,7 +143,7 @@ export default function StoriesContact({ details, reviews = [], coachRefDoc }) {
         >
           <div>
             <h3 className="text-4xl font-extrabold text-[#0d3b1f]">
-              Visit the Sanctuary
+              On-site location       
             </h3>
             <div className="mt-4 space-y-5 text-sm text-[#1d3327]">
               <div className="flex gap-3">

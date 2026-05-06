@@ -75,7 +75,7 @@ export default function PlanSales({ plan, months = 1 }) {
             {price}
           </span>
           <span className="text-sm font-medium text-white/80">
-            {months === 12 ? "/year" : "/monthly"}
+            {months === 12 ? "/year" : "/month"}
           </span>
         </div>
 

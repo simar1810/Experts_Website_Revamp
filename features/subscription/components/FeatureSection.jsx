@@ -8,18 +8,13 @@ import { cn } from "@/lib/utils";
 import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const VISUALS = [
-  { src: "/images/Brand-1.png", alt: "ZeeFit brand discovery visual" },
-  { src: "/images/Brand-2.png", alt: "ZeeFit brand reach visual" },
-  { src: "/images/Brand-3.png", alt: "ZeeFit brand join visual" },
+  { src: "/images/Brand-4.png", alt: "Zeefit brand discovery visual" },
+  { src: "/images/Brand-2.png", alt: "Zeefit brand reach visual" },
+  { src: "/images/Brand-3.png", alt: "Zeefit brand join visual" },
 ];
 
 function FeatureVisual({ index }) {
-const visual = VISUALS[index % VISUALS.length];
-  const { displayName } = useBrandingContext()
-  console.log({ displayName })
-  const n = String(index + 1).padStart(2, "0");
-  const style = VISUALS[index % VISUALS.length];
-
+  const visual = VISUALS[index % VISUALS.length];
 
   return (
     <div
@@ -42,6 +37,7 @@ const visual = VISUALS[index % VISUALS.length];
 }
 
 export default function FeatureSection() {
+  const { displayName } = useBrandingContext();
   return (
     <section className="w-full bg-[#f4f6f8]">
       <div className="relative mx-auto max-w-[1200px] space-y-8 px-4 py-6 md:space-y-0 md:px-6 md:py-0 md:pb-16">
@@ -123,7 +119,7 @@ export default function FeatureSection() {
                         className="h-12 rounded-xl bg-[#2E7D32] px-7 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628] md:h-12 md:px-8"
                       >
                         <a href="#pricing-hero-video" className="inline-flex items-center gap-2">
-                          JOIN ZEEFIT
+                          {`JOIN ${displayName.toUpperCase()}`}
                           <ArrowRight className="h-4 w-4 opacity-90" />
                         </a>
                       </Button>

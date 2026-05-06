@@ -54,7 +54,7 @@ const HeroPricing = function () {
             Instagram views do not always become paying clients. {displayName} helps your coaching get seen by people who are looking to start and are ready to commit.
           </p>
           <div className="mb-6 inline-block max-w-2xl rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-medium leading-snug backdrop-blur-md sm:px-6 md:mb-10 md:text-sm mx-5">
-            Powered by the WellnessZ ecosystem • 7000+ coaches • 20000+ clients
+            Powered by the WellnessZ ecosystem • 7000+ coaches • 25000+ clients
             served
           </div>
 

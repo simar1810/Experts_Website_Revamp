@@ -4,35 +4,36 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const faqs = [
   {
-    q: "Why should I join ZeeFit as a coach?",
-    a: "ZeeFit helps you get discovered by people who are already looking for a coach or a fitness program. Instead of depending only on social media or referrals, you get access to a more serious audience.",
+    q: "Why should I join Zeefit as a coach?",
+    a: "Zeefit helps you get discovered by people who are already looking for a coach or a fitness program. Instead of depending only on social media or referrals, you get access to a more serious audience.",
   },
   {
-    q: "How will ZeeFit help me get more clients?",
+    q: "How will Zeefit help me get more clients?",
     a: "Your programs are shown to people who are already exploring fitness and wellness solutions. This improves visibility and gives you a better chance of turning interest into paying clients.",
   },
   {
-    q: "Do I need a big following to grow on ZeeFit?",
-    a: "No. ZeeFit is built to help coaches grow beyond their personal audience. You do not need a large following to get discovered here.",
+    q: "Do I need a big following to grow on Zeefit?",
+    a: "No. Zeefit is built to help coaches grow beyond their personal audience. You do not need a large following to get discovered here.",
   },
   {
-    q: "What can I offer on ZeeFit?",
+    q: "What can I offer on Zeefit?",
     a: "You can list structured programs such as weight loss, muscle gain, lifestyle transformation, detox plans, niche coaching plans, and more.",
   },
   {
-    q: "How is ZeeFit different from Instagram?",
-    a: "Instagram gives reach. ZeeFit gives intent. People on ZeeFit are not just scrolling. They are actively looking to start something.",
+    q: "How is Zeefit different from Instagram?",
+    a: "Instagram gives reach. Zeefit gives intent. People on Zeefit are not just scrolling. They are actively looking to start something.",
   },
   {
     q: "Can clients contact me directly?",
     a: "Yes. Interested users can send enquiries or connect with you after viewing your profile or programs.",
   },
   {
-    q: "Is ZeeFit suitable for beginners?",
-    a: "Yes. Whether you are just starting or already experienced, ZeeFit helps you present your coaching in a more structured and professional way.",
+    q: "Is Zeefit suitable for beginners?",
+    a: "Yes. Whether you are just starting or already experienced, Zeefit helps you present your coaching in a more structured and professional way.",
   },
 ];
 
@@ -47,7 +48,7 @@ const appMockups = [
   },
 ];
 
-function ZeeFitAppMockup() {
+function BrandAppMockup() {
   return (
     <div className="relative -mx-8 flex min-h-[600px] w-[calc(100%+4rem)] items-center justify-center overflow-visible px-8">
       <div className="absolute h-[540px] w-[540px] rounded-full bg-[#67BC2A]/15 blur-3xl" />
@@ -79,6 +80,11 @@ function ZeeFitAppMockup() {
 
 export default function DeliverySection() {
   const [openIndex, setOpenIndex] = useState(0);
+  const { displayName } = useBrandingContext();
+  const replaceBrand = (text) => text.replaceAll("Zeefit", displayName);
+  const supportHref = `mailto:support@wellnessz.in?subject=${encodeURIComponent(
+    `${displayName} — question`,
+  )}`;
 
   return (
     <section className="w-full bg-white py-20">
@@ -87,7 +93,7 @@ export default function DeliverySection() {
           Have questions before you get started?
         </h2>
         <div className="grid items-center gap-12 md:grid-cols-2">
-          <ZeeFitAppMockup />
+          <BrandAppMockup />
 
           <div className="rounded-2xl bg-gray-50 p-8 md:p-10">
             <div className="space-y-4">
@@ -102,7 +108,7 @@ export default function DeliverySection() {
                       type="button"
                     >
                       <span className="text-base font-medium text-black">
-                        {faq.q}
+                        {replaceBrand(faq.q)}
                       </span>
 
                       <ChevronDown
@@ -118,7 +124,7 @@ export default function DeliverySection() {
                       }`}
                     >
                       <p className="text-sm leading-relaxed text-gray-500">
-                        {faq.a}
+                        {replaceBrand(faq.a)}
                       </p>
                     </div>
                   </div>
@@ -126,22 +132,7 @@ export default function DeliverySection() {
               })}
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-gray-500">
-                My question is not here.
-              </p>
-
-              <Button
-                asChild
-                className="w-full bg-black text-white hover:bg-black/90 sm:w-auto"
-              >
-                <a
-                  href="mailto:support@wellnessz.in?subject=ZeeFit%20—%20question"
-                >
-                  CONNECT US ↗
-                </a>
-              </Button>
-            </div>
+            
           </div>
         </div>
       </div>

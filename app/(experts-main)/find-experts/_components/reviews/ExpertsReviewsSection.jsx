@@ -1,9 +1,12 @@
 "use client";
 
+import { use } from "react";
 import ExpertsReviewCard from "./ExpertsReviewCard";
 import { testimonials } from "@/lib/data/landingContent"
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 export default function ExpertsReviewsSection() {
+  const {displayName} = useBrandingContext()
   return (
     <section className="relative py-20 md:py-28 overflow-hidden bg-gradient-to-b from-[#6eb832] via-[#5a9e28] to-[#2d5016] mt-20">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-lime-400/20 blur-[120px] rounded-full pointer-events-none" />
@@ -13,7 +16,7 @@ export default function ExpertsReviewsSection() {
           Trusted by People Starting  <span className="text-lime-200">Real Journeys</span>
         </h2>
         <p className="text-lime-50/80 text-sm md:text-base max-w-2xl mx-auto font-medium leading-relaxed">
-          From finding the right coach to starting the right program, here’s what users are saying about ZeeFit.
+          From finding the right coach to starting the right program, here’s what users are saying about {displayName}.
         </p>
       </div>
 

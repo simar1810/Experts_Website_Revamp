@@ -11,7 +11,7 @@ export const features = [
     kicker: "Discovery & reach",
     title: "Turn Your Coaching Into a Discoverable Brand",
     description: [
-      "Most coaches don’t lack skill they lack a steady flow of serious, high paying clients. ZeeFit connects your programs with people are ready to invest in.",
+      "Most coaches don’t lack skill they lack a steady flow of serious, high paying clients. Zeefit connects your programs with people are ready to invest in.",
     ],
     subFeatures: [
       "Program Discovery Platform",
@@ -24,7 +24,7 @@ export const features = [
     kicker: "Programs & offers",
     title: "Turn Client Interest Into Program Sales",
     description: [
-      "Getting attention is easy. Turning it into paying clients is the real challenge. ZeeFit helps people understand your programs and take the next step.",
+      "Getting attention is easy. Turning it into paying clients is the real challenge. Zeefit helps people understand your programs and take the next step.",
     ],
     subFeatures: [
       "Create and List Your Programs",
@@ -37,7 +37,7 @@ export const features = [
     kicker: "Client conversations",
     title: "Connect With Clients at the Right Moment",
     description: [
-      "ZeeFit shows your programs to people who are ready to start. So you get fewer random chats and more serious client conversations.",
+      "Zeefit shows your programs to people who are ready to start. So you get fewer random chats and more serious client conversations.",
     ],
     subFeatures: [
       "Direct Session Bookings",
@@ -52,31 +52,28 @@ export const plans = [
   {
     id: 1,
     code: "basic",
-    title: "BASIC",
+    title: "Basic Level Coach",
     description:
-      "For solo coaches starting structured coaching. Run your coaching practice cleanly without advanced automation.",
+      "For coaches who want better visibility, client management, and brand trust.",
     bestFor:
-      "Coaches with under 40 clients who still manage most follow-ups manually.",
+      "Better client discovery and profile credibility.",
     features: [
-      "Up to 40 active clients",
-      "Create meal plans",
-      "Create workout sessions using the library",
-      "Appointment booking",
-      "Online session scheduling",
-      "Group challenges",
-      "Activity tracker",
-      "Client progress tracking",
-      "Access to a food data base for easier meal planning",
-      "Group nudges only (same reminder to all clients)",
+      "Sponsored listing on Zeefit",
+      "WZ Assured trust badge",
+      "Premium placement compared to free listings",
+      "WellnessZ Basic Plan access for 20+ clients",
+      "Reach of 1,500+ people every day",
+      "Access to Zeefit partner fitness brands",
+      "Earn affiliate income from top health and fitness brands",
+      "Better client discovery and profile credibility",
     ],
-    buttonText: (renewal) => (renewal ? "Renew Now" : "Start your 14 day free trial"),
-    billingText: (months) =>
-      months === 1 ? "Billed Monthly" : "Billed Yearly",
+    buttonText: (renewal) => (renewal ? "Renew Now" : "Get Started"),
+    billingText: () => "Billed Monthly",
     originalPrice: (months, currency) => {
       if (months === 1 && currency === "INR") {
-        return 499;
+        return 700;
       } else if (months === 12 && currency === "INR") {
-        return 5_988;
+        return 8_400;
       } else if (months === 1 && currency === "USD") {
         return 19;
       } else if (months === 12 && currency === "USD") {
@@ -85,9 +82,9 @@ export const plans = [
     },
     discountedPrice: (months, currency, discountPercentage) => {
       if (months === 1 && currency === "INR") {
-        return (499 - (499 * discountPercentage * 0.01)).toFixed(0);
+        return (700 - (700 * discountPercentage * 0.01)).toFixed(0);
       } else if (months === 12 && currency === "INR") {
-        return (4_990 - (4_990 * discountPercentage * 0.01)).toFixed(0);
+        return (8_400 - (8_400 * discountPercentage * 0.01)).toFixed(0);
       } else if (months === 1 && currency === "USD") {
         return (19 - (19 * discountPercentage * 0.01)).toFixed(0);
       } else if (months === 12 && currency === "USD") {
@@ -98,31 +95,28 @@ export const plans = [
   {
     id: 2,
     code: "pro",
-    title: "PRO",
+    title: "Pro Level Coach",
     description:
-      "For full-time coaches scaling beyond manual effort. Built for personalisation, accuracy, and higher client volume.",
+      "For coaches who want stronger authority, visibility, and business growth support.",
     bestFor:
-      "Coaches managing 40+ clients who want to save time and scale without burnout. One retained client covers the entire monthly cost.",
+      "Stronger authority-building support for your coaching brand.",
     features: [
-      "Includes everything in Basic, plus",
-      "Up to 120 active clients",
-      "Personalised habit-based nudges (per client)",
-      "AI-powered health journaling",
-      "Access to 28,000+ ICMR & NIN verified food database",
-      "Advanced calorie & macro tracking",
-      "Pre-built condition-based meal plans",
-      "Pre-built goal-based workout plans",
-      "Offline attendance tracking (clinics, group meets)",
-      "Team management (assistants, junior coaches)",
+      "Everything in Basic Level Coach",
+      "Featured placement on Zeefit pages",
+      "Listing on WellnessZ and Zeefit discovery sections",
+      "Special references on WellnessZ and Zeefit social media",
+      "Blog/article placement opportunities",
+      "Partner listing opportunities",
+      "WellnessZ Pro Plan access to manage up to 80 clients",
+      "Stronger authority-building support for your coaching brand",
     ],
-    buttonText: (renewal) => (renewal ? "Renew Now" : "Start your 14 day free trial"),
-    billingText: (months) =>
-      months === 1 ? "Billed Monthly" : "Billed Yearly",
+    buttonText: (renewal) => (renewal ? "Renew Now" : "Get Started"),
+    billingText: () => "Billed Monthly",
     originalPrice: (months, currency) => {
       if (months === 1 && currency === "INR") {
-        return 999;
+        return 1_200;
       } else if (months === 12 && currency === "INR") {
-        return 11_988;
+        return 14_400;
       } else if (months === 1 && currency === "USD") {
         return 29;
       } else if (months === 12 && currency === "USD") {
@@ -131,9 +125,9 @@ export const plans = [
     },
     discountedPrice: (months, currency, discountPercentage = 100) => {
       if (currency === "INR" && months === 1) {
-        return (999 - (999 * discountPercentage * 0.01)).toFixed(0);
+        return (1_200 - (1_200 * discountPercentage * 0.01)).toFixed(0);
       } else if (currency === "INR" && months === 12) {
-        return (9990 - (9990 * discountPercentage * 0.01)).toFixed(0);
+        return (14_400 - (14_400 * discountPercentage * 0.01)).toFixed(0);
       } else if (currency === "USD" && months === 1) {
         return (29 - (29 * discountPercentage * 0.01)).toFixed(0);;
       } else if (currency === "USD" && months === 12) {
@@ -143,30 +137,31 @@ export const plans = [
   },
   {
     id: 3,
-    // code: "sales",
     code: "iosBranded",
-    title: "OWN YOUR COACHING APP",
-    description: "For established coaches building a long-term brand",
+    title: "Z Coach",
+    description: "For serious coaches who want their own branded coaching ecosystem.",
     bestFor:
-      "Coaches with 50+ active clients, clinics, or hybrid online + offline practices. This is not an app upgrade. This is ownership of your coaching business.",
-    buttonText: (renewal) => (renewal ? "Renew Now" : "Start your 14 day free trial"),
-    billingText: (months) =>
-      months === 1 ? "Billed Monthly" : "Billed Yearly",
+      "Best for coaches ready to build a premium coaching business.",
+    buttonText: (renewal) => (renewal ? "Renew Now" : "Get Started"),
+    billingText: () => "Billed Monthly",
     features: [
-      "All Pro plan features",
-      "Your app name on Play Store / App Store",
+      "Everything in Pro Level Coach",
+      "Your own branded coaching app",
+      "App live on Play Store and App Store",
       "Your logo, colors, and brand identity",
-      "Zero WellnessZ branding for clients",
-      "Complete web panel",
-      "Higher client trust & retention",
-      "Strong switching cost for clients",
+      "Premium expert profile on Zeefit",
+      "Higher visibility across Zeefit",
+      "Centralized Meta ads support",
+      "Stronger authority positioning",
+      "Listing on partnered nutrition brand websites",
+      "Unlimited client management",
+      "Unlimited storage on your own app",
     ],
-    buttonText: () => "Start your 14 day free trial",
     discountedPrice: (months, currency) => {
       if (months === 1 && currency === "INR") {
-        return 3_999;
+        return 8_000;
       } else if (months === 12 && currency === "INR") {
-        return 23_990;
+        return 96_000;
       } else if (months === 1 && currency === "USD") {
         return 69;
       } else if (months === 12 && currency === "USD") {
@@ -175,9 +170,9 @@ export const plans = [
     },
     originalPrice: (months, currency) => {
       if (months === 1 && currency === "INR") {
-        return 3_999;
+        return 8_000;
       } else if (months === 12 && currency === "INR") {
-        return 47_988;
+        return 96_000;
       } else if (months === 1 && currency === "USD") {
         return 69;
       } else if (months === 12 && currency === "USD") {
@@ -226,11 +221,12 @@ export const enterprisePlan = {
 
 export const freeTier = {
   features: [
-    "Full App Access",
-    "Client Management",
-    "Exercise & Meal Libraries",
-    "Progress Tracking",
-    "WhatsApp Reminders (Limited)"
+    "Basic coach profile listing on Zeefit",
+    "Visibility among listed coaches",
+    "WellnessZ app access for your first 3 clients",
+    "Tools to improve your profile presence",
+    "Reach of 1,000+ people on your profile",
+    "Best for new coaches who want to start getting discovered"
   ]
 }
 

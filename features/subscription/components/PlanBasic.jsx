@@ -39,7 +39,7 @@ export default function PlanBasic({ plan, months = 1 }) {
   return (
     <article
       className={cn(
-        "mx-auto flex h-full max-w-[380px] cursor-pointer flex-col overflow-hidden rounded-[40px] border-1 bg-white transition-all duration-300 select-none",
+        "mx-auto flex h-full max-w-[380px] cursor-pointer flex-col overflow-hidden rounded-[40px] border bg-white transition-all duration-300 select-none",
         selectedPlanCode === plan.code
           ? "ring-2 ring-[#67BC2A] shadow-2xl"
           : "hover:shadow-xl",
@@ -74,7 +74,7 @@ export default function PlanBasic({ plan, months = 1 }) {
             {price}
           </span>
           <span className="text-sm font-medium text-[#5F6571]">
-            {months === 12 ? "/year" : "/monthly"}
+            {months === 12 ? "/year" : "/month"}
           </span>
         </div>
 
