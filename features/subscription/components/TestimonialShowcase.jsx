@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LayoutGroup, motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 import {
   googleDrivePreviewUrl,
   googleDriveThumbnailUrl,
@@ -47,6 +48,7 @@ export default function TestimonialShowcase({
   testimonialsHref = "/testimonials",
   testimonialsLabel = "View all testimonials",
 }) {
+  const { displayName } = useBrandingContext();
   const n = videos?.length ?? 0;
   const [active, setActive] = useState(() => {
     const l = videos?.length ?? 0;
@@ -157,7 +159,7 @@ export default function TestimonialShowcase({
       </h2>
       <p className="relative z-10 mx-auto mt-4 max-w-[50ch] text-center text-sm text-white/90 md:mt-5 md:text-lg">
         Hear from coaches who are building stronger visibility and bigger client base
-        with ZeeFit.
+        {` with ${displayName}.`}
       </p>
       <p className="relative z-10 mt-4 text-center">
         <Link

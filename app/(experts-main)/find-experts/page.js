@@ -20,6 +20,7 @@ import ExpertsFiltersSidebar from "./_components/filters/ExpertsFiltersSidebar";
 import ExpertsFiltersBottomSheet from "./_components/filters/ExpertsFiltersBottomSheet";
 import PopularExpertsSection from "./_components/popular/PopularExpertsSection";
 import ExpertsReviewsSection from "./_components/reviews/ExpertsReviewsSection";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 /** Multiple landing / filter flows pass `speciality=a,b,c` (comma-separated). */
 function parseSpecialitiesFromSearchParam(value) {
@@ -32,6 +33,7 @@ function parseSpecialitiesFromSearchParam(value) {
 }
 
 function ExpertsPageInner() {
+  const {displayName} = useBrandingContext()
   const searchParams = useSearchParams();
   const specialityFromUrl = searchParams.get("speciality")?.trim() ?? "";
   const locationFromUrl = searchParams.get("location")?.trim() ?? "";
@@ -182,7 +184,7 @@ function ExpertsPageInner() {
 
         <div className="relative z-10 w-full max-w-5xl mx-auto space-y-3 sm:space-y-5 pt-8 md:pt-10 max-lg:hidden">
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
-            <span className="text-[#70C136]">ZeeFit</span> gives you access to top fitness experts.
+            <span className="text-[#70C136]">{displayName}</span> gives you access to top fitness experts.
           </h1>
           <div className="max-w-4xl mx-auto">
             <p className="text-white/80 text-[10px] sm:text-sm md:text-base leading-relaxed font-medium max-w-lg mx-auto line-clamp-2 sm:line-clamp-none">

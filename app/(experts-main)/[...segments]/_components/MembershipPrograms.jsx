@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -32,6 +33,33 @@ async function postWithAuth(endpoint, body) {
   return data;
 }
 
+async function getWithAuth(endpoint) {
+  const headers = {};
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("client_token");
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    method: "GET",
+    headers,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 && typeof window !== "undefined") {
+    localStorage.removeItem("client_token");
+    window.dispatchEvent(new Event("auth_unauthorized"));
+  }
+  if (!res.ok) {
+    throw new Error(data.message || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
+function isActiveEnrollment(enrollment) {
+  if (enrollment?.status !== "active") return false;
+  if (!enrollment?.endsAt) return true;
+  return new Date(enrollment.endsAt).getTime() > Date.now();
+}
+
 function loadRazorpayScript() {
   return new Promise((resolve) => {
     if (typeof window === "undefined") {
@@ -61,10 +89,16 @@ function ProgramCard({
   isAuthenticated,
   openLoginModal,
   user,
+  alreadyEnrolled = false,
 }) {
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
   const isPaid = programType !== "free";
-  const primaryLabel = isPaid ? "Enroll Now" : "Join free";
+  const primaryLabel = alreadyEnrolled
+    ? "Go to program"
+    : isPaid
+      ? "Enroll Now"
+      : "Join free";
 
   const handlePrimary = async () => {
     if (!programId) {
@@ -75,6 +109,10 @@ function ProgramCard({
       openLoginModal?.();
       return;
     }
+    if (alreadyEnrolled) {
+      router.push("/dashboard/programs");
+      return;
+    }
 
     if (!isPaid) {
       setBusy(true);
@@ -83,6 +121,7 @@ function ProgramCard({
           programId,
         });
         toast.success(res.message || "Joined successfully");
+        router.push("/dashboard/programs");
       } catch (e) {
         toast.error(e.message || "Could not join program");
       } finally {
@@ -91,18 +130,18 @@ function ProgramCard({
       return;
     }
 
-    if (!RAZORPAY_KEY) {
-      toast.error(
-        "Set NEXT_PUBLIC_RAZORPAY_KEY_ID to the same value as backend RAZORPAY_KEY_ID.",
-      );
-      return;
-    }
-
     setBusy(true);
     try {
       const orderData = await postWithAuth("/payments/expert-programs/order", {
         programId,
       });
+      const checkoutKey = orderData?.keyId || RAZORPAY_KEY;
+      if (!checkoutKey) {
+        toast.error(
+          "Razorpay key missing. Configure backend RAZORPAY_KEY_ID or NEXT_PUBLIC_RAZORPAY_KEY_ID.",
+        );
+        return;
+      }
 
       const loaded = await loadRazorpayScript();
       if (!loaded || !window.Razorpay) {
@@ -124,7 +163,7 @@ function ProgramCard({
       );
 
       const options = {
-        key: RAZORPAY_KEY,
+        key: checkoutKey,
         // With order_id, amount/currency come from the order; passing them here often causes "Payment failed" if they drift.
         name: "WellnessZ",
         description: title || "Expert program",
@@ -140,6 +179,7 @@ function ProgramCard({
               razorpaySignature: rzResponse.razorpay_signature,
             });
             toast.success("Payment successful");
+            router.push("/dashboard/programs");
           } catch (err) {
             console.error(err);
             toast.error(err.message || "Payment verification failed");
@@ -217,6 +257,38 @@ export default function MembershipPrograms({
   user,
 }) {
   const hasPrograms = Array.isArray(programs) && programs.length > 0;
+  const [enrolledProgramIds, setEnrolledProgramIds] = useState(() => new Set());
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setEnrolledProgramIds(new Set());
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getWithAuth("/experts/client/program-enrollments");
+        const rows = Array.isArray(res?.enrollments) ? res.enrollments : [];
+        if (cancelled) return;
+        setEnrolledProgramIds(
+          new Set(
+            rows
+              .filter(isActiveEnrollment)
+              .map((enrollment) => enrollment?.program?._id || enrollment?.program)
+              .filter(Boolean)
+              .map(String),
+          ),
+        );
+      } catch {
+        if (!cancelled) setEnrolledProgramIds(new Set());
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
 
   return (
     <section
@@ -265,6 +337,7 @@ export default function MembershipPrograms({
                   isAuthenticated={isAuthenticated}
                   openLoginModal={openLoginModal}
                   user={user}
+                  alreadyEnrolled={enrolledProgramIds.has(String(program._id))}
                 />
               ))
           ) : (

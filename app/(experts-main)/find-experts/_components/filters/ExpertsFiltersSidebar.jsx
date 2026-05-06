@@ -585,8 +585,8 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                   })}
               </div>
             </section>
-
-            <section className="py-4">
+            {/* TODO: Future Scope */}
+            {/* <section className="py-4">
               <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-3">
                 <input
                   type="checkbox"
@@ -603,52 +603,8 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                   </span>
                 </span>
               </label>
-            </section>
+            </section> */}
 
-            <section className="py-4">
-              <button
-                type="button"
-                aria-expanded={openSections.clients}
-                onClick={() => toggleSection("clients")}
-                className="flex w-full items-center justify-between text-left"
-              >
-                <h3 className="font-bold text-base text-gray-900">
-                  No. of Clients
-                  {clientBucketsSelected > 0 ? (
-                    <span className="ml-2 text-sm font-semibold text-[#70C136]">
-                      ({clientBucketsSelected})
-                    </span>
-                  ) : null}
-                </h3>
-                {openSections.clients ? (
-                  <ChevronUp className="size-5 text-gray-400" />
-                ) : (
-                  <ChevronDown className="size-5 text-gray-400" />
-                )}
-              </button>
-              {openSections.clients && (
-                <div
-                  className={`mt-3 grid grid-cols-2 gap-x-4 gap-y-3 ${FILTER_OPTIONS_SCROLL_GRID_2}`}
-                >
-                  {clients_options.map((item) => (
-                    <label
-                      key={item}
-                      className="flex cursor-pointer items-start gap-2.5"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={localClients[item] || false}
-                        onChange={() => handleClientsChange(item)}
-                        className={checkboxClass}
-                      />
-                      <span className="text-sm font-normal text-gray-800">
-                        {item}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </section>
 
             <section className="py-4">
               <button
@@ -816,7 +772,8 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
               ))}
             </div>
           </div>
-          <div className="space-y-4 border-t border-gray-100 pt-6">
+          {/* TODO: Future Scope */}
+          {/* <div className="space-y-4 border-t border-gray-100 pt-6">
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/90 px-3 py-3">
               <input
                 type="checkbox"
@@ -833,51 +790,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                 </span>
               </span>
             </label>
-          </div>
-          <div className="space-y-4 border-t border-gray-100 pt-6">
-            <button
-              type="button"
-              aria-expanded={openSections.clients}
-              onClick={() => toggleSection("clients")}
-              className="flex w-full items-center justify-between text-left"
-            >
-              <span className="border-l-2 border-[#70C136] pl-3 text-xs font-black uppercase text-gray-900">
-                No. of Clients
-                {clientBucketsSelected > 0 ? (
-                  <span className="ml-2 text-[13px] font-bold text-[#70C136]">
-                    ({clientBucketsSelected})
-                  </span>
-                ) : null}
-              </span>
-              <ChevronUp
-                className={`size-4 text-gray-400 transition-transform ${
-                  openSections.clients ? "" : "rotate-180"
-                }`}
-              />
-            </button>
-            {openSections.clients && (
-              <div
-                className={`grid grid-cols-1 gap-2 pl-1 ${FILTER_OPTIONS_SCROLL_SINGLE}`}
-              >
-                {clients_options.map((item) => (
-                  <label
-                    key={item}
-                    className="flex cursor-pointer items-center gap-3"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={localClients[item] || false}
-                      onChange={() => handleClientsChange(item)}
-                      className={checkboxClass}
-                    />
-                    <span className="text-sm font-bold text-gray-600">
-                      {item}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
+          </div> */}
           <div className="space-y-4 border-t border-gray-100 pt-6">
             <button
               type="button"

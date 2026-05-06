@@ -1,9 +1,10 @@
 import { buttonVariants } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const BENEFITS = [
-  "Get discovered across the ZeeFit ecosystem",
+  "Get discovered across the Zeefit ecosystem",
   "Build trust with WZ Assured and premium placements",
   "Get featured on blogs, articles, and partner platforms",
   "Gain wider reach through centralized paid promotion",
@@ -14,6 +15,8 @@ const APPLY_MAIL =
   "mailto:support@wellnessz.in?subject=Z-Coach%20Application&body=Please%20share%20a%20bit%20about%20your%20coaching%20practice%20and%20goals%20for%20Z-Coach.";
 
 export default function ZCoachSection() {
+  const { displayName } = useBrandingContext();
+  const replaceBrand = (text) => text.replaceAll("Zeefit", displayName);
   return (
     <section
       id="z-coach"
@@ -34,7 +37,7 @@ export default function ZCoachSection() {
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#67BC2A]">
                 <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
               </span>
-              <span className="text-white/90">{line}</span>
+              <span className="text-white/90">{replaceBrand(line)}</span>
             </li>
           ))}
         </ul>

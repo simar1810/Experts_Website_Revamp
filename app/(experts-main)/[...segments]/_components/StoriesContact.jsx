@@ -3,7 +3,43 @@
 import { useMemo } from "react";
 import { MapPin, Clock3 } from "lucide-react";
 
-export default function StoriesContact({ details, reviews = [] }) {
+const WELLNESSZ_DEFAULT = {
+  appName: "WellnessZ",
+  iosUrl: "https://apps.apple.com/in/app/wellnessz/id6478812964",
+  androidUrl:
+    "https://play.google.com/store/apps/details?id=com.updevelop.wellness_z_mvvm&hl=en_IN",
+  description:
+    "Manage your recovery, schedule appointments, and access exclusive patient resources directly from your device.",
+};
+
+function normalizeAppBaseUrl(url) {
+  if (typeof url !== "string") return "";
+  return url.trim().replace(/\/+$/, "");
+}
+
+export default function StoriesContact({ details, reviews = [], coachRefDoc }) {
+  const { useWhitelabelApp, whitelabelBaseUrl, appDisplayName, whitelabelCtaLabel } =
+    useMemo(() => {
+      const base = normalizeAppBaseUrl(coachRefDoc?.base_link);
+      if (!base) {
+        return {
+          useWhitelabelApp: false,
+          whitelabelBaseUrl: "",
+          appDisplayName: WELLNESSZ_DEFAULT.appName,
+          whitelabelCtaLabel: "",
+        };
+      }
+      const rawName = (coachRefDoc?.coach_ref || "").trim();
+      const titleName = rawName || WELLNESSZ_DEFAULT.appName;
+      const cta = rawName ? `Continue to ${rawName}` : "Open app";
+      return {
+        useWhitelabelApp: true,
+        whitelabelBaseUrl: base,
+        appDisplayName: titleName,
+        whitelabelCtaLabel: cta,
+      };
+    }, [coachRefDoc]);
+
   const locationLine = useMemo(() => {
     const addr = (details?.address || "").trim();
     if (addr) return addr;
@@ -44,50 +80,62 @@ export default function StoriesContact({ details, reviews = [] }) {
           </div>
         )}
 
-        <div className="mx-auto w-full max-w-2xl">
-          <aside className="relative flex min-h-[300px] flex-col justify-between overflow-hidden rounded-[1.75rem] bg-[#004F11] p-7 text-white sm:p-8">
-            <div
-              className="pointer-events-none absolute -right-12 -top-12 h-52 w-52 rounded-full bg-[#8fd97a]/30 blur-3xl"
-              aria-hidden
-            />
-            <div className="relative z-10 flex flex-col gap-5">
-              <span className="inline-flex w-fit rounded-full bg-[#c3eebb] px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#002204]">
-                Now available
-              </span>
-              <h3 className="text-3xl font-extrabold leading-[1.12] tracking-tight text-white sm:text-[2rem]">
-                Download WellnessZ App
-                <br />
-                Today!
-              </h3>
-              <p className="max-w-md text-sm leading-relaxed text-white/70">
-                Manage your recovery, schedule appointments, and access
-                exclusive patient resources directly from your device.
-              </p>
-              <div className="flex flex-wrap items-center gap-10 pt-1">
+        <aside className="relative flex w-full min-h-[380px] flex-col justify-between overflow-hidden rounded-[1.8rem] bg-[#004F11] p-8 text-white sm:min-h-[420px] sm:p-10">
+          <div
+            className="pointer-events-none absolute -right-12 -top-12 h-64 w-64 rounded-full bg-[#8fd97a]/30 blur-3xl sm:h-72 sm:w-72"
+            aria-hidden
+          />
+          <div className="relative z-10 flex w-full flex-col gap-6 sm:gap-7">
+            <span className="inline-flex w-fit rounded-full bg-[#c3eebb] px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#002204] sm:px-4 sm:py-2">
+              Now available
+            </span>
+            <h3 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3rem] lg:leading-[1.08]">
+              Download {appDisplayName} App
+              <br />
+              Today!
+            </h3>
+            <p className="max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg lg:max-w-3xl">
+              {WELLNESSZ_DEFAULT.description}
+            </p>
+            {useWhitelabelApp ? (
+              <a
+                href={whitelabelBaseUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-flex w-full max-w-sm items-center justify-center rounded-lg bg-white px-6 py-4 text-base font-semibold text-[#002204] transition-colors hover:bg-white/90 sm:w-auto"
+              >
+                {whitelabelCtaLabel}
+              </a>
+            ) : (
+              <div className="flex flex-wrap items-center gap-8 pt-1 sm:gap-10">
                 <a
-                  href="https://apps.apple.com/in/app/wellnessz/id6478812964"
+                  href={WELLNESSZ_DEFAULT.iosUrl}
                   className="block shrink-0 transition-opacity hover:opacity-90"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <img
                     src="/images/app-store.png"
                     alt="Download on the App Store"
-                    className="h-8 w-auto"
+                    className="h-10 w-auto sm:h-11"
                   />
                 </a>
                 <a
-                  href="https://play.google.com/store/apps/details?id=com.updevelop.wellness_z_mvvm&hl=en_IN"
+                  href={WELLNESSZ_DEFAULT.androidUrl}
                   className="block shrink-0 transition-opacity hover:opacity-90"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <img
                     src="/images/google-play.png"
                     alt="Get it on Google Play"
-                    className="h-8 w-auto"
+                    className="h-10 w-auto sm:h-11"
                   />
                 </a>
               </div>
-            </div>
-          </aside>
-        </div>
+            )}
+          </div>
+        </aside>
 
         <article
           id="expert-visit"
@@ -95,7 +143,7 @@ export default function StoriesContact({ details, reviews = [] }) {
         >
           <div>
             <h3 className="text-4xl font-extrabold text-[#0d3b1f]">
-              Visit the Sanctuary
+              On-site location       
             </h3>
             <div className="mt-4 space-y-5 text-sm text-[#1d3327]">
               <div className="flex gap-3">

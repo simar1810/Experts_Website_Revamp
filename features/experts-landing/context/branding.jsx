@@ -10,7 +10,7 @@ export default function BrandingProvider(props) {
   if (!props.success) {
     return (
       <BrandingContext.Provider value={{
-        displayName: "Zee Fit",
+        displayName: "Zeefit",
         logo: "/experts-logo.png"
       }}>
         {props.children}
