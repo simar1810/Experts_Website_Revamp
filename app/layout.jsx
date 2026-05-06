@@ -1,11 +1,11 @@
 import { AuthProvider } from "@/context/AuthContext";
-import ExpertListing from "@/features/experts-landing/components/index";
-import BrandingProvider from "@/features/experts-landing/context/branding";
+import PartnerLandingPage from "@/features/partner-landing/pages/PartnerLandingPage";
+import BrandingProvider from "@/features/partner-landing/context/branding";
 import { Toaster } from "react-hot-toast";
 import { Geist, Lato, Lexend, Manrope, Playfair_Display } from "next/font/google";
 import ClientMainLayoutShell from "./(client-main)/ClientMainLayoutShell";
 import { ValuesProvider } from "@/context/valuesContext";
-import { resolvePartner } from "@/features/experts-landing/helpers/resolve-partner"
+import { resolvePartner } from "@/lib/tenant/resolve-partner"
 import { SWRConfig } from "swr";
 import "./globals.css"
 
@@ -85,7 +85,7 @@ export default async function RootLayout({ children }) {
             }}
           />
           <SWRConfig value={{ revalidateOnFocus: false, revalidateIfStale: false }}>
-            {success && ["", "/"].includes(pathname) && <ExpertListing partner={partner} />}
+            {success && ["", "/"].includes(pathname) && <PartnerLandingPage partner={partner} />}
             <ValuesProvider>
               {(!success || !["", "/"].includes(pathname)) && <BrandingProvider success={success} partner={partner}>
                 <ClientMainLayoutShell>
