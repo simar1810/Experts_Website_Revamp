@@ -18,8 +18,6 @@ export function TopProgramCard({
   className,
   onEnroll,
   enrollDisabled = false,
-  onMarqueeHoverEnter,
-  onMarqueeHoverLeave,
   emphasizeHover = false,
 }) {
   const visibleDeliveryTags = Array.isArray(deliveryTags)
@@ -31,8 +29,6 @@ export function TopProgramCard({
   return (
     <article
       data-program-card
-      onMouseEnter={onMarqueeHoverEnter}
-      onMouseLeave={onMarqueeHoverLeave}
       className={cn(
         "flex h-full min-h-0 w-full max-h-none shrink-0 flex-col overflow-visible rounded-3xl bg-white/5 p-4 font-lato sm:max-h-[80vh] sm:overflow-y-auto sm:rounded-4xl sm:p-8 sm:w-[min(92vw,34.5rem)] sm:snap-center lg:w-[42.5rem]",
         emphasizeHover &&

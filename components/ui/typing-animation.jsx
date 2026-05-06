@@ -43,6 +43,8 @@ export function TypingAnimation({
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [currentCharIndex, setCurrentCharIndex] = useState(0)
   const [phase, setPhase] = useState("typing")
+  /** Incremented on bfcache restore so typing can run when useInView does not refire */
+  const [bfcacheGen, setBfcacheGen] = useState(0)
   const elementRef = useRef(null)
   const completionFiredRef = useRef(false)
   const isInView = useInView(elementRef, {
@@ -56,7 +58,7 @@ export function TypingAnimation({
   const typingSpeed = typeSpeed ?? duration
   const deletingSpeed = deleteSpeed ?? typingSpeed / 2
 
-  const shouldStart = startOnView ? isInView : true
+  const shouldStart = startOnView ? isInView || bfcacheGen > 0 : true
   const animationSourceKey = useMemo(() => (words ? words.join("\u0000") : (children ?? "")), [words, children])
 
   const currentWordGraphemes = Array.from(wordsToAnimate[currentWordIndex] || "")
@@ -73,6 +75,20 @@ export function TypingAnimation({
     setPhase("typing")
     completionFiredRef.current = false
   }, [animationSourceKey])
+
+  useEffect(() => {
+    const onPageShow = (e) => {
+      if (!e.persisted) return
+      setDisplayedText("")
+      setCurrentWordIndex(0)
+      setCurrentCharIndex(0)
+      setPhase("typing")
+      completionFiredRef.current = false
+      if (startOnView) setBfcacheGen((g) => g + 1)
+    }
+    window.addEventListener("pageshow", onPageShow)
+    return () => window.removeEventListener("pageshow", onPageShow)
+  }, [startOnView])
 
   useEffect(() => {
     let timeout = null

@@ -1,6 +1,3 @@
-"use client";
-
-import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { topProgramsContent } from "@/lib/data/landingContent";
 import { cn } from "@/lib/utils";
@@ -13,22 +10,6 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
     Array.isArray(programsFromApi) && programsFromApi.length > 0
       ? programsFromApi
       : c.programs;
-
-  const [marqueePaused, setMarqueePaused] = useState(false);
-  const marqueeHoverDepth = useRef(0);
-
-  const onMarqueeCardEnter = useCallback(() => {
-    marqueeHoverDepth.current += 1;
-    setMarqueePaused(true);
-  }, []);
-
-  const onMarqueeCardLeave = useCallback(() => {
-    marqueeHoverDepth.current -= 1;
-    if (marqueeHoverDepth.current <= 0) {
-      marqueeHoverDepth.current = 0;
-      setMarqueePaused(false);
-    }
-  }, []);
 
   const getProgramHref = (program) => {
     const params = new URLSearchParams();
@@ -68,10 +49,10 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
           <div
             className={cn(
               "flex w-max gap-6 animate-top-programs-marquee motion-reduce:animate-none",
+              /* Pause on card hover via :has() — works after bfcache; avoids brittle React mouse events */
+              "[&:has(article:hover)]:paused",
+              "[&:has(article:focus-within)]:paused",
             )}
-            style={{
-              animationPlayState: marqueePaused ? "paused" : "running",
-            }}
           >
             {marqueePrograms.map((p, i) => (
               <TopProgramCard
@@ -80,8 +61,6 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
                 emphasizeHover
                 enrollLabel="VIEW PROGRAM"
                 enrollHref={getProgramHref(p)}
-                onMarqueeHoverEnter={onMarqueeCardEnter}
-                onMarqueeHoverLeave={onMarqueeCardLeave}
               />
             ))}
           </div>
