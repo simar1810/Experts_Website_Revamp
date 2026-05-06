@@ -24,10 +24,11 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           sshpass -p $SSH_PASSWORD ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "
+          export PATH=/home/deployment/.nvm/versions/node/v20.15.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin && \
           cd /var/www/zeefit.in/ && \
           git stash && \
           git pull origin main && \
-          npm i --legacy-peer-deps && \
-          npm run build && \
+          /home/deployment/.nvm/versions/node/v20.17.0/bin/npm i --legacy-peer-deps && \
+          /home/deployment/.nvm/versions/node/v20.17.0/bin/npm run build && \
           sudo systemctl restart zeefit.service && \
           echo 'Deployment successful'" || echo 'Deployment failed'
