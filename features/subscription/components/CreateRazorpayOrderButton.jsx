@@ -10,6 +10,19 @@ import PricingFillDetailsModal from "./PricingFillDetailsModal";
 export default function CreateRazorpayOrderButton({ children, planId }) {
   const { dispatch, stage, ...state } = usePricingPageContext();
   const [displayLoginUser, setDisplayLoginUser] = useState(false);
+  const openLeadModal = function () {
+    const scroller = document.scrollingElement;
+    const scrollTop = scroller?.scrollTop ?? window.scrollY ?? 0;
+    setDisplayLoginUser(true);
+    requestAnimationFrame(() => {
+      if (scroller) scroller.scrollTop = scrollTop;
+      window.scrollTo(0, scrollTop);
+      requestAnimationFrame(() => {
+        if (scroller) scroller.scrollTop = scrollTop;
+        window.scrollTo(0, scrollTop);
+      });
+    });
+  };
 
   const handleUserAction = async function () {
     if (stage === "order-creating") {
@@ -20,7 +33,7 @@ export default function CreateRazorpayOrderButton({ children, planId }) {
     }
 
     if (!state.coachId) {
-      setDisplayLoginUser(true);
+      openLeadModal();
     }
   };
 

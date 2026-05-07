@@ -12,6 +12,19 @@ import PricingFillDetailsModal from "./PricingFillDetailsModal";
 export default function PlanFreeTier() {
   const { currency } = usePricingPageContext();
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const openDetailsModal = function () {
+    const scroller = document.scrollingElement;
+    const scrollTop = scroller?.scrollTop ?? window.scrollY ?? 0;
+    setDetailsOpen(true);
+    requestAnimationFrame(() => {
+      if (scroller) scroller.scrollTop = scrollTop;
+      window.scrollTo(0, scrollTop);
+      requestAnimationFrame(() => {
+        if (scroller) scroller.scrollTop = scrollTop;
+        window.scrollTo(0, scrollTop);
+      });
+    });
+  };
 
   const submitFreeTier = async function (form) {
     try {
@@ -58,7 +71,7 @@ export default function PlanFreeTier() {
         <button
           type="button"
           className="w-full cursor-pointer rounded-full bg-[#67BC2A] py-3 text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-green-100 transition-all hover:bg-[#58a124] active:scale-[0.98] md:text-base"
-          onClick={() => setDetailsOpen(true)}
+          onClick={openDetailsModal}
         >
           Get Listed for Free
         </button>

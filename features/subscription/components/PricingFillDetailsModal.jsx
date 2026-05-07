@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useId, useLayoutEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { Loader2, XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-number-input";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 /**
- * Pricing lead form in a portal overlay.
- * Scroll lock uses overflow:hidden only — not body position:fixed — so
- * backdrop-filter still sees the real page (Firefox/solid-gray bug with fixed body).
+ * Pricing lead form using shadcn/Radix Dialog (portal, overlay, focus trap, scroll lock).
  */
 export default function PricingFillDetailsModal({
   open,
@@ -29,13 +31,9 @@ export default function PricingFillDetailsModal({
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const titleId = useId();
 
   const isIndianPricing = currency === "INR";
   const defaultCountry = currency === "USD" ? "US" : "IN";
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!open) {
@@ -44,44 +42,6 @@ export default function PricingFillDetailsModal({
       setLoading(false);
     }
   }, [open]);
-
-  /** Lock scroll without position:fixed on body (breaks backdrop-filter compositing). */
-  useLayoutEffect(() => {
-    if (!open || !mounted) return;
-    const html = document.documentElement;
-    const body = document.body;
-    const scrollbarW = window.innerWidth - html.clientWidth;
-
-    const prev = {
-      htmlOverflow: html.style.overflow,
-      htmlPaddingRight: html.style.paddingRight,
-      bodyOverflow: body.style.overflow,
-      bodyPaddingRight: body.style.paddingRight,
-    };
-
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    if (scrollbarW > 0) {
-      html.style.paddingRight = `${scrollbarW}px`;
-      body.style.paddingRight = `${scrollbarW}px`;
-    }
-
-    return () => {
-      html.style.overflow = prev.htmlOverflow;
-      html.style.paddingRight = prev.htmlPaddingRight;
-      body.style.overflow = prev.bodyOverflow;
-      body.style.paddingRight = prev.bodyPaddingRight;
-    };
-  }, [open, mounted]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e) => {
-      if (e.key === "Escape") onOpenChange(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onOpenChange]);
 
   const validate = function () {
     const newErrors = {};
@@ -118,44 +78,35 @@ export default function PricingFillDetailsModal({
     }
   };
 
-  if (!mounted || !open) return null;
-
-  return createPortal(
-    <div className="fixed inset-0 z-[200]" role="presentation">
-      {/* Semi-transparent + blur: page must stay in normal flow (no body fixed) to show through. */}
-      <button
-        type="button"
-        aria-label="Close dialog"
-        className="absolute inset-0 z-0 cursor-pointer border-0 bg-black/30 p-0 transition-opacity duration-150"
-        style={{
-          WebkitBackdropFilter: "blur(12px)",
-          backdropFilter: "blur(12px)",
-        }}
-        onClick={() => onOpenChange(false)}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        className="fixed left-1/2 top-1/2 z-[201] max-h-[min(90vh,800px)] w-[calc(100%-2rem)] max-w-[550px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[20px] border-none bg-white shadow-2xl outline-none"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <Button
+  return (
+    <>
+      {open && (
+        <button
           type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="absolute top-2 right-2 z-10"
+          aria-label="Close dialog"
           onClick={() => onOpenChange(false)}
-        >
-          <XIcon className="size-4" />
-          <span className="sr-only">Close</span>
-        </Button>
-        <h2
-          id={titleId}
-          className="border-b border-gray-100 p-6 pr-12 text-center text-[28px] font-bold md:text-[28px]"
-        >
+          className="fixed inset-0 z-40 border-0 bg-black/35 p-0 supports-backdrop-filter:backdrop-blur-sm"
+        />
+      )}
+      <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+      <DialogContent
+        className="z-50 flex max-h-[min(90vh,800px)] w-[calc(100%-2rem)] max-w-[550px] flex-col gap-0 overflow-y-auto rounded-[20px] border-none bg-white p-0 text-neutral-900 shadow-2xl sm:max-w-[550px]"
+        showCloseButton
+        onOpenAutoFocus={(e) => {
+          // Keep focus where it is to avoid any browser scroll jump on open.
+          e.preventDefault();
+        }}
+        onCloseAutoFocus={(e) => {
+          // Avoid restoring focus to a trigger in a way that may scroll page.
+          e.preventDefault();
+        }}
+      >
+        <DialogTitle className="border-b border-gray-100 p-6 pr-12 text-center text-[28px] font-bold leading-tight md:text-[28px]">
           {title}
-        </h2>
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Enter your details to continue with this plan.
+        </DialogDescription>
         <div className="space-y-6 p-8">
           <div className="space-y-4">
             <div className="space-y-2">
@@ -249,7 +200,7 @@ export default function PricingFillDetailsModal({
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="mt-4 flex w-full items-center justify-center rounded-[10px] bg-gradient-to-r from-[#67BC2A] to-[#3C9300] py-3 text-lg font-bold text-white shadow-lg shadow-green-200 transition-all hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+            className="mt-4 flex w-full items-center justify-center rounded-[10px] bg-linear-to-r from-[#67BC2A] to-[#3C9300] py-3 text-lg font-bold text-white shadow-lg shadow-green-200 transition-all hover:scale-[1.01] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? (
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -258,8 +209,8 @@ export default function PricingFillDetailsModal({
             )}
           </button>
         </div>
-      </div>
-    </div>,
-    document.body,
+      </DialogContent>
+      </Dialog>
+    </>
   );
 }
