@@ -4,12 +4,9 @@ import { useMemo } from "react";
 import { MapPin, Clock3 } from "lucide-react";
 
 const WELLNESSZ_DEFAULT = {
-  appName: "WellnessZ",
-  iosUrl: "https://apps.apple.com/in/app/wellnessz/id6478812964",
+  appName: "Zeefit",
   androidUrl:
-    "https://play.google.com/store/apps/details?id=com.updevelop.wellness_z_mvvm&hl=en_IN",
-  description:
-    "Manage your recovery, schedule appointments, and access exclusive patient resources directly from your device.",
+    "https://play.google.com/store/apps/details?id=com.wellnessz.zeefit&hl=en_IN",
 };
 
 function normalizeAppBaseUrl(url) {
@@ -17,7 +14,12 @@ function normalizeAppBaseUrl(url) {
   return url.trim().replace(/\/+$/, "");
 }
 
-export default function StoriesContact({ details, reviews = [], coachRefDoc }) {
+export default function StoriesContact({
+  details,
+  reviews = [],
+  coachRefDoc,
+  expertName,
+}) {
   const { useWhitelabelApp, whitelabelBaseUrl, appDisplayName, whitelabelCtaLabel } =
     useMemo(() => {
       const base = normalizeAppBaseUrl(coachRefDoc?.base_link);
@@ -39,6 +41,13 @@ export default function StoriesContact({ details, reviews = [], coachRefDoc }) {
         whitelabelCtaLabel: cta,
       };
     }, [coachRefDoc]);
+
+  const expertDisplayName = (expertName || "").trim() || "Expert";
+
+  const appPromoDescription = useMemo(() => {
+    const who = expertDisplayName;
+    return `Get expert guidance, explore ${who}'s top programs, and stay connected to your fitness journey anytime from your phone.`;
+  }, [expertDisplayName]);
 
   const locationLine = useMemo(() => {
     const addr = (details?.address || "").trim();
@@ -87,15 +96,13 @@ export default function StoriesContact({ details, reviews = [], coachRefDoc }) {
           />
           <div className="relative z-10 flex w-full flex-col gap-6 sm:gap-7">
             <span className="inline-flex w-fit rounded-full bg-[#c3eebb] px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#002204] sm:px-4 sm:py-2">
-              Now available
+            Top Coaches, One App
             </span>
             <h3 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3rem] lg:leading-[1.08]">
-              Download {appDisplayName} App
-              <br />
-              Today!
+              Download {appDisplayName} App to Connect with {expertDisplayName}
             </h3>
             <p className="max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg lg:max-w-3xl">
-              {WELLNESSZ_DEFAULT.description}
+              {appPromoDescription}
             </p>
             {useWhitelabelApp ? (
               <a
@@ -107,19 +114,26 @@ export default function StoriesContact({ details, reviews = [], coachRefDoc }) {
                 {whitelabelCtaLabel}
               </a>
             ) : (
-              <div className="flex flex-wrap items-center gap-8 pt-1 sm:gap-10">
-                <a
-                  href={WELLNESSZ_DEFAULT.iosUrl}
-                  className="block shrink-0 transition-opacity hover:opacity-90"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src="/images/app-store.png"
-                    alt="Download on the App Store"
-                    className="h-10 w-auto sm:h-11"
-                  />
-                </a>
+              <div className="flex flex-col gap-4 pt-1">
+                <p className="text-sm font-medium text-white/85">
+                  Available on Google Play · App Store coming soon
+                </p>
+                <div className="flex flex-wrap items-center gap-8 sm:gap-10">
+                <div className="flex shrink-0 flex-col items-start gap-1.5">
+                  <span
+                    className="block opacity-45 grayscale"
+                    aria-hidden
+                  >
+                    <img
+                      src="/images/app-store.png"
+                      alt=""
+                      className="h-10 w-auto sm:h-11"
+                    />
+                  </span>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/55">
+                    App Store — coming soon
+                  </span>
+                </div>
                 <a
                   href={WELLNESSZ_DEFAULT.androidUrl}
                   className="block shrink-0 transition-opacity hover:opacity-90"
@@ -132,6 +146,7 @@ export default function StoriesContact({ details, reviews = [], coachRefDoc }) {
                     className="h-10 w-auto sm:h-11"
                   />
                 </a>
+                </div>
               </div>
             )}
           </div>

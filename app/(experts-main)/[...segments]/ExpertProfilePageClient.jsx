@@ -140,6 +140,7 @@ export default function ExpertProfilePageClient({ listingId }) {
           details={details}
           reviews={reviews}
           coachRefDoc={coachInfo?.coachRefDoc ?? null}
+          expertName={coachInfo?.name}
         />
       </div>
     </main>
