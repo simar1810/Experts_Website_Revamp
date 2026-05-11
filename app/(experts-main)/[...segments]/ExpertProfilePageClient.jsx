@@ -14,6 +14,7 @@ import Hero from "./_components/Hero";
 import About from "./_components/About";
 import Services from "./_components/Services";
 import MembershipPrograms from "./_components/MembershipPrograms";
+import ExpertClientTransformations from "./_components/ExpertClientTransformations";
 import StoriesContact from "./_components/StoriesContact";
 
 export default function ExpertProfilePageClient({ listingId }) {
@@ -136,6 +137,7 @@ export default function ExpertProfilePageClient({ listingId }) {
           openLoginModal={openLoginModal}
           user={user}
         />
+        <ExpertClientTransformations details={details} />
         <StoriesContact
           details={details}
           reviews={reviews}
