@@ -1,4 +1,4 @@
-import { fetchPartnerProductCollections } from "@/lib/partnerProductsApi";
+import { fetchPartnerProductsForMarketplace } from "@/lib/partnerProductsApi";
 
 /**
  * Fetches partner-facing product/program cards for landing.
@@ -23,7 +23,7 @@ export class ProgramsListingService {
     try {
       const controller = new AbortController();
       timeout = setTimeout(() => controller.abort(), this.requestTimeoutMs);
-      const items = await fetchPartnerProductCollections({
+      const items = await fetchPartnerProductsForMarketplace({
         headers: this.partner ? { "x-tenant": this.partner } : {},
         signal: controller.signal,
       });

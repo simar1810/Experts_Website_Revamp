@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isShopRequestHost, normalizeHost } from "@/lib/shopHost";
 
-function isCollectionsPath(pathname: string) {
-  return pathname === "/collections" || pathname.startsWith("/collections/");
+function isMarketplacePath(pathname: string) {
+  return pathname === "/marketplace" || pathname.startsWith("/marketplace/");
 }
 
-/** Main site /collections/... → shop short URL: /, /chingu, /a/b, … */
-function collectionsPathToShopPath(pathname: string): string {
-  if (pathname === "/collections" || pathname === "/collections/") {
+/** Main site /marketplace/... → shop short URL: /, /chingu, /a/b, … */
+function marketplacePathToShopPath(pathname: string): string {
+  if (pathname === "/marketplace" || pathname === "/marketplace/") {
     return "/";
   }
-  if (pathname.startsWith("/collections/")) {
-    return pathname.slice("/collections".length);
+  if (pathname.startsWith("/marketplace/")) {
+    return pathname.slice("/marketplace".length);
   }
   return pathname;
 }
 
-/** Paths that must not be prefixed with /collections on the shop host */
+/** Paths that must not be prefixed with /marketplace on the shop host */
 function isShopPassthroughPath(pathname: string) {
   if (
     pathname.startsWith("/_next") ||
@@ -38,14 +38,14 @@ function isShopPassthroughPath(pathname: string) {
   return false;
 }
 
-function rewriteShopToCollections(request: NextRequest, pathname: string) {
+function rewriteShopToMarketplace(request: NextRequest, pathname: string) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
   const rewriteUrl = request.nextUrl.clone();
   if (pathname === "/" || pathname === "") {
-    rewriteUrl.pathname = "/collections";
+    rewriteUrl.pathname = "/marketplace";
   } else {
-    rewriteUrl.pathname = `/collections${pathname}`;
+    rewriteUrl.pathname = `/marketplace${pathname}`;
   }
   return NextResponse.rewrite(rewriteUrl, {
     request: { headers: requestHeaders },
@@ -53,7 +53,7 @@ function rewriteShopToCollections(request: NextRequest, pathname: string) {
 }
 
 /**
- * Base URL for the shop host (redirect target when the main site opens /collections).
+ * Base URL for the shop host (redirect target when the main site opens /marketplace).
  * Explicit env wins; otherwise infer dev (localhost → shop.localhost, same port).
  */
 function getShopSiteOrigin(request: NextRequest): string {
@@ -99,18 +99,18 @@ export function middleware(request: NextRequest) {
   if (isShopRequestHost(host, shopHostname)) {
     if (isShopPassthroughPath(pathname)) {
     } else if (pathname === "/" || pathname === "") {
-      return rewriteShopToCollections(request, pathname);
-    } else if (isCollectionsPath(pathname)) {
+      return rewriteShopToMarketplace(request, pathname);
+    } else if (isMarketplacePath(pathname)) {
       const dest = request.nextUrl.clone();
-      dest.pathname = collectionsPathToShopPath(pathname);
+      dest.pathname = marketplacePathToShopPath(pathname);
       return NextResponse.redirect(dest, 308);
     } else {
-      return rewriteShopToCollections(request, pathname);
+      return rewriteShopToMarketplace(request, pathname);
     }
-  } else if (isCollectionsPath(pathname)) {
+  } else if (isMarketplacePath(pathname)) {
     const shopOrigin = getShopSiteOrigin(request);
     const base = shopOrigin.replace(/\/?$/, "/");
-    const shopPath = collectionsPathToShopPath(pathname);
+    const shopPath = marketplacePathToShopPath(pathname);
     const destUrl = new URL(`${shopPath}${search}`, base);
     return NextResponse.redirect(destUrl, 308);
   }
