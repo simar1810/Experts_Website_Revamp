@@ -5,8 +5,8 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  formatProductPrice,
   getProductImageSrc,
+  getProductPriceDisplay,
 } from "@/lib/partnerProductsApi";
 
 function partnerDisplayName(partner) {
@@ -26,6 +26,7 @@ function ProductCard({ partner, product }) {
   const href = `/collections/${partner.slug}/${product.slug}`;
   const imageSrc = getProductImageSrc(product);
   const displayName = partnerDisplayName(partner);
+  const { payLabel, listLabel } = getProductPriceDisplay(product);
 
   return (
     <article className="group w-[184px] shrink-0 sm:w-[216px] lg:w-[240px]">
@@ -54,8 +55,13 @@ function ProductCard({ partner, product }) {
           <h3 className="line-clamp-2 text-[15px] font-bold leading-tight tracking-[-0.04em] text-[#273617] transition group-hover:text-[#5cae20]">
             {product.name || "Wellness product"}
           </h3>
-          <p className="mt-1 text-[12px] font-bold leading-none text-[#7d846e]">
-            {formatProductPrice(product)}
+          <p className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] font-bold leading-none text-[#7d846e]">
+            {listLabel ? (
+              <span className="text-[11px] font-semibold text-[#b5baa9] line-through">
+                {listLabel}
+              </span>
+            ) : null}
+            <span>{payLabel}</span>
           </p>
         </Link>
         
