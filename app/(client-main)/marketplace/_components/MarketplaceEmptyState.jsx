@@ -1,8 +1,8 @@
 import { Sparkles } from "lucide-react";
 
-export default function CollectionEmptyState({
-  title = "Collections are coming soon",
-  description = "Partner products will appear here as soon as active collections are published.",
+export default function MarketplaceEmptyState({
+  title = "Marketplace is coming soon",
+  description = "Partner products will appear here as soon as active listings are published.",
 }) {
   return (
     <div className="mx-auto max-w-2xl rounded-[2rem] border border-[#e6edd9] bg-[#fbfff4] px-6 py-12 text-center">
