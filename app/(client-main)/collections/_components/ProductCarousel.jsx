@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getProductImageSrc,
   getProductPriceDisplay,
 } from "@/lib/partnerProductsApi";
+import ProductDetailImage from "./ProductDetailImage";
 
 function partnerDisplayName(partner) {
   return (
@@ -35,12 +36,11 @@ function ProductCard({ partner, product }) {
         className="block rounded-[10px] outline-none transition focus-visible:ring-2 focus-visible:ring-[#84cc16] focus-visible:ring-offset-4"
       >
         <div className="relative aspect-4/5 overflow-hidden rounded-[10px] bg-[#f3f8e7]">
-          <Image
+          <ProductDetailImage
             src={imageSrc}
             alt={product.name || "Partner product"}
-            fill
-            className="object-cover transition duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 184px, (max-width: 1024px) 216px, 240px"
+            className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            loading="lazy"
           />
           {product.featured ? (
             <span className="absolute right-3 top-3 rounded-[3px] bg-[#357200] px-2.5 py-1 text-[8px] font-black uppercase tracking-wide text-white">
@@ -74,6 +74,7 @@ function ProductCard({ partner, product }) {
               src={partnerLogo(partner)}
               alt={displayName}
               fill
+              unoptimized
               className="object-cover"
               sizes="24px"
             />

@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Dumbbell, Layers, ShieldCheck } from "lucide-react";
 import ProductCheckout from "../../_components/ProductCheckout";
+import ProductDetailImage from "../../_components/ProductDetailImage";
 import {
   fetchPartnerProductDetail,
   getProductDescriptionHighlights,
@@ -58,16 +58,14 @@ export async function generateMetadata({ params }) {
 }
 
 function ProductImage({ product }) {
+  const imageSrc = getProductImageSrc(product);
   return (
     <div className="rounded-[6px] bg-[#edffd0] p-3">
-      <div className="relative aspect-[1.19/1] overflow-hidden rounded-[6px] bg-[#101910]">
-        <Image
-          src={getProductImageSrc(product)}
+      <div className="relative aspect-[1.19/1] overflow-hidden rounded-[6px] bg-[#edf1e8]">
+        <ProductDetailImage
+          src={imageSrc}
           alt={product.name || "Partner product"}
-          fill
-          priority
-          className="object-cover"
-          sizes="(max-width: 1024px) 92vw, 54vw"
+          fetchPriority="high"
         />
       </div>
     </div>
