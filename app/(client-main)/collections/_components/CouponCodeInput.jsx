@@ -9,6 +9,8 @@ function normalizeCouponCode(value) {
 export default function CouponCodeInput({
   couponCode = "",
   couponDescription = "",
+  /** Shown after a successful checkout preview (affiliate coach code or server copy for product coupon). */
+  checkoutHint = "",
   value = "",
   onChange,
 }) {
@@ -16,10 +18,15 @@ export default function CouponCodeInput({
     () => normalizeCouponCode(couponCode),
     [couponCode],
   );
-  const showDescription =
+  const normalizedValue = useMemo(() => normalizeCouponCode(value), [value]);
+
+  const showProductDescription =
     Boolean(couponDescription) &&
     Boolean(normalizedCouponCode) &&
-    normalizeCouponCode(value) === normalizedCouponCode;
+    normalizedValue === normalizedCouponCode;
+
+  const showCheckoutHint =
+    Boolean(String(checkoutHint || "").trim()) && Boolean(normalizedValue);
 
   return (
     <>
@@ -34,8 +41,12 @@ export default function CouponCodeInput({
         placeholder="APPLY COUPON CODE"
         className="h-[58px] w-full rounded-[4px] border border-[#dfe5d8] bg-white px-8 text-[12px] font-black uppercase tracking-[0.2em] text-[#263616] outline-none placeholder:text-[#c6cbbf]"
       />
-      {showDescription ? (
-        <p className="mt-2 text-xs font-semibold text-[#75904f]">
+      {showCheckoutHint ? (
+        <p className="mt-2 text-xs font-semibold leading-relaxed text-[#75904f]">
+          {String(checkoutHint).trim()}
+        </p>
+      ) : showProductDescription ? (
+        <p className="mt-2 text-xs font-semibold leading-relaxed text-[#75904f]">
           {couponDescription}
         </p>
       ) : null}

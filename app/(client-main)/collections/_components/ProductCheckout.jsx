@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
+import {
+  fetchPartnerCheckoutEstimate,
+  formatCurrencyNumber,
+} from "@/lib/partnerProductsApi";
 import CouponCodeInput from "./CouponCodeInput";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
@@ -69,10 +73,78 @@ function userPrefill(user) {
   );
 }
 
-export default function ProductCheckout({ partner, product, price = "" }) {
+function normalizeCouponCode(value = "") {
+  return String(value || "").trim().toUpperCase();
+}
+
+export default function ProductCheckout({
+  partner,
+  product,
+  price = "",
+  initialCouponCode = "",
+}) {
   const { isAuthenticated, openLoginModal, user } = useAuth();
-  const [couponCode, setCouponCode] = useState("");
+  const [couponCode, setCouponCode] = useState(() => normalizeCouponCode(initialCouponCode));
   const [busy, setBusy] = useState(false);
+  const [buyPriceLabel, setBuyPriceLabel] = useState(null);
+  const [estimateError, setEstimateError] = useState(null);
+  const [checkoutHint, setCheckoutHint] = useState("");
+
+  useEffect(() => {
+    const next = normalizeCouponCode(initialCouponCode);
+    if (next) setCouponCode(next);
+  }, [initialCouponCode]);
+
+  useEffect(() => {
+    const partnerSlug = partner?.slug;
+    const productSlug = product?.slug;
+    if (!partnerSlug || !productSlug || !price) {
+      setBuyPriceLabel(null);
+      setEstimateError(null);
+      setCheckoutHint("");
+      return;
+    }
+
+    const code = normalizeCouponCode(couponCode);
+    if (!code) {
+      setBuyPriceLabel(null);
+      setEstimateError(null);
+      setCheckoutHint("");
+      return;
+    }
+
+    setEstimateError(null);
+    setBuyPriceLabel(null);
+    setCheckoutHint("");
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const est = await fetchPartnerCheckoutEstimate({
+          partnerSlug,
+          productSlug,
+          couponCode: code,
+        });
+        if (cancelled) return;
+        setEstimateError(null);
+        const cur = est.currency || "INR";
+        setBuyPriceLabel(formatCurrencyNumber(Number(est.payableAmount), cur));
+        const hint =
+          typeof est.couponDescription === "string" ? est.couponDescription.trim() : "";
+        setCheckoutHint(hint);
+      } catch (err) {
+        if (cancelled) return;
+        setBuyPriceLabel(null);
+        setCheckoutHint("");
+        setEstimateError(err?.message || "Could not apply this coupon.");
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [couponCode, partner?.slug, price, product?.slug]);
 
   const productSlug = product?.slug;
   const partnerSlug = partner?.slug;
@@ -153,17 +225,23 @@ export default function ProductCheckout({ partner, product, price = "" }) {
       <CouponCodeInput
         couponCode={product?.couponCode}
         couponDescription={product?.couponDescription}
+        checkoutHint={checkoutHint}
         value={couponCode}
         onChange={setCouponCode}
       />
+      {estimateError ? (
+        <p className="mt-2 text-xs font-semibold text-red-600">{estimateError}</p>
+      ) : null}
       {price ? (
         <button
           type="button"
-          disabled={busy}
+          disabled={busy || Boolean(estimateError && normalizeCouponCode(couponCode))}
           onClick={handleBuyNow}
           className="mt-5 flex h-[58px] w-full items-center justify-center rounded-[4px] bg-[#357200] px-5 text-[14px] font-black uppercase tracking-[0.18em] text-white shadow-[0_8px_14px_rgba(6,79,31,0.2)] transition hover:bg-[#055f24] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {busy ? "Please wait..." : `Buy Now${price ? ` - ${price}` : ""}`}
+          {busy
+            ? "Please wait..."
+            : `Buy Now - ${buyPriceLabel || price}`}
         </button>
       ) : redirectUrl ? (
         <a

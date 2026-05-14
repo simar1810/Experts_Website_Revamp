@@ -1,13 +1,13 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Dumbbell, Layers, ShieldCheck } from "lucide-react";
 import ProductCheckout from "../../_components/ProductCheckout";
+import ProductDetailImage from "../../_components/ProductDetailImage";
 import {
   fetchPartnerProductDetail,
-  formatProductPrice,
   getProductDescriptionHighlights,
   getProductDetailLabel,
   getProductImageSrc,
+  getProductPriceDisplay,
   getProductTechnicalItems,
 } from "@/lib/partnerProductsApi";
 
@@ -58,16 +58,14 @@ export async function generateMetadata({ params }) {
 }
 
 function ProductImage({ product }) {
+  const imageSrc = getProductImageSrc(product);
   return (
     <div className="rounded-[6px] bg-[#edffd0] p-3">
-      <div className="relative aspect-[1.19/1] overflow-hidden rounded-[6px] bg-[#101910]">
-        <Image
-          src={getProductImageSrc(product)}
+      <div className="relative aspect-[1.19/1] overflow-hidden rounded-[6px] bg-[#edf1e8]">
+        <ProductDetailImage
+          src={imageSrc}
           alt={product.name || "Partner product"}
-          fill
-          priority
-          className="object-cover"
-          sizes="(max-width: 1024px) 92vw, 54vw"
+          fetchPriority="high"
         />
       </div>
     </div>
@@ -110,9 +108,15 @@ function TechnicalItems({ items }) {
   );
 }
 
-export default async function ProductDetailPage({ params }) {
+export default async function ProductDetailPage({ params, searchParams }) {
+  const resolvedSearch = (await searchParams) || {};
+  const initialCouponCode =
+    typeof resolvedSearch.coupon === "string" ? resolvedSearch.coupon : "";
+
   const { partner, product } = await getProduct(params);
-  const price = formatProductPrice(product, { fallback: "" });
+  const { payLabel: price, listLabel: listPrice } = getProductPriceDisplay(product, {
+    fallback: "",
+  });
   const label = getProductDetailLabel(product);
   const technicalItems = getProductTechnicalItems(product);
   const descriptionHighlights = getProductDescriptionHighlights(product);
@@ -151,8 +155,13 @@ export default async function ProductDetailPage({ params }) {
 
             <div className="mt-8">
               {price ? (
-                <p className="text-[38px] font-black leading-none  text-[#263616]">
-                  {price}
+                <p className="text-[38px] font-black leading-none text-[#263616]">
+                  {listPrice ? (
+                    <span className="mr-3 text-[26px] font-bold text-[#9a9f92] line-through">
+                      {listPrice}
+                    </span>
+                  ) : null}
+                  <span>{price}</span>
                   <span className="ml-2 align-middle text-[12px] font-black tracking-[0.16em] text-[#59604e]">
                     (inclusive of all Taxes)
                   </span>
@@ -165,7 +174,12 @@ export default async function ProductDetailPage({ params }) {
             </div>
 
             <div className="mt-12">
-              <ProductCheckout partner={partner} product={product} price={price} />
+              <ProductCheckout
+                partner={partner}
+                product={product}
+                price={price}
+                initialCouponCode={initialCouponCode}
+              />
             </div>
 
             <div className="mt-20">
