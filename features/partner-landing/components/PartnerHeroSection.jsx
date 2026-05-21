@@ -1,4 +1,5 @@
 import { PartnerLandingTheme } from "../domain/PartnerLandingTheme";
+import PartnerSectionLink from "./PartnerSectionLink";
 
 /**
  * Main hero block designed to mirror the reference visual.
@@ -31,12 +32,18 @@ export default function PartnerHeroSection() {
                   {PartnerLandingTheme.HERO_DESCRIPTION}
                 </p>
                 <div className="mt-4 flex gap-2">
-                  <button className="rounded bg-(--brand-primary) px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90">
+                  <PartnerSectionLink
+                    section="products"
+                    className="rounded bg-(--brand-primary) px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                  >
                     Explore Products
-                  </button>
-                  <button className="rounded border border-(--brand-primary) bg-white/70 px-3 py-1.5 text-xs font-semibold text-(--brand-primary) transition hover:bg-white">
+                  </PartnerSectionLink>
+                  <PartnerSectionLink
+                    section="experts"
+                    className="rounded border border-(--brand-primary) bg-white/70 px-3 py-1.5 text-xs font-semibold text-(--brand-primary) transition hover:bg-white"
+                  >
                     Explore Experts
-                  </button>
+                  </PartnerSectionLink>
                 </div>
               </div>
             </div>
@@ -58,12 +65,18 @@ export default function PartnerHeroSection() {
             {PartnerLandingTheme.HERO_DESCRIPTION}
           </p>
           <div className="mt-4 flex gap-2">
-            <button className="rounded bg-(--brand-primary) px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90">
+            <PartnerSectionLink
+              section="products"
+              className="rounded bg-(--brand-primary) px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+            >
               Explore Products
-            </button>
-            <button className="rounded border border-(--brand-primary) bg-white/70 px-3 py-1.5 text-xs font-semibold text-(--brand-primary) transition hover:bg-white">
+            </PartnerSectionLink>
+            <PartnerSectionLink
+              section="experts"
+              className="rounded border border-(--brand-primary) bg-white/70 px-3 py-1.5 text-xs font-semibold text-(--brand-primary) transition hover:bg-white"
+            >
               Explore Experts
-            </button>
+            </PartnerSectionLink>
           </div>
         </div>
       </div>

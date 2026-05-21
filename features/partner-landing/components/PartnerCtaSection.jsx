@@ -1,9 +1,25 @@
+"use client";
+
 import { PartnerLandingTheme } from "../domain/PartnerLandingTheme";
+import {
+  getFindExpertsPageUrl,
+  getShopMarketplaceUrl,
+} from "@/lib/partnerLandingNav";
+
+const ctaLinkClass = {
+  products:
+    "rounded-md bg-white px-4 py-2 text-xs font-semibold text-purple-800 transition hover:bg-purple-100",
+  experts:
+    "rounded-md border border-white px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10",
+};
 
 /**
- * Bottom conversion CTA section.
+ * Bottom conversion CTA — Explore Products → shop marketplace; Explore Experts → /find-experts on main site.
  */
 export default function PartnerCtaSection() {
+  const shopUrl = getShopMarketplaceUrl();
+  const findExpertsUrl = getFindExpertsPageUrl();
+
   return (
     <section
       className="px-4 py-12 text-center text-white sm:px-6"
@@ -19,12 +35,12 @@ export default function PartnerCtaSection() {
           {PartnerLandingTheme.CTA_DESCRIPTION}
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <button className="rounded-md bg-white px-4 py-2 text-xs font-semibold text-purple-800 transition hover:bg-purple-100">
+          <a href={shopUrl} className={ctaLinkClass.products}>
             Explore Products
-          </button>
-          <button className="rounded-md border border-white px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10">
+          </a>
+          <a href={findExpertsUrl} className={ctaLinkClass.experts}>
             Explore Experts
-          </button>
+          </a>
         </div>
       </div>
     </section>

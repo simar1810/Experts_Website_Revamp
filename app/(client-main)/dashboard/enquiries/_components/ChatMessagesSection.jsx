@@ -11,6 +11,7 @@ import {
 import { Search, Loader } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { getClientAuthToken } from "@/lib/clientAuthStorage";
 import { fetchAPI } from "@/lib/api";
 import { normalizeThreadId } from "@/lib/utils";
 import { ClientChatProvider } from "@/features/client-experts-chat/state/ClientChatContext";
@@ -189,9 +190,19 @@ const ChatMessagesSection = () => {
   const { isAuthenticated, openLoginModal } = useAuth();
   const [threads, setThreads] = useState(null);
   const [loadError, setLoadError] = useState(null);
+  /** Avoid SSR/hydration flash of the sign-in UI before local token is read. */
+  const [clientReady, setClientReady] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    setClientReady(true);
+  }, []);
+
+  const canLoadChats =
+    clientReady &&
+    (isAuthenticated || Boolean(getClientAuthToken()));
+
+  useEffect(() => {
+    if (!canLoadChats) {
       return;
     }
     let cancelled = false;
@@ -224,9 +235,13 @@ const ChatMessagesSection = () => {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated]);
+  }, [canLoadChats]);
 
-  if (!isAuthenticated) {
+  if (!clientReady || (canLoadChats && threads === null)) {
+    return <ThreadsLoading />;
+  }
+
+  if (!canLoadChats) {
     return (
       <div className="mx-auto font-lato flex min-h-0 flex-1 max-w-lg flex-col items-center justify-center py-16 px-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900">Your chats</h1>
@@ -242,10 +257,6 @@ const ChatMessagesSection = () => {
         </Button>
       </div>
     );
-  }
-
-  if (threads === null) {
-    return <ThreadsLoading />;
   }
 
   if (loadError && (!threads || threads.length === 0)) {

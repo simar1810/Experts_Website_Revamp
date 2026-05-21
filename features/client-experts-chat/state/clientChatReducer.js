@@ -41,6 +41,11 @@ export function clientChatReducer(state, action) {
         ...state,
         stage: "socket-connected",
       };
+    case "set-threads":
+      return {
+        ...state,
+        threads: Array.isArray(action.payload) ? action.payload : [],
+      };
     case "set-active-thread": {
       const id = normalizeThreadId(action.payload);
       return { ...state, activeThreadId: id };

@@ -3,34 +3,35 @@
 import { createContext, useContext, useEffect, useReducer } from "react";
 import { buildClientChatInitialState } from "./initial-state";
 import { clientChatReducer } from "./clientChatReducer";
-import ClientChatLoader from "../components/ClientChatLoader";
 import { initializeClientChat } from "../utils/socket";
+import { useExpertsChatSocketJoin } from "../utils/expertsChatSocket";
+import { getClientAuthToken } from "@/lib/clientAuthStorage";
 
 const ClientChatContext = createContext(null);
 
 export function ClientChatProvider({ children, threads, activeThreadId = "" }) {
+  const authToken =
+    typeof window !== "undefined" ? getClientAuthToken() : null;
+
   const [state, dispatch] = useReducer(
     clientChatReducer,
     buildClientChatInitialState(threads),
   );
 
   useEffect(() => {
+    dispatch({ type: "set-threads", payload: threads });
+  }, [threads]);
+
+  useEffect(() => {
     dispatch({ type: "set-active-thread", payload: activeThreadId });
   }, [activeThreadId]);
 
   useEffect(() => {
-    const token =
-      typeof window !== "undefined"
-        ? window.localStorage.getItem("client_token")
-        : null;
-    if (!token) {
-      dispatch({
-        type: "error",
-        payload: "Not signed in",
-      });
+    if (!authToken) {
       return undefined;
     }
-    const socket = initializeClientChat(token, dispatch);
+
+    const socket = initializeClientChat(authToken, dispatch);
     dispatch({ type: "setup-socket", payload: socket });
     return () => {
       try {
@@ -39,7 +40,9 @@ export function ClientChatProvider({ children, threads, activeThreadId = "" }) {
         /* ignore */
       }
     };
-  }, []);
+  }, [authToken]);
+
+  useExpertsChatSocketJoin(state.socket, activeThreadId);
 
   return (
     <ClientChatContext.Provider
@@ -48,7 +51,7 @@ export function ClientChatProvider({ children, threads, activeThreadId = "" }) {
         dispatch,
       }}
     >
-      {state.stage === "building-connection" ? <ClientChatLoader /> : children}
+      {children}
     </ClientChatContext.Provider>
   );
 }

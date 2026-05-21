@@ -55,12 +55,21 @@ function ProductCard({ item }) {
         </div>
       </div>
       <div className="flex items-end justify-between border-t border-gray-100 px-4 py-3">
-        <p className="leading-none">
-          <span className="text-xl font-black text-(--brand-primary)">
-            {item.priceText}
-          </span>
-          <span className="ml-2 text-sm text-gray-500">/month</span>
-        </p>
+        <div className="leading-none">
+          <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-xl font-black text-(--brand-primary)">
+              {item.priceText}
+            </span>
+            {item.priceSuffix ? (
+              <span className="text-sm text-gray-500">{item.priceSuffix}</span>
+            ) : null}
+          </p>
+          {item.listPriceText ? (
+            <p className="mt-1 text-xs text-gray-400 line-through">
+              {item.listPriceText}
+            </p>
+          ) : null}
+        </div>
         {canBuy ? (
           <Button
             onClick={() => {

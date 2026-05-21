@@ -1,6 +1,7 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import ClientNavbar from "../_components/common/client-navbar/ClientNavbar";
 import { AppSidebar } from "./_components/app-sidebar";
+import ShopToMainDashboardRedirect from "./_components/ShopToMainDashboardRedirect";
 
 export const metadata = {
   title: "Zeefit | Dashboard",
@@ -8,6 +9,8 @@ export const metadata = {
 
 export default function ClientDashboardLayout({ children }) {
   return (
+    <>
+    <ShopToMainDashboardRedirect />
     <SidebarProvider
       className="flex h-svh max-h-svh min-h-0 w-full overflow-hidden"
       style={{
@@ -32,5 +35,6 @@ export default function ClientDashboardLayout({ children }) {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </>
   );
 }

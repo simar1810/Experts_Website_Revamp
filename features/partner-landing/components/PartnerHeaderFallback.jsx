@@ -1,4 +1,5 @@
 import Image from "next/image";
+import PartnerSectionLink from "./PartnerSectionLink";
 
 /**
  * Local fallback header shown when backend header HTML is absent.
@@ -24,12 +25,18 @@ export default function PartnerHeaderFallback({ brand }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="rounded-md bg-[var(--brand-primary)] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90">
+          <PartnerSectionLink
+            section="products"
+            className="rounded-md bg-[var(--brand-primary)] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+          >
             Explore Products
-          </button>
-          <button className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100">
+          </PartnerSectionLink>
+          <PartnerSectionLink
+            section="experts"
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100"
+          >
             Explore Experts
-          </button>
+          </PartnerSectionLink>
         </div>
       </div>
     </header>

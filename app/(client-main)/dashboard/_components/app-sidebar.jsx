@@ -20,6 +20,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getMainSiteUrl, isShopBrowserHost } from "@/lib/shopHost";
 
 const NAV_ITEMS = [
   { label: "Profile Overview", href: "/dashboard", icon: User },
@@ -60,8 +61,13 @@ function WellnessLogo() {
   );
 }
 
+function navHref(path) {
+  return getMainSiteUrl(path);
+}
+
 export function AppSidebar() {
   const pathname = usePathname() ?? "";
+  const linksLeaveShop = isShopBrowserHost();
 
   return (
     <Sidebar collapsible="offcanvas" className="border-r border-sidebar-border">
@@ -99,33 +105,63 @@ export function AppSidebar() {
                       "[&_span_svg]:size-5 [&_span_svg]:shrink-0",
                     )}
                   >
-                    <Link
-                      href={href}
-                      className="flex w-full items-center gap-3"
-                    >
-                      <span className="relative inline-flex size-5 shrink-0 items-center justify-center">
-                        <Icon
-                          size={20}
-                          strokeWidth={1.5}
-                          className="size-5 shrink-0"
-                        />
-                      </span>
-                      <span className="flex-1 truncate text-left text-[16px] font-semibold">
-                        {label}
-                      </span>
-                      {notify ? (
-                        <span
-                          className="size-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.6)]"
-                          aria-hidden
-                        />
-                      ) : null}
-                      {chevron ? (
-                        <ChevronRight
-                          size={16}
-                          className="size-4 shrink-0 text-zinc-600"
-                        />
-                      ) : null}
-                    </Link>
+                    {linksLeaveShop ? (
+                      <a
+                        href={navHref(href)}
+                        className="flex w-full items-center gap-3"
+                      >
+                        <span className="relative inline-flex size-5 shrink-0 items-center justify-center">
+                          <Icon
+                            size={20}
+                            strokeWidth={1.5}
+                            className="size-5 shrink-0"
+                          />
+                        </span>
+                        <span className="flex-1 truncate text-left text-[16px] font-semibold">
+                          {label}
+                        </span>
+                        {notify ? (
+                          <span
+                            className="size-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.6)]"
+                            aria-hidden
+                          />
+                        ) : null}
+                        {chevron ? (
+                          <ChevronRight
+                            size={16}
+                            className="size-4 shrink-0 text-zinc-600"
+                          />
+                        ) : null}
+                      </a>
+                    ) : (
+                      <Link
+                        href={href}
+                        className="flex w-full items-center gap-3"
+                      >
+                        <span className="relative inline-flex size-5 shrink-0 items-center justify-center">
+                          <Icon
+                            size={20}
+                            strokeWidth={1.5}
+                            className="size-5 shrink-0"
+                          />
+                        </span>
+                        <span className="flex-1 truncate text-left text-[16px] font-semibold">
+                          {label}
+                        </span>
+                        {notify ? (
+                          <span
+                            className="size-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.6)]"
+                            aria-hidden
+                          />
+                        ) : null}
+                        {chevron ? (
+                          <ChevronRight
+                            size={16}
+                            className="size-4 shrink-0 text-zinc-600"
+                          />
+                        ) : null}
+                      </Link>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );

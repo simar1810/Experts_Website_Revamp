@@ -45,10 +45,10 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
           ))}
         </div>
 
-        <div className="relative mt-10 hidden sm:mt-12 sm:block sm:overflow-hidden sm:pb-2 sm:-mx-2 sm:px-2">
+        <div className="relative mt-10 hidden sm:mt-12 sm:block sm:overflow-x-hidden sm:overflow-y-visible sm:py-4 sm:-my-4 sm:pb-2 sm:-mx-2 sm:px-3">
           <div
             className={cn(
-              "flex w-max gap-6 animate-top-programs-marquee motion-reduce:animate-none",
+              "flex w-max gap-6 py-2 animate-top-programs-marquee motion-reduce:animate-none",
               /* Pause on card hover via :has() — works after bfcache; avoids brittle React mouse events */
               "[&:has(article:hover)]:paused",
               "[&:has(article:focus-within)]:paused",

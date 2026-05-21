@@ -8,6 +8,23 @@ import { availableCities } from "@/lib/data/locations";
 import { availableSpecialities } from "@/lib/data/specialities";
 import ExpertProfilePageClient from "./ExpertProfilePageClient";
 
+/** App routes — must not be treated as city slugs in the 1-segment catch-all. */
+const RESERVED_ROOT_SEGMENTS = new Set([
+  "dashboard",
+  "profile",
+  "find-experts",
+  "discover-programs",
+  "enquiries",
+  "collections",
+  "legal",
+  "experts",
+  "pricing",
+  "blogs",
+  "testimonials",
+  "coach_profile",
+  "home",
+]);
+
 function labelFromSlugPreferList(slug, list) {
   const key = slugifySegment(slug);
   const hit = list.find((item) => slugifySegment(item) === key);
@@ -25,6 +42,10 @@ export default async function ExpertProfileCatchAllPage({ params }) {
   }
 
   if (segments.length === 1) {
+    const head = String(segments[0] ?? "").toLowerCase();
+    if (RESERVED_ROOT_SEGMENTS.has(head)) {
+      notFound();
+    }
     const q = new URLSearchParams();
     q.set("location", labelFromSlugPreferList(segments[0], availableCities));
     redirect(`/find-experts?${q.toString()}`);

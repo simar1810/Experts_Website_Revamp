@@ -38,6 +38,32 @@ function isShopPassthroughPath(pathname: string) {
   return false;
 }
 
+/**
+ * Main Zeefit app routes (not partner product short URLs).
+ * On shop.* these must not be rewritten to /collections/... — that path is handled
+ * by collections product pages or, for unknown /collections/x/y, wrongly matches the
+ * root expert catch-all and redirects to /find-experts?location=Collections&...
+ */
+const SHOP_MAIN_APP_PREFIXES = [
+  "/dashboard",
+  "/find-experts",
+  "/discover-programs",
+  "/enquiries",
+  "/legal",
+  "/experts",
+  "/pricing",
+  "/blogs",
+  "/testimonials",
+  "/coach_profile",
+  "/home",
+];
+
+function isShopMainAppPath(pathname: string) {
+  return SHOP_MAIN_APP_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
 function rewriteShopToCollections(request: NextRequest, pathname: string) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url", request.url);
@@ -97,7 +123,7 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   if (isShopRequestHost(host, shopHostname)) {
-    if (isShopPassthroughPath(pathname)) {
+    if (isShopPassthroughPath(pathname) || isShopMainAppPath(pathname)) {
     } else if (pathname === "/" || pathname === "") {
       return rewriteShopToCollections(request, pathname);
     } else if (isCollectionsPath(pathname)) {

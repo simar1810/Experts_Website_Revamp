@@ -8,6 +8,10 @@ import {
   formatCurrencyNumber,
 } from "@/lib/partnerProductsApi";
 import CouponCodeInput from "./CouponCodeInput";
+import {
+  clearClientAuth,
+  getClientAuthToken,
+} from "@/lib/clientAuthStorage";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 const RAZORPAY_KEY =
@@ -37,7 +41,7 @@ function loadRazorpayScript() {
 async function postWithAuth(endpoint, body) {
   const headers = { "Content-Type": "application/json" };
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("client_token");
+    const token = getClientAuthToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
@@ -49,7 +53,7 @@ async function postWithAuth(endpoint, body) {
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401 && typeof window !== "undefined") {
-    localStorage.removeItem("client_token");
+    clearClientAuth();
     window.dispatchEvent(new Event("auth_unauthorized"));
   }
 

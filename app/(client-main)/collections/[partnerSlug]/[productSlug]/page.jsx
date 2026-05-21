@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { Dumbbell, Layers, ShieldCheck } from "lucide-react";
 import ProductCheckout from "../../_components/ProductCheckout";
 import ProductDetailImage from "../../_components/ProductDetailImage";
+import ProductTechnicalItems from "../../_components/ProductTechnicalItems";
 import {
   fetchPartnerProductDetail,
   getProductDescriptionHighlights,
@@ -69,42 +69,6 @@ function ProductImage({ product }) {
         />
       </div>
     </div>
-  );
-}
-
-function TechnicalItems({ items }) {
-  const icons = [Dumbbell, Layers, ShieldCheck];
-
-  if (!items.length) return null;
-
-  return (
-    <section className="border-t border-[#edf1e8] pt-8">
-      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#263616]">
-        Technical Components
-      </p>
-      <div className="mt-7 space-y-7">
-        {items.map((item, index) => {
-          const Icon = icons[index % icons.length];
-          return (
-            <div key={`${item.title}-${index}`} className="flex gap-4">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#eeffc7] text-[#426b16]">
-                <Icon className="size-4" strokeWidth={2} />
-              </div>
-              <div>
-                <h2 className="text-[13px] font-black leading-tight tracking-[-0.04em] text-[#263616]">
-                  {item.title}
-                </h2>
-                {item.description ? (
-                  <p className="mt-1 max-w-[360px] text-[11px] leading-[1.35] text-[#8a907d]">
-                    {item.description}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
   );
 }
 
@@ -183,7 +147,7 @@ export default async function ProductDetailPage({ params, searchParams }) {
             </div>
 
             <div className="mt-20">
-              <TechnicalItems
+              <ProductTechnicalItems
                 items={
                   technicalItems.length ? technicalItems : fallbackTechnicalItems
                 }

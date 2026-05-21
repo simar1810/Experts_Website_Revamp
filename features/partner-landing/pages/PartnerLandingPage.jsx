@@ -36,7 +36,14 @@ export default async function PartnerLandingPage({ partner }) {
       )}
 
       <PartnerHeroSection />
-      {vm.showExperts ? <TopExpertsSection partner={partner} /> : null}
+
+      <div
+        id="experts"
+        className="scroll-mt-24"
+        aria-label="Experts section"
+      >
+        {vm.showExperts ? <TopExpertsSection partner={partner} /> : null}
+      </div>
 
       {/* Divider */}
       <div className="mx-auto my-8 w-full max-w-6xl px-4 sm:px-6">
@@ -46,7 +53,13 @@ export default async function PartnerLandingPage({ partner }) {
         />
       </div>
 
-      {vm.showPrograms ? <TopProductsSection partner={partner} /> : null}
+      <div
+        id="products"
+        className="scroll-mt-24"
+        aria-label="Products section"
+      >
+        {vm.showPrograms ? <TopProductsSection partner={partner} /> : null}
+      </div>
       <PartnerCtaSection />
 
       {vm.footerHtml ? (
