@@ -16,7 +16,7 @@ import Services from "./_components/Services";
 import MembershipPrograms from "./_components/MembershipPrograms";
 import StoriesContact from "./_components/StoriesContact";
 
-export default function ExpertProfilePageClient({ listingId, previewMode = false }) {
+export default function ExpertProfilePageClient({ listingId }) {
   const { isAuthenticated, openLoginModal, openRegisterModal, user } =
     useAuth();
   const router = useRouter();
@@ -44,10 +44,7 @@ export default function ExpertProfilePageClient({ listingId, previewMode = false
         if (!coachData) {
           setIsLoading(true);
         }
-        const endpoint = previewMode
-          ? "/experts/listing/preview/details"
-          : "/experts/listing/public/details";
-        const data = await fetchAPI(endpoint, {
+        const data = await fetchAPI("/experts/listing/public/details", {
           listingId,
         });
         setCoachData(data);
@@ -62,7 +59,7 @@ export default function ExpertProfilePageClient({ listingId, previewMode = false
     };
 
     getCoachDetails();
-  }, [listingId, previewMode]);
+  }, [listingId]);
 
   const coachInfo = useMemo(() => coachData?.coach || {}, [coachData]);
   const details = useMemo(() => coachData?.expertDetails || {}, [coachData]);
@@ -123,12 +120,6 @@ export default function ExpertProfilePageClient({ listingId, previewMode = false
 
   return (
     <main className="bg-white min-h-screen pb-10 font-manrope ">
-      {previewMode ? (
-        <div className="bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-900">
-          Preview mode — this is how your profile will look once it&apos;s approved
-          and live.
-        </div>
-      ) : null}
       <div className="flex w-full flex-col gap-y-20">
         <Hero
           coachInfo={coachInfo}
