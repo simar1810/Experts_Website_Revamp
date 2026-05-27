@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import {
-  resolveListingIdFromProfilePath,
+  resolveListingFromProfilePath,
   titleCaseFromSlug,
 } from "@/lib/expertProfileSlug";
 import { slugifySegment } from "@/lib/slugifyPathSegment";
@@ -52,11 +52,14 @@ export default async function ExpertProfileCatchAllPage({ params }) {
     decodedName = nameSegment;
   }
 
-  const listingId = await resolveListingIdFromProfilePath(
+  const resolved = await resolveListingFromProfilePath(
     location,
     specialisation,
     decodedName,
   );
-  if (!listingId) notFound();
-  return <ExpertProfilePageClient listingId={String(listingId)} />;
+  if (!resolved?.listingId) notFound();
+  if (!resolved.approved) {
+    redirect(`/preview/expert/${encodeURIComponent(resolved.listingId)}`);
+  }
+  return <ExpertProfilePageClient listingId={String(resolved.listingId)} />;
 }

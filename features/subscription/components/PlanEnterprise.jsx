@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { selectPlanCode } from "../state/reducer";
 import { usePricingPageContext } from "../state/PricingSectionContext";
-import SalesContactForm from "./SalesContactForm";
+import CreateRazorpayOrderButton from "./CreateRazorpayOrderButton";
 
 export default function PlanEnterprise({ plan }) {
   const { selectedPlanCode, dispatch, coachId } = usePricingPageContext();
@@ -14,7 +14,7 @@ export default function PlanEnterprise({ plan }) {
     <article
       className={cn(
         "w-full rounded-[40px] p-10 transition-all duration-300 select-none cursor-pointer overflow-hidden",
-        "bg-gradient-to-r from-[#2D5A27] via-[#438439] to-[#67BC2A]",
+        "bg-linear-to-r from-[#2D5A27] via-[#438439] to-[#67BC2A]",
         selectedPlanCode === plan.code ? "ring-4 ring-white shadow-2xl" : "hover:shadow-xl"
       )}
       onClick={() => dispatch(selectPlanCode(plan.code))}
@@ -50,17 +50,14 @@ export default function PlanEnterprise({ plan }) {
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
         >
-          <SalesContactForm
-            plans={[plan]}
-            trigger={
-              <button
-                type="button"
-                className="min-w-[200px] rounded-full bg-white px-10 py-5 text-[20px] font-bold text-[#2D5A27] transition-all hover:bg-gray-100 active:scale-95 shadow-lg"
-              >
-                {buttonLabel}
-              </button>
-            }
-          />
+          <CreateRazorpayOrderButton planId={plan.code}>
+            <button
+              type="button"
+              className="min-w-[200px] rounded-full bg-white px-10 py-5 text-[20px] font-bold text-[#2D5A27] transition-all hover:bg-gray-100 active:scale-95 shadow-lg"
+            >
+              {buttonLabel}
+            </button>
+          </CreateRazorpayOrderButton>
         </div>
       </div>
     </article>
