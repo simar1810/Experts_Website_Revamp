@@ -59,7 +59,7 @@ export default function CreateRazorpayOrderButton({ children, planId }) {
                 planCode: getPlanCodeForPlanType(state.selectedPlanCode),
               },
             );
-          window.location.href = `/pricing/thank-you?redirect=${encodeURIComponent(redirectUrl)}`;
+          window.location.href = `/getlisted/thank-you?redirect=${encodeURIComponent(redirectUrl)}`;
         },
       });
 

@@ -1,5 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/pricing",
+        destination: "/getlisted",
+        permanent: true,
+      },
+      {
+        source: "/pricing/:path*",
+        destination: "/getlisted/:path*",
+        permanent: true,
+      },
+    ];
+  },
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

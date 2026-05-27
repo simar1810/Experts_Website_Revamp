@@ -46,7 +46,7 @@
 //   const navLinks = [
 //     { name: "Home", href: "/" },
 //     { name: "Experts", href: "/experts" },
-//     { name: "Pricing", href: "/pricing" },
+//     { name: "Get Listed", href: "/getlisted" },
 //   ];
 
 //   const handleLogout = () => {

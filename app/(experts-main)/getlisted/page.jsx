@@ -1,5 +1,4 @@
 "use client"
-import DeliverySection from "@/features/subscription/components/DeliverySection"
 import FeatureSection from "@/features/subscription/components/FeatureSection"
 import HeroPricing from "@/features/subscription/components/HeroPricing"
 import PricingSection from "@/features/subscription/components/PricingSection"
@@ -8,7 +7,7 @@ import { PRICING_TESTIMONIAL_VIDEOS } from "@/features/subscription/utils/testim
 
 export default function Page() {
 	return (
-		<main className="min-h-dvh scroll-smooth bg-white font-lato text-neutral-900 antialiased">
+		<main className="min-h-dvh w-full max-w-full overflow-x-clip scroll-smooth bg-white font-lato text-neutral-900 antialiased">
 			<HeroPricing />
 			<FeatureSection />
 			<TestimonialShowcase
@@ -16,7 +15,6 @@ export default function Page() {
 				testimonialsHref="/testimonials"
 				videos={PRICING_TESTIMONIAL_VIDEOS}
 			/>
-			<DeliverySection />
 			<PricingSection />
 		</main>
 	)

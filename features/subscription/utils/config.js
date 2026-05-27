@@ -52,9 +52,9 @@ export const plans = [
   {
     id: 1,
     code: "basic",
-    title: "Basic Level Coach",
+    title: "GET PREFERRED",
     description:
-      "For coaches who want better visibility, client management, and brand trust.",
+      "Stand out from listed coaches. Win client trust with premium placement.",
     bestFor:
       "Better client discovery and profile credibility.",
     features: [
@@ -63,8 +63,7 @@ export const plans = [
       "Premium placement compared to free listings",
       "WellnessZ Basic Plan access for 20+ clients",
       "Reach of 1,500+ people every day",
-      "Access to Zeefit partner fitness brands",
-      "Earn affiliate income from top health and fitness brands",
+      "Earn affiliate income from top health brands",
       "Better client discovery and profile credibility",
     ],
     buttonText: (renewal) => (renewal ? "Renew Now" : "Get Started"),
@@ -95,7 +94,7 @@ export const plans = [
   {
     id: 2,
     code: "pro",
-    title: "Pro Level Coach",
+    title: "GET FEATURED",
     description:
       "For coaches who want stronger authority, visibility, and business growth support.",
     bestFor:
@@ -108,7 +107,6 @@ export const plans = [
       "Blog/article placement opportunities",
       "Partner listing opportunities",
       "WellnessZ Pro Plan access to manage up to 80 clients",
-      "Stronger authority-building support for your coaching brand",
     ],
     buttonText: (renewal) => (renewal ? "Renew Now" : "Get Started"),
     billingText: () => "Billed Monthly",
@@ -138,7 +136,7 @@ export const plans = [
   {
     id: 3,
     code: "iosBranded",
-    title: "Z Coach",
+    title: "GET BRANDED",
     description: "For serious coaches who want their own branded coaching ecosystem.",
     bestFor:
       "Best for coaches ready to build a premium coaching business.",
@@ -152,10 +150,7 @@ export const plans = [
       "Premium expert profile on Zeefit",
       "Higher visibility across Zeefit",
       "Centralized Meta ads support",
-      "Stronger authority positioning",
-      "Listing on partnered nutrition brand websites",
       "Unlimited client management",
-      "Unlimited storage on your own app",
     ],
     discountedPrice: (months, currency) => {
       if (months === 1 && currency === "INR") {
@@ -220,15 +215,17 @@ export const enterprisePlan = {
 };
 
 export const freeTier = {
+  title: "GET DISCOVERED",
+  description:
+    "Build your foundation. Get discovered by serious clients looking for coaches.",
   features: [
-    "Basic coach profile listing on Zeefit",
-    "Visibility among listed coaches",
-    "WellnessZ app access for your first 3 clients",
-    "Tools to improve your profile presence",
-    "Reach of 1,000+ people on your profile",
-    "Best for new coaches who want to start getting discovered"
-  ]
-}
+    "Your coach profile, live on Zeefit",
+    "Get discovered by 1,000+ fitness-focused users",
+    "WellnessZ app access — manage your first 3 clients",
+    "Profile optimization tools",
+    "Foundation to build your client base",
+  ],
+};
 
 export const partnerLogos = [
   "/experts-logo.png",
