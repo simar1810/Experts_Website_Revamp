@@ -3,7 +3,6 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -133,16 +132,6 @@ export function AppSidebar() {
           )}
         </SidebarMenu>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-zinc-800/60 p-3">
-        <button
-          type="button"
-          className="flex size-11 items-center justify-center rounded-full bg-zinc-900 text-sm font-bold text-white ring-1 ring-zinc-700/80 transition hover:bg-zinc-800"
-          aria-label="Account"
-        >
-          N
-        </button>
-      </SidebarFooter>
     </Sidebar>
   );
 }

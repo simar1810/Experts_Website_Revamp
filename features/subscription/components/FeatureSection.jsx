@@ -19,7 +19,7 @@ function FeatureVisual({ index }) {
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-2xl bg-[#a6cf88] md:rounded-3xl",
+        "relative w-full overflow-hidden rounded-2xl bg-slate-100 md:rounded-3xl",
         "aspect-4/5 min-h-[260px] md:min-h-0",
         "ring-1 ring-black/4 ring-inset"
       )}
@@ -118,7 +118,7 @@ export default function FeatureSection() {
                         size="lg"
                         className="h-12 rounded-xl bg-[#2E7D32] px-7 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628] md:h-12 md:px-8"
                       >
-                        <a href="#pricing-hero-video" className="inline-flex items-center gap-2">
+                        <a href="#pricing-plans" className="inline-flex items-center gap-2">
                           {`JOIN ${displayName.toUpperCase()}`}
                           <ArrowRight className="h-4 w-4 opacity-90" />
                         </a>

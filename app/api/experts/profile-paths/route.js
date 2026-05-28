@@ -33,6 +33,10 @@ export async function POST(request) {
   }
 
   const rawIds = Array.isArray(body?.listingIds) ? body.listingIds : [];
+  const fallbackProfiles =
+    body?.fallbackProfiles && typeof body.fallbackProfiles === "object"
+      ? body.fallbackProfiles
+      : {};
   const unique = [
     ...new Set(rawIds.map((x) => String(x).trim()).filter(Boolean)),
   ].slice(0, MAX_IDS);
@@ -56,7 +60,23 @@ export async function POST(request) {
 
   for (let i = 0; i < unique.length; i++) {
     const listingId = unique[i];
-    const data = detailsList[i];
+    let data = detailsList[i];
+    if (!data) {
+      const fallback = fallbackProfiles[listingId];
+      if (fallback && typeof fallback === "object") {
+        data = {
+          coach: { name: fallback.name || "" },
+          expertDetails: {
+            city: fallback.city || "",
+            specializations: Array.isArray(fallback.specializations)
+              ? fallback.specializations
+              : fallback.profession
+                ? [fallback.profession]
+                : [],
+          },
+        };
+      }
+    }
     if (!data) continue;
     const city = String(data?.expertDetails?.city || "").trim();
     if (!city) continue;

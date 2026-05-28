@@ -63,7 +63,7 @@ export default function PromoSection() {
 
             <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-4 pt-4">
               <Link
-                href="/pricing"
+                href="/getlisted"
                 className="bg-[#84CC16] hover:bg-[#a3e635] text-white px-6 py-3 rounded-[15px] sm:rounded-[20px] font-black text-base sm:text-lg transition-all inline-flex items-center justify-center gap-3 shadow-2xl shadow-black/30 hover:-translate-y-1 active:scale-95"
               >
                 Become a Expert <span className="text-xl sm:text-2xl">→</span>

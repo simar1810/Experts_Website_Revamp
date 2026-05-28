@@ -50,8 +50,8 @@ const appMockups = [
 
 function BrandAppMockup() {
   return (
-    <div className="relative -mx-8 flex min-h-[600px] w-[calc(100%+4rem)] items-center justify-center overflow-visible px-8">
-      <div className="absolute h-[540px] w-[540px] rounded-full bg-[#67BC2A]/15 blur-3xl" />
+    <div className="relative flex min-h-[600px] w-full items-center justify-center overflow-hidden px-2 sm:px-4">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[min(100vw,540px)] w-[min(100vw,540px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#67BC2A]/15 blur-3xl" />
 
       <div className="relative flex w-full max-w-[640px] items-center justify-center">
         {appMockups.map((mockup, index) => (
@@ -59,8 +59,8 @@ function BrandAppMockup() {
             key={mockup.src}
             className={`relative aspect-[9/19.5] w-[58%] max-w-[280px] sm:w-[52%] ${
               index === 0
-                ? "translate-x-10 rotate-[-5deg] sm:translate-x-16"
-                : "-translate-x-10 translate-y-10 rotate-[5deg] sm:-translate-x-16"
+                ? "translate-x-4 rotate-[-5deg] sm:translate-x-16"
+                : "-translate-x-4 translate-y-10 rotate-[5deg] sm:-translate-x-16"
             }`}
           >
             <Image
