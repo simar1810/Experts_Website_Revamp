@@ -3,7 +3,6 @@
 import { postData } from "@/lib/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { parsePhoneNumber } from "react-phone-number-input";
 import { freeTier } from "../utils/config";
 import { usePricingPageContext } from "../state/PricingSectionContext";
 import PricingFillDetailsModal from "./PricingFillDetailsModal";
@@ -35,26 +34,42 @@ export default function PlanFreeTier() {
 
   const submitFreeTier = async function (form) {
     try {
-      const parsed = form.mobileNumber
-        ? parsePhoneNumber(form.mobileNumber)
-        : undefined;
       const payload = {
         name: form.name,
-        countryCode: parsed?.country ?? "IN",
-        mobileNumber:
-          parsed?.nationalNumber ??
-          String(form.mobileNumber).replace(/\D/g, ""),
+        email: form.email,
+        city: form.city,
+        profession: form.profession,
+        countryCode: form.countryCode || "IN",
+        mobileNumber: form.nationalMobileNumber,
       };
 
-      const response = await postData(
+      const freeTierResponse = await postData(
         "app/subscriptions/initialize-free-tier",
         payload,
       );
-      if (response.status_code !== 200) throw new Error(response.message);
-      toast.success(response.message);
-      setDetailsOpen(false);
+      if (
+        freeTierResponse.status_code !== 200 &&
+        !String(freeTierResponse.message || "")
+          .toLowerCase()
+          .includes("ineligible")
+      ) {
+        throw new Error(freeTierResponse.message);
+      }
+
+      const otpResponse = await postData(
+        "app/signin?authMode=mob&clientType=web",
+        {
+          credential: payload.mobileNumber,
+          countryCode: payload.countryCode,
+          fcmToken: "",
+        },
+      );
+      if (otpResponse.status_code !== 200) throw new Error(otpResponse.message);
+      toast.success("OTP sent successfully!");
+      return otpResponse;
     } catch (error) {
       toast.error(error.message ?? "Please try again later.");
+      throw error;
     }
   };
 

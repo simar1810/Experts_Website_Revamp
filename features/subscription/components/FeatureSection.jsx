@@ -19,7 +19,7 @@ function FeatureVisual({ index }) {
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-2xl bg-[#a6cf88] md:rounded-3xl",
+        "relative w-full overflow-hidden rounded-2xl bg-slate-100 md:rounded-3xl",
         "aspect-4/5 min-h-[260px] md:min-h-0",
         "ring-1 ring-black/4 ring-inset"
       )}

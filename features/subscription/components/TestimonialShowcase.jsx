@@ -162,12 +162,12 @@ export default function TestimonialShowcase({
         {` with ${displayName}.`}
       </p>
       <p className="relative z-10 mt-4 text-center">
-        <Link
+        {/* <Link
           href={testimonialsHref}
           className="text-sm font-semibold text-white underline decoration-white/50 underline-offset-4 transition hover:decoration-white md:text-base"
         >
           {testimonialsLabel}
-        </Link>
+        </Link> */}
       </p>
       <h3 className="sr-only">Video testimonials from coaches</h3>
 
