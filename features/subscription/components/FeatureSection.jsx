@@ -118,7 +118,7 @@ export default function FeatureSection() {
                         size="lg"
                         className="h-12 rounded-xl bg-[#2E7D32] px-7 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628] md:h-12 md:px-8"
                       >
-                        <a href="#pricing-hero-video" className="inline-flex items-center gap-2">
+                        <a href="#pricing-plans" className="inline-flex items-center gap-2">
                           {`JOIN ${displayName.toUpperCase()}`}
                           <ArrowRight className="h-4 w-4 opacity-90" />
                         </a>

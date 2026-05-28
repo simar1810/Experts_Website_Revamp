@@ -8,7 +8,7 @@ import TestimonialShowcase from "@/features/subscription/components/TestimonialS
 import { PRICING_TESTIMONIAL_VIDEOS } from "@/features/subscription/utils/testimonialVideos"
 export default function Page() {
 	return (
-		<main className="min-h-dvh scroll-smooth bg-white font-lato text-neutral-900 antialiased">
+		<main className="min-h-dvh scroll-smooth bg-white pb-[100px] font-lato text-neutral-900 antialiased lg:pb-0">
 			<HeroPricing />
 			<FeatureSection />
 			<TestimonialShowcase
