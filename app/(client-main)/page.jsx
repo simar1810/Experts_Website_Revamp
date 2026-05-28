@@ -56,10 +56,10 @@ const FinalCtaSection = dynamic(
   { loading: () => <LandingSectionSkeleton /> },
 );
 
-const TITLE = "Zeefit";
+const TITLE = "Best Listing Platform for Dietitians & Coaches in India";
 
 const DESCRIPTION =
-  "The curated marketplace connecting high-performance athletes with elite-level coaches. Discover transformation programs by nutritionists, fitness coaches, and wellness experts.";
+  "Discover Zeefit by WellnessZ, India's best listing platform for dietitians, nutritionists, wellness coaches, and health professionals to grow and connect with clients.";
 
 export const metadata = {
   metadataBase: new URL(`${SITE_URL_NORMALIZED}/`),
