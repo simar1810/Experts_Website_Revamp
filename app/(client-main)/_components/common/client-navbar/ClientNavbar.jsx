@@ -56,7 +56,7 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Find Experts", href: "/find-experts" },
-    // { name: "Collections", href: "/collections" },
+    // { name: "Marketplace", href: "/marketplace" },
     { name: "Browse Programs", href: "/discover-programs" },
   ];
 

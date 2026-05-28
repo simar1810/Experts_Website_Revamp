@@ -1,4 +1,4 @@
-export default function CollectionErrorMessage({ message }) {
+export default function MarketplaceErrorMessage({ message }) {
   if (!message) return null;
 
   return (

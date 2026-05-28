@@ -1,4 +1,4 @@
-export default function CollectionsLoading() {
+export default function MarketplaceLoading() {
   return (
     <main className="min-h-screen bg-white font-lato text-[#263616]">
       <section className="border-b border-[#eef2e8] bg-[linear-gradient(180deg,#ffffff_0%,#fbfff3_100%)]">

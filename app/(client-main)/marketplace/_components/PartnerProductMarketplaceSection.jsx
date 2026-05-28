@@ -8,7 +8,7 @@ function partnerDisplayName(partner) {
   );
 }
 
-export default function PartnerProductCollectionSection({ partner, products }) {
+export default function PartnerProductMarketplaceSection({ partner, products }) {
   return (
     <section className="scroll-mt-28">
       <div className="mb-10">

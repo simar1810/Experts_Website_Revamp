@@ -11,7 +11,7 @@ export class PartnerLandingTheme {
 
   static DEFAULT_DISPLAY_NAME = "Zee Fit";
 
-  static HERO_TITLE = "Discover Our New Collection";
+  static HERO_TITLE = "Discover Our Marketplace";
 
   static HERO_DESCRIPTION =
     "Explore curated experts and products personalized for your wellness goals.";

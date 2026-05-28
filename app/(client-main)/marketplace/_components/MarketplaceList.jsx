@@ -1,6 +1,6 @@
-import PartnerProductCollectionSection from "./PartnerProductCollectionSection";
+import PartnerProductMarketplaceSection from "./PartnerProductMarketplaceSection";
 
-export default function CollectionsList({ items }) {
+export default function MarketplaceList({ items }) {
   return (
     <div className="space-y-[72px]">
       {items.map((item) => {
@@ -8,7 +8,7 @@ export default function CollectionsList({ items }) {
         const products = Array.isArray(item.products) ? item.products : [];
 
         return (
-          <PartnerProductCollectionSection
+          <PartnerProductMarketplaceSection
             key={partner._id || partner.slug}
             partner={partner}
             products={products}
