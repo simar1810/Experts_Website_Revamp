@@ -1,62 +1,45 @@
-/** MP4/MOV files under `public/mp4/testimonials` (encoded for spaces / punctuation). */
-export function pricingTestimonialVideoSrc(filename) {
-  return `/mp4/testimonials/${encodeURIComponent(filename)}`;
+/** Coach testimonial cards under `public/images/Testimonialsss`. */
+export function pricingTestimonialImageSrc(filename) {
+  return `/images/Testimonialsss/${encodeURIComponent(filename)}`;
 }
 
-export const PRICING_TESTIMONIAL_VIDEOS = [
+export const PRICING_TESTIMONIALS = [
   {
-    src: pricingTestimonialVideoSrc("testmonial fitly.mp4"),
-    name: "Fitly coach growth story",
-    stripLabel: "Fitly Coach",
+    src: pricingTestimonialImageSrc("1.png"),
+    name: "Coach testimonial 1",
+    alt: "Zeefit listed coach testimonial",
   },
   {
-    src: pricingTestimonialVideoSrc("Video 1.mp4"),
-    name: "Coach visibility story",
-    stripLabel: "Visibility",
+    src: pricingTestimonialImageSrc("2.png"),
+    name: "Coach testimonial 2",
+    alt: "Zeefit listed coach testimonial",
   },
   {
-    src: pricingTestimonialVideoSrc("Love the interface of the app.mp4"),
-    name: "Love the app interface",
-    stripLabel: "Interface",
+    src: pricingTestimonialImageSrc("3.png"),
+    name: "Coach testimonial 3",
+    alt: "Zeefit listed coach testimonial",
   },
   {
-    src: pricingTestimonialVideoSrc("Sales have boosted alot!!.mp4"),
-    name: "Sales have boosted a lot",
-    stripLabel: "Sales",
+    src: pricingTestimonialImageSrc("4.png"),
+    name: "Coach testimonial 4",
+    alt: "Zeefit listed coach testimonial",
   },
   {
-    src: pricingTestimonialVideoSrc(
-      "After using WellnessZ app by Mr. Pradeep Kumar Arya.mp4",
-    ),
-    name: "After using WellnessZ — Pradeep Kumar Arya",
-    stripLabel: "Pradeep A.",
+    src: pricingTestimonialImageSrc("5.png"),
+    name: "Coach testimonial 5",
+    alt: "Zeefit listed coach testimonial",
   },
   {
-    src: pricingTestimonialVideoSrc("The app handles my clients so well!.mp4"),
-    name: "The app handles my clients well",
-    stripLabel: "Clients",
+    src: pricingTestimonialImageSrc("6.png"),
+    name: "Coach testimonial 6",
+    alt: "Zeefit listed coach testimonial",
   },
   {
-    src: pricingTestimonialVideoSrc("fitness trainer.mp4"),
-    name: "Fitness trainer experience",
-    stripLabel: "Trainer",
-  },
-  {
-    src: pricingTestimonialVideoSrc("video 2.mp4"),
-    name: "Client management story",
-    stripLabel: "Client Wins",
-  },
-  {
-    src: pricingTestimonialVideoSrc("testimonial.MOV"),
-    name: "Coach success story",
-    stripLabel: "Success Story",
+    src: pricingTestimonialImageSrc("7.png"),
+    name: "Coach testimonial 7",
+    alt: "Zeefit listed coach testimonial",
   },
 ];
 
-export function googleDrivePreviewUrl(driveId) {
-  return `https://drive.google.com/file/d/${driveId}/preview`;
-}
-
-export function googleDriveThumbnailUrl(driveId) {
-  return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
-}
+/** @deprecated Use PRICING_TESTIMONIALS */
+export const PRICING_TESTIMONIAL_VIDEOS = PRICING_TESTIMONIALS;
