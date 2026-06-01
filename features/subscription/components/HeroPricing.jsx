@@ -66,17 +66,52 @@ function HeroGreenHills() {
       aria-hidden
       viewBox="0 0 1400 320"
       preserveAspectRatio="none"
-      className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[44%] w-full lg:block"
+      className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[48%] w-full lg:block"
     >
+      <defs>
+        <linearGradient
+          id="hill-left"
+          x1="0%"
+          y1="100%"
+          x2="85%"
+          y2="15%"
+        >
+          <stop offset="0%" stopColor="#67BC2A" stopOpacity="0.95" />
+          <stop offset="45%" stopColor="#67BC2A" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#E8F5E9" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="hill-right"
+          x1="100%"
+          y1="100%"
+          x2="15%"
+          y2="15%"
+        >
+          <stop offset="0%" stopColor="#67BC2A" stopOpacity="0.95" />
+          <stop offset="45%" stopColor="#67BC2A" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#E8F5E9" stopOpacity="0" />
+        </linearGradient>
+      </defs>
       <path
-        fill="#67BC2A"
+        fill="url(#hill-left)"
         d="M0 320V72C0 28 260 0 520 96C580 120 620 168 640 220L640 320H0Z"
       />
       <path
-        fill="#67BC2A"
+        fill="url(#hill-right)"
         d="M760 220C780 168 820 120 880 96C1140 0 1400 28 1400 72V320H760Z"
       />
     </svg>
+  );
+}
+
+function HeroCenterGlow() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 hidden lg:block"
+    >
+      <div className="absolute left-1/2 top-[28%] h-[55%] w-[72%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.95)_0%,rgba(232,245,233,0.35)_42%,rgba(103,188,42,0.06)_68%,transparent_85%)]" />
+    </div>
   );
 }
 
@@ -102,13 +137,13 @@ function StatCard({ icon: Icon, title, description, className }) {
         className,
       )}
     >
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8F5E9] text-[#2E7D32]">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8F5E9] text-[#1B5E20]">
         <Icon className="h-5 w-5" strokeWidth={2.25} aria-hidden />
       </div>
-      <h3 className="text-sm font-bold leading-snug text-slate-900 sm:text-[15px]">
+      <h3 className="text-sm font-bold leading-snug text-[#1c1b1b] sm:text-[15px]">
         {title}
       </h3>
-      <p className="mt-1 text-xs leading-relaxed text-slate-500 sm:text-[13px]">
+      <p className="mt-1 text-xs leading-relaxed text-[#4b5563] sm:text-[13px]">
         {description}
       </p>
     </div>
@@ -157,7 +192,7 @@ function HeroNavbar({ displayName }) {
             </button>
             <Link
               href="/"
-              className="text-2xl font-black italic tracking-tighter text-[#1f6d00]"
+              className="text-2xl font-black italic tracking-tighter text-[#67BC2A]"
             >
               {displayName?.toUpperCase() || "ZEEFIT"}
             </Link>
@@ -176,7 +211,7 @@ function HeroNavbar({ displayName }) {
                   "whitespace-nowrap text-sm tracking-wide transition-colors",
                   isActive(link.href)
                     ? "font-bold text-[#1B5E20]"
-                    : "font-medium text-slate-500 hover:text-slate-900",
+                    : "font-medium text-[#4b5563] hover:text-[#1c1b1b]",
                 )}
               >
                 {link.name}
@@ -188,7 +223,7 @@ function HeroNavbar({ displayName }) {
             <a
               href="#pricing-plans"
               className={cn(
-                "inline-flex items-center justify-center rounded-full bg-[#1f6d00] px-6 py-2 text-sm font-semibold tracking-wide text-white transition-transform active:scale-95 lg:hidden",
+                "inline-flex items-center justify-center rounded-full bg-gradient-to-b from-[#7ed63f] to-[#67BC2A] px-6 py-2 text-sm font-semibold tracking-wide text-white shadow-md shadow-[#67BC2A]/20 transition-transform active:scale-95 lg:hidden",
               )}
             >
               Join
@@ -198,7 +233,7 @@ function HeroNavbar({ displayName }) {
               href="#pricing-plans"
               className={cn(
                 buttonVariants({ variant: "default", size: "sm" }),
-                "hidden h-10 rounded-xl bg-[#67BC2A] px-5 text-sm font-bold text-white shadow-md shadow-lime-500/15 hover:bg-[#5cad24] lg:inline-flex",
+                "hidden h-10 rounded-xl border-0 bg-gradient-to-b from-[#7ed63f] to-[#67BC2A] px-5 text-sm font-bold text-white shadow-md shadow-[#67BC2A]/25 hover:from-[#72c933] hover:to-[#5cad24] lg:inline-flex",
               )}
             >
               Join Zeefit
@@ -220,8 +255,8 @@ function HeroNavbar({ displayName }) {
                   className={cn(
                     "rounded-lg px-3 py-2.5 text-sm transition-colors",
                     isActive(link.href)
-                      ? "bg-[#4ab325]/10 font-bold text-[#1f6d00]"
-                      : "font-medium text-[#3f4a39] hover:bg-black/5",
+                      ? "bg-[#E8F5E9] font-bold text-[#1B5E20]"
+                      : "font-medium text-[#4b5563] hover:bg-[#E8F5E9]/60",
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -230,7 +265,7 @@ function HeroNavbar({ displayName }) {
               ))}
               <a
                 href="#pricing-plans"
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[#1f6d00] px-4 py-3 text-sm font-bold text-white"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[#7ed63f] to-[#67BC2A] px-4 py-3 text-sm font-bold text-white shadow-md shadow-[#67BC2A]/20"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Join {displayName}
@@ -260,7 +295,7 @@ function MobileBottomNav() {
         </Link>
         <a
           href="#pricing-plans"
-          className="inline-flex items-center gap-2 rounded-full bg-[#1f6d00] px-6 py-3 text-sm font-bold text-white shadow-md transition-transform active:scale-[0.98] hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[#7ed63f] to-[#67BC2A] px-6 py-3 text-sm font-bold text-white shadow-md shadow-[#67BC2A]/25 transition-transform active:scale-[0.98] hover:from-[#72c933] hover:to-[#5cad24]"
         >
           <UserPlus className="h-5 w-5" aria-hidden />
           Join Now
@@ -291,11 +326,12 @@ export default function HeroPricing() {
         <div
           className={cn(
             "relative mx-auto overflow-hidden lg:max-w-[1400px]",
-            "bg-[#fcf9f8] lg:rounded-[40px] lg:border lg:border-slate-100 lg:bg-[#f7faf5] lg:shadow-[0_20px_60px_rgba(15,23,42,0.06)]",
-            "bg-[radial-gradient(circle_at_50%_0%,rgba(74,179,37,0.08)_0%,transparent_70%)] lg:bg-none",
+            "bg-white lg:rounded-[40px] lg:border lg:border-slate-100 lg:bg-white lg:shadow-[0_20px_60px_rgba(15,23,42,0.06)]",
+            "bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,rgba(103,188,42,0.1)_0%,rgba(232,245,233,0.15)_35%,transparent_70%)]",
+            "lg:bg-[radial-gradient(ellipse_90%_70%_at_50%_35%,#ffffff_0%,rgba(232,245,233,0.25)_45%,rgba(255,255,255,0.98)_100%)]",
           )}
         >
-
+          <HeroCenterGlow />
           <HeroGreenHills />
 
           <DotGrid className="left-0 top-28 hidden h-40 w-28 opacity-30 lg:block" />
@@ -304,14 +340,14 @@ export default function HeroPricing() {
             <div className="mx-auto max-w-4xl">
               <h1 className="mb-2 text-[32px] font-extrabold leading-[1.1] tracking-[-0.02em] text-[#1c1b1b] lg:hidden">
                 Built for{" "}
-                <span className="text-[#1f6d00]">Coaches</span>
+                <span className="text-[#67BC2A]">Coaches</span>
                 <br />
                 Ready to Grow
                 <br />
-                <span className="text-[#1f6d00]">Beyond Referrals</span>
+                <span className="text-[#67BC2A]">Beyond Referrals</span>
               </h1>
 
-              <h1 className="hidden text-[56px] font-extrabold leading-[1] tracking-tight text-slate-900 lg:block">
+              <h1 className="hidden text-[56px] font-extrabold leading-[1] tracking-tight text-[#1c1b1b] lg:block">
                 Built for Coaches
                 <br />
                 <span className="text-[#67BC2A]">
@@ -319,22 +355,25 @@ export default function HeroPricing() {
                 </span>
               </h1>
 
-              <p className="mx-auto mb-3 max-w-xs text-base leading-6 text-[#3f4a39] lg:mt-2 lg:max-w-2xl lg:text-lg lg:text-slate-600">
+              <p className="mx-auto mb-3 max-w-xs text-base leading-6 text-[#4b5563] lg:mt-2 lg:max-w-2xl lg:text-lg">
                 {displayName} helps your coaching get seen by people who are
                 ready to start — so you attract serious, high-intent,
                 higher-paying clients.
               </p>
 
-              <div className="mx-auto mb-6 inline-flex max-w-xs items-center gap-1.5 rounded-full border border-[#4ab325]/20 bg-[#4ab325]/10 px-3 py-1.5 lg:mt-6 lg:max-w-3xl lg:gap-2 lg:px-5 lg:py-2">
+              <div className="mx-auto mb-6 inline-flex max-w-xs items-center gap-1.5 rounded-full border border-[#67BC2A]/20 bg-[#E8F5E9] px-3 py-1.5 lg:mt-6 lg:max-w-3xl lg:gap-2 lg:px-5 lg:py-2">
                 <CheckCircle2
-                  className="h-[18px] w-[18px] shrink-0 fill-[#1f6d00] text-[#1f6d00] lg:hidden"
+                  className="h-[18px] w-[18px] shrink-0 text-[#1B5E20] lg:hidden"
                   aria-hidden
                 />
-                <ShieldCheck
-                  className="hidden h-5 w-5 shrink-0 text-white lg:block fill-[#2E7D32]"
-                  aria-hidden
-                />
-                <p className="text-[11px] font-semibold leading-snug text-[#1f6d00] lg:text-sm lg:font-medium lg:text-[#1B5E20]">
+                <span className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#E8F5E9] ring-1 ring-[#67BC2A]/15 lg:flex">
+                  <ShieldCheck
+                    className="h-4 w-4 text-[#1B5E20]"
+                    strokeWidth={2.5}
+                    aria-hidden
+                  />
+                </span>
+                <p className="text-[11px] font-semibold leading-snug text-[#1B5E20] lg:text-sm lg:font-medium">
                   <span className="lg:hidden">
                     Powered by the WellnessZ ecosystem • 7000+ coaches
                   </span>
@@ -349,7 +388,7 @@ export default function HeroPricing() {
                 <a
                   href="#pricing-plans"
                   className={cn(
-                    "inline-flex h-14 w-[200px] items-center justify-center gap-2 rounded-full bg-[#1f6d00] text-lg font-bold text-white shadow-lg shadow-[#1f6d00]/20 transition-transform active:scale-95 lg:h-14 lg:rounded-3xl lg:bg-[#67BC2A] lg:px-8 lg:text-base lg:shadow-lime-500/20 lg:hover:bg-[#5cad24]",
+                    "inline-flex h-14 w-[200px] items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[#7ed63f] to-[#67BC2A] text-lg font-bold text-white shadow-lg shadow-[#67BC2A]/25 transition-transform active:scale-95 lg:h-14 lg:rounded-3xl lg:px-8 lg:text-base lg:hover:from-[#72c933] lg:hover:to-[#5cad24]",
                   )}
                 >
                   Join {displayName}
@@ -403,7 +442,7 @@ export default function HeroPricing() {
               <div className="relative flex justify-center lg:hidden">
                 <div
                   aria-hidden
-                  className="absolute bottom-0 left-1/2 -z-10 h-1/2 w-[150%] -translate-x-1/2 rounded-[100%] bg-[#1f6d00]/5 blur-3xl"
+                  className="absolute bottom-0 left-1/2 -z-10 h-1/2 w-[150%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(103,188,42,0.18)_0%,rgba(232,245,233,0.12)_40%,transparent_70%)] blur-2xl"
                 />
                 <Image
                   src="/images/pricing/zeefit-hero-coaches.png"
