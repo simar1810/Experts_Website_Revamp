@@ -298,14 +298,7 @@ function MobileBottomNav() {
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-[#7ed63f] to-[#67BC2A] px-6 py-3 text-sm font-bold text-white shadow-md shadow-[#67BC2A]/25 transition-transform active:scale-[0.98] hover:from-[#72c933] hover:to-[#5cad24]"
         >
           <UserPlus className="h-5 w-5" aria-hidden />
-          Join Now
-        </a>
-        <a
-          href="#pricing-plans"
-          className="p-3 text-[#3f4a39]"
-          aria-label="View pricing plans"
-        >
-          <ArrowRight className="h-6 w-6" aria-hidden />
+          Join Zeefit
         </a>
       </div>
     </nav>
@@ -384,24 +377,15 @@ export default function HeroPricing() {
                 </p>
               </div>
 
-              <div className="flex flex-col items-center justify-center gap-3 lg:mt-8 lg:flex-row">
+              <div className="flex flex-col items-center justify-center lg:mt-8">
                 <a
                   href="#pricing-plans"
                   className={cn(
                     "inline-flex h-14 w-[200px] items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[#7ed63f] to-[#67BC2A] text-lg font-bold text-white shadow-lg shadow-[#67BC2A]/25 transition-transform active:scale-95 lg:h-14 lg:rounded-3xl lg:px-8 lg:text-base lg:hover:from-[#72c933] lg:hover:to-[#5cad24]",
                   )}
                 >
-                  Join {displayName}
+                  Join Zeefit
                   <ArrowRight className="h-5 w-5 lg:h-4 lg:w-4" aria-hidden />
-                </a>
-                <a
-                  href="#pricing-plans"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "hidden h-14 items-center justify-center rounded-3xl border-2 border-[#67BC2A] bg-white px-8 text-base font-bold text-[#1B5E20] hover:bg-[#E8F5E9] lg:inline-flex",
-                  )}
-                >
-                  View Pricing
                 </a>
               </div>
             </div>
@@ -419,7 +403,7 @@ export default function HeroPricing() {
 
                 <div className="relative col-start-2 row-span-2 row-start-1 flex items-end justify-center self-stretch">
                   <Image
-                    src="/images/pricing/zeefit-hero-coaches.png"
+                    src="/images/pricing/zeefit-hero-coacheswebsite.png"
                     alt="Fitness trainers, nutrition coaches, dietitians, and strength coaches on Zeefit"
                     width={1536}
                     height={1024}
@@ -445,13 +429,13 @@ export default function HeroPricing() {
                   className="absolute bottom-0 left-1/2 -z-10 h-1/2 w-[150%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(103,188,42,0.18)_0%,rgba(232,245,233,0.12)_40%,transparent_70%)] blur-2xl"
                 />
                 <Image
-                  src="/images/pricing/zeefit-hero-coaches.png"
+                  src="/images/pricing/zeefit-hero-coachesmobile.png"
                   alt="Fitness trainers, nutrition coaches, dietitians, and strength coaches on Zeefit"
                   width={1536}
                   height={1024}
                   priority
                   className="relative z-10 mx-auto block h-auto w-full max-h-[300px] max-w-md object-contain object-bottom"
-                  sizes="(max-width: 1024px) 92vw, 900px"
+                  sizes="92vw"
                 />
               </div>
             </div>

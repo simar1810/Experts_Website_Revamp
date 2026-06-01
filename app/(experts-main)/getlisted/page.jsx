@@ -3,7 +3,7 @@ import FeatureSection from "@/features/subscription/components/FeatureSection"
 import HeroPricing from "@/features/subscription/components/HeroPricing"
 import PricingSection from "@/features/subscription/components/PricingSection"
 import TestimonialShowcase from "@/features/subscription/components/TestimonialShowcase"
-import { PRICING_TESTIMONIAL_VIDEOS } from "@/features/subscription/utils/testimonialVideos"
+import { PRICING_TESTIMONIALS } from "@/features/subscription/utils/testimonialVideos"
 
 export default function Page() {
 	return (
@@ -13,7 +13,7 @@ export default function Page() {
 			<TestimonialShowcase
 				testimonialsLabel="View all testimonials"
 				testimonialsHref="/testimonials"
-				videos={PRICING_TESTIMONIAL_VIDEOS}
+				testimonials={PRICING_TESTIMONIALS}
 			/>
 			<PricingSection />
 		</main>

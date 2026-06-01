@@ -33,9 +33,8 @@ export default function PlanSales({ plan }) {
     <GrowthPathCardShell
       className={cn(
         "cursor-pointer select-none",
-        selectedPlanCode === plan.code && "ring-2 ring-[#43901a]",
+        selectedPlanCode === plan.code && "ring-2 ring-[#72c03c]",
       )}
-      headerVariant="branded"
       title={plan.title}
       description={replaceBrand(plan.description)}
       features={plan.features.map(replaceBrand)}
@@ -52,7 +51,7 @@ export default function PlanSales({ plan }) {
       cta={
         <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
           <CreateRazorpayOrderButton planId={plan.code}>
-            <GrowthPathCtaButton variant="white">{buttonLabel}</GrowthPathCtaButton>
+            <GrowthPathCtaButton variant="black">{buttonLabel}</GrowthPathCtaButton>
           </CreateRazorpayOrderButton>
         </div>
       }

@@ -41,9 +41,13 @@ const playfair = Playfair_Display({
 });
 
 export const metadata = {
-  title: "Zeefit",
-  description: "All in One Business Platform for Wellness Professionals",
+  title: "Best Listing Platform for Dietitians & Coaches in India",
+  description:
+    "Discover Zeefit by WellnessZ, India's best listing platform for dietitians, nutritionists, wellness coaches, and health professionals to grow and connect with clients.",
   manifest: "/app.webmanifest",
+  verification: {
+    google: "rsZET_EOr_fwiE629Ky-54U6lcYobAZ4hMRcco4xs5o",
+  },
 };
 
 export default async function RootLayout({ children }) {

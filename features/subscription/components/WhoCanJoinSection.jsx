@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRight,
   BadgeCheck,
   Brain,
   Dumbbell,
@@ -9,6 +10,7 @@ import {
   Star,
   Stethoscope,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useBrandingContext } from "@/features/experts-landing/context/branding";
 
 const CATEGORIES = [
@@ -94,19 +96,16 @@ export default function WhoCanJoinSection() {
         </div>
 
         <div className="mt-16 text-center">
-          <h5 className="mb-2 text-lg font-semibold text-slate-900">
-            Don&apos;t see your specialty?
-          </h5>
-          <p className="mb-4 text-slate-600">
-            If you&apos;re certified and serious about scaling, we want to hear
-            from you.
-          </p>
-          <a
-            className="inline-flex items-center justify-center gap-1 font-bold text-[#72c03c] hover:underline"
-            href="mailto:support@wellnessz.in?subject=Zeefit%20%E2%80%94%20coach%20specialty%20enquiry"
+          <Button
+            asChild
+            size="lg"
+            className="h-12 rounded-xl bg-[#2E7D32] px-7 text-sm font-semibold text-white shadow-md transition hover:bg-[#256628] md:h-12 md:px-8"
           >
-            Tell us about you →
-          </a>
+            <a href="#pricing-plans" className="inline-flex items-center gap-2">
+              Join Zeefit
+              <ArrowRight className="h-4 w-4 opacity-90" aria-hidden />
+            </a>
+          </Button>
         </div>
       </div>
     </section>
