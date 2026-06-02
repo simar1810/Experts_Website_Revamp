@@ -114,18 +114,30 @@ async function postJson(endpoint, body, token) {
   return data;
 }
 
-async function uploadFileToPresignedUrl(uploadUrl, file) {
-  const response = await fetch(uploadUrl, {
-    method: "PUT",
+async function uploadCertificateFile(file, token) {
+  const payload = new FormData();
+  payload.append("file", file);
+
+  const response = await fetch("/api/experts/upload-certificate", {
+    method: "POST",
     headers: {
-      "Content-Type": file.type || "application/octet-stream",
+      Authorization: `Bearer ${token}`,
     },
-    body: file,
+    body: payload,
   });
 
+  const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error("Certificate upload failed. Please try again.");
+    throw new Error(
+      data?.message || "Certificate upload failed. Please try again.",
+    );
   }
+
+  if (!data?.upload) {
+    throw new Error("Could not prepare certificate upload");
+  }
+
+  return data.upload;
 }
 
 function FormError({ children }) {
@@ -389,25 +401,7 @@ export default function PricingFillDetailsModal({
   const completeExpertListing = async function (token) {
     const certUploads = [];
     if (form.certificateFile) {
-      const presign = await postJson(
-        "experts/uploads/presign",
-        {
-          files: [
-            {
-              name: form.certificateFile.name,
-              type: form.certificateFile.type,
-              size: form.certificateFile.size,
-              category: "certificate",
-            },
-          ],
-        },
-        token,
-      );
-      const upload = presign?.uploads?.[0];
-      if (!upload?.uploadUrl) {
-        throw new Error("Could not prepare certificate upload");
-      }
-      await uploadFileToPresignedUrl(upload.uploadUrl, form.certificateFile);
+      const upload = await uploadCertificateFile(form.certificateFile, token);
       certUploads.push(upload);
     }
 
