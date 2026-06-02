@@ -14,7 +14,6 @@ export default function ClientMainLayoutShell({
   const pathname = usePathname() ?? "";
   const hideFooter =
     pathname === "/enquiries" || pathname.startsWith("/enquiries/");
-  const hideNavbar = pathname === "/experts/pricing";
   const isDashboard =
     pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   const router = useRouter();
@@ -41,11 +40,9 @@ export default function ClientMainLayoutShell({
           : "min-h-dvh",
       )}
     >
-      {!hideNavbar && (
-        <div className="shrink-0">
-          <ClientNavbar hideNavLinks={hideShopNavLinks} />
-        </div>
-      )}
+      <div className="shrink-0">
+        <ClientNavbar hideNavLinks={hideShopNavLinks} />
+      </div>
       <ValuesProvider>
         <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </ValuesProvider>
