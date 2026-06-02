@@ -66,15 +66,7 @@ function ExpertCard({ item, rawExpert }) {
         </p>
         <p className="text-xs text-[#414146]">{item.centerName}</p>
       </div>
-      <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-        <div className="flex items-center justify-center gap-x-2">
-          <span className="rounded bg-red-600 px-2 py-1 text-xs font-bold text-white flex items-center justify-center gap-x-1">
-            <Star className="h-3 w-3 fill-white" fill/><span>{item.rating.toFixed(1)}</span>
-          </span>
-          <div className="text-xs font-semibold text-[#414146] ">
-            <span className="underline underline-offset-2">{item.reviews}</span> Patient Stories
-          </div>
-        </div>
+      <div className="flex items-center justify-end border-t border-gray-100 px-4 py-3">
         <Button
           type="button"
           onClick={handleMessageExpert}
