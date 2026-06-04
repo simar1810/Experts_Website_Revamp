@@ -35,7 +35,7 @@ export default function PartnerHeroSection() {
                     Explore Products
                   </button>
                   <button className="rounded border border-(--brand-primary) bg-white/70 px-3 py-1.5 text-xs font-semibold text-(--brand-primary) transition hover:bg-white">
-                    Explore Experts
+                    Explore Coaches
                   </button>
                 </div>
               </div>
@@ -62,7 +62,7 @@ export default function PartnerHeroSection() {
               Explore Products
             </button>
             <button className="rounded border border-(--brand-primary) bg-white/70 px-3 py-1.5 text-xs font-semibold text-(--brand-primary) transition hover:bg-white">
-              Explore Experts
+              Explore Coaches
             </button>
           </div>
         </div>

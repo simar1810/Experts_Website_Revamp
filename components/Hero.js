@@ -16,7 +16,7 @@ export default function Hero() {
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight">
             The Best online <span className="text-lime-500">Marketplace</span>{" "}
             for <br className="hidden md:block" />
-            Wellness Experts
+            Wellness Coaches
           </h1>
           <p className="text-gray-400 text-sm md:text-lg max-w-md mx-auto md:mx-0">
             For Individuals seeking to improve their fitness level and creators

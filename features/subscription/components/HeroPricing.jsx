@@ -54,7 +54,7 @@ const STAT_CARDS = [
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
-  { name: "Find Experts", href: "/find-experts" },
+  { name: "Find Coaches", href: "/find-experts" },
   { name: "Browse Programs", href: "/discover-programs" },
   { name: "Resources", href: "/discover-programs" },
   { name: "Pricing", href: "/experts/pricing" },

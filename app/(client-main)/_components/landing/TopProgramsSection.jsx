@@ -3,7 +3,7 @@ import { topProgramsContent } from "@/lib/data/landingContent";
 import { cn } from "@/lib/utils";
 import { TopProgramCard } from "./TopProgramCard";
 
-/** Horizontal “TOP PROGRAMS” strip (forest panel) — separate from THE TOP EXPERTS. */
+/** Horizontal “Top Performing Programs” strip (forest panel). */
 export function TopProgramsSection({ programs: programsFromApi = null }) {
   const c = topProgramsContent;
   const programs =
@@ -28,28 +28,15 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
       className="scroll-mt-24 bg-[#03632C] py-14 sm:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl lg:text-[3.6rem] font-extrabold uppercase leading-none tracking-[0.02em] space-x-3">
+        <h2 className="space-x-3 text-2xl font-extrabold uppercase leading-none tracking-[0.02em] sm:text-3xl lg:text-[3.6rem]">
           <span className="text-white">{c.titleLight}</span>
           <span className="text-[#9AF45D]">{c.titleHighlight}</span>
         </h2>
 
-        <div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:hidden">
-          {programs.map((p) => (
-            <TopProgramCard
-              key={p.id}
-              {...p}
-              emphasizeHover
-              enrollLabel="VIEW PROGRAM"
-              enrollHref={getProgramHref(p)}
-            />
-          ))}
-        </div>
-
-        <div className="relative mt-10 hidden sm:mt-12 sm:block sm:overflow-hidden sm:pb-2 sm:-mx-2 sm:px-2">
+        <div className="relative mt-10 overflow-hidden pb-2 sm:mt-12 sm:-mx-2 sm:px-2">
           <div
             className={cn(
-              "flex w-max gap-6 animate-top-programs-marquee motion-reduce:animate-none",
-              /* Pause on card hover via :has() — works after bfcache; avoids brittle React mouse events */
+              "flex w-max gap-4 animate-top-programs-marquee motion-reduce:animate-none sm:gap-6",
               "[&:has(article:hover)]:paused",
               "[&:has(article:focus-within)]:paused",
             )}

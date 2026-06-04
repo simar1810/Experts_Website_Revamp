@@ -33,17 +33,15 @@ export default function ExpertProfilePageClient({ listingId, previewMode = false
     }
   }, [searchParams]);
 
-  const [coachData, setCoachData] = useState(previewData);
-  const [isLoading, setIsLoading] = useState(!previewData);
+  const [coachData, setCoachData] = useState(previewMode ? null : previewData);
+  const [isLoading, setIsLoading] = useState(previewMode || !previewData);
   const [reviews, setReviews] = useState(previewData?.reviews || []);
   const [programs, setPrograms] = useState(previewData?.programs || []);
 
   useEffect(() => {
     const getCoachDetails = async () => {
       try {
-        if (!coachData) {
-          setIsLoading(true);
-        }
+        setIsLoading(true);
         const endpoint = previewMode
           ? "/experts/listing/preview/details"
           : "/experts/listing/public/details";

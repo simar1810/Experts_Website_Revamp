@@ -48,14 +48,6 @@ const ClientResultsSection = dynamic(
   { loading: () => <LandingSectionSkeleton /> },
 );
 
-const FinalCtaSection = dynamic(
-  () =>
-    import("./_components/landing/FinalCtaSection").then((m) => ({
-      default: m.FinalCtaSection,
-    })),
-  { loading: () => <LandingSectionSkeleton /> },
-);
-
 const TITLE = "Best Listing Platform for Dietitians & Coaches in India";
 
 const DESCRIPTION =
@@ -104,12 +96,11 @@ export default async function ClientLandingPage() {
     <main className="min-h-screen bg-white font-lato text-neutral-900">
       <HeroSection />
       <SecondaryHeroSection />
+      <CuratedEliteSection />
       <PrecisionSelectionSection />
       <TopProgramsSection programs={topPrograms} />
-      <CuratedEliteSection />
-      <MomentumSection />
       <ClientResultsSection />
-      <FinalCtaSection />
+      <MomentumSection />
     </main>
   );
 }

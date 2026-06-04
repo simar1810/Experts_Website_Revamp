@@ -48,8 +48,9 @@ export function TypingAnimation({
   const elementRef = useRef(null)
   const completionFiredRef = useRef(false)
   const isInView = useInView(elementRef, {
-    amount: 0.3,
+    amount: 0.15,
     once: true,
+    margin: "0px 0px -8% 0px",
   })
 
   const wordsToAnimate = useMemo(() => words ?? (children ? [children] : []), [words, children])

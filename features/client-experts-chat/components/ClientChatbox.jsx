@@ -248,9 +248,9 @@ function ChatThreadPanel({
         </div>
         <div>
           <h3 className="font-bold leading-tight text-gray-900">
-            {coach?.name || "Expert"}
+            {coach?.name || "Coach"}
           </h3>
-          <p className="text-xs font-medium text-gray-500">Expert</p>
+          <p className="text-xs font-medium text-gray-500">Coach</p>
         </div>
       </div>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden overflow-x-hidden">
