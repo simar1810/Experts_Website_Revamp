@@ -1,3 +1,4 @@
+import ExpertsReviewsSection from "@/app/(experts-main)/find-experts/_components/reviews/ExpertsReviewsSection";
 import { DiscoverHero } from "./_components/DiscoverHero";
 import { TopSellingProgramsSection } from "./_components/TopSellingProgramsSection";
 
@@ -23,6 +24,7 @@ export default async function DiscoverProgramsPage({ searchParams }) {
         initialSearch={initialSearch}
         initialProgramId={initialProgramId}
       />
+      <ExpertsReviewsSection />
     </main>
   );
 }

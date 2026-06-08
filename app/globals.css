@@ -310,6 +310,14 @@ html {
   animation: marquee-down var(--marquee-y-duration, 10s) linear infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-up,
+  .animate-marquee-down,
+  .animate-marqueex {
+    animation: none;
+  }
+}
+
 /* Filter sheet: distance range slider (green thumb + gray track) */
 .sheet-distance-slider {
   -webkit-appearance: none;

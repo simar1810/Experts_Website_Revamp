@@ -23,7 +23,7 @@ export default function PartnerCtaSection() {
             Explore Products
           </button>
           <button className="rounded-md border border-white px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10">
-            Explore Experts
+            Explore Coaches
           </button>
         </div>
       </div>

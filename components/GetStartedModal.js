@@ -728,10 +728,10 @@ export default function GetStartedModal({ isOpen, onClose }) {
             {!showOtp && entryPhase === ENTRY_REGISTER && (
               <>
                 <h2 className="text-center text-[1.65rem] font-bold leading-tight tracking-tight text-gray-900">
-                  Start with the Right Expert
+                  Start with the Right Coach
                 </h2>
                 <p className="mx-auto max-w-sm text-center text-[0.9375rem] leading-relaxed text-gray-500">
-                  Create an account to discover trusted wellness experts who fit
+                  Create an account to discover trusted wellness coaches who fit
                   your goals best.
                 </p>
 

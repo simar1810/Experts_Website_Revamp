@@ -81,7 +81,7 @@ export default function TopExpertsSection({ experts = [], loading }) {
     <section className="relative z-0 max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 border-b border-gray-100">
       <div className="mb-4 md:mb-6 flex items-center justify-between gap-3">
         <h2 className="text-lg sm:text-2xl font-black text-gray-900 text-left">
-          Top Experts
+          Top Coaches
         </h2>
         <div className="flex items-center gap-2 shrink-0">
           <button

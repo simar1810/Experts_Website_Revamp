@@ -68,7 +68,7 @@ export function CuratedEliteSection() {
           {coachesToShow.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <p className="text-lg font-medium text-neutral-500">
-                No experts found in this category.
+                No coaches found in this category.
               </p>
             </div>
           )}

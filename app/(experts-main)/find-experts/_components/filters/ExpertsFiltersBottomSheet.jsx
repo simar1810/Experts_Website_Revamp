@@ -85,12 +85,12 @@ export default function ExpertsFiltersBottomSheet({
       <SheetContent
         side="bottom"
         showCloseButton
-        className="flex max-h-[min(92dvh,920px)] flex-col gap-0 overflow-hidden rounded-t-2xl border border-gray-200 bg-white p-0 shadow-lg [&>button]:top-3"
+        className="font-lato flex max-h-[min(92dvh,920px)] flex-col gap-0 overflow-hidden rounded-t-2xl border border-gray-200 bg-white p-0 shadow-lg [&>button]:top-3"
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Filters</SheetTitle>
           <SheetDescription>
-            Refine experts by distance, specializations, and consultation mode.
+            Refine coaches by distance, specializations, and consultation mode.
           </SheetDescription>
         </SheetHeader>
         <div

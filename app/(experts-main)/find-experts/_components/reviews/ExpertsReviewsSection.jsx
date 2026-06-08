@@ -12,7 +12,7 @@ export default function ExpertsReviewsSection() {
   const [isRowTwoPaused, setIsRowTwoPaused] = useState(false);
 
   return (
-    <section className="relative py-20 md:py-28 overflow-hidden bg-linear-to-b from-[#6eb832] via-[#5a9e28] to-[#2d5016] mt-20">
+    <section className="relative py-20 md:py-28 overflow-hidden bg-linear-to-b from-[#6eb832] via-[#5a9e28] to-[#2d5016]">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-lime-400/20 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 mb-12 text-center text-white relative z-10">

@@ -121,7 +121,7 @@ function ExpertCard({ item }) {
           onClick={handleMessageExpert}
           className="bg-(--brand-primary) text-sm font-semibold text-white p-5 transition hover:opacity-90"
         >
-          Message Expert
+          Message Coach
         </Button>
       </div>
     </article>
@@ -155,7 +155,7 @@ export default function TopExpertsSection({ partner }) {
       <section className="px-4 py-10 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <h2 className="mb-6 text-center text-4xl font-black">
-            <span className="text-red-700">Our Top Curated</span> Experts
+            <span className="text-red-700">Our Top Curated</span> Coaches
           </h2>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {[1, 2, 3].map((item) => (
@@ -173,7 +173,7 @@ export default function TopExpertsSection({ partner }) {
     <section className="px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <h2 className="mb-6 text-center text-4xl font-black">
-          <span className="text-red-700">Our Top Curated</span> Experts
+          <span className="text-red-700">Our Top Curated</span> Coaches
         </h2>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {experts.map((expert) => (
@@ -182,7 +182,7 @@ export default function TopExpertsSection({ partner }) {
         </div>
         <div className="mt-6 w-full flex justify-center items-center">
           <button className="rounded-md bg-[#F2F4F2] px-6 py-3 text-xs font-semibold text-[#E4463B] transition hover:bg-gray-200 flex justify-center items-center gap-x-2">
-            <span>Load More Experts</span> <ChevronDown className="h-4 w-4"/>
+            <span>Load More Coaches</span> <ChevronDown className="h-4 w-4"/>
           </button>
         </div>
       </div>
