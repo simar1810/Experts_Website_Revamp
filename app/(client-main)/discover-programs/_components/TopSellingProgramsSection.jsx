@@ -379,7 +379,7 @@ export function TopSellingProgramsSection({
       const options = {
         key: orderData.keyId || RAZORPAY_KEY,
         name: "WellnessZ",
-        description: program.name || "Expert program",
+        description: program.name || "Coach program",
         order_id: orderData.orderId,
         prefill,
         theme: { color: "#0a5b22" },

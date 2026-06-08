@@ -904,7 +904,7 @@ export default function SearchFilters({
   containerClassName = "",
   inputWrapperClassName = "",
   buttonClassName = "",
-  buttonText = "Search Experts",
+  buttonText = "Search Coaches",
   specialityIconColor = "text-gray-300",
   locationIconColor = "text-gray-300",
   placeholderSpeciality = "Speciality",
@@ -1122,7 +1122,7 @@ export default function SearchFilters({
           <User className={`w-4 h-4 shrink-0 mr-2 ${specialityIconColor}`} />
           <input
             type="text"
-            placeholder="Expert name"
+            placeholder="Coach name"
             value={nameQuery ?? ""}
             onChange={(e) => setNameQuery(e.target.value)}
             onKeyDown={(e) => {

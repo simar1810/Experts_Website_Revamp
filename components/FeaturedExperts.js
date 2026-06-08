@@ -108,7 +108,7 @@ export default function FeaturedExperts() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Top Rated Experts
+            Top Rated Coaches
           </h2>
           <p className="max-w-full wrap-break-word text-gray-500 text-sm leading-relaxed sm:text-base">
             {sectionBlurb}
@@ -121,7 +121,7 @@ export default function FeaturedExperts() {
             const name =
               (typeof expert?.coach?.name === "string" &&
                 expert.coach.name.trim()) ||
-              "Expert";
+              "Coach";
             const photo =
               (typeof expert?.profilePhoto === "string" &&
                 expert.profilePhoto.trim()) ||
@@ -173,7 +173,7 @@ export default function FeaturedExperts() {
             onClick={() => router.push("/find-experts")}
             className="w-full sm:w-auto min-w-[300px] bg-[#f0f0f0] hover:bg-[#e8e8e8] text-[var(--brand-primary)] px-12 py-4 rounded-lg font-bold text-base transition-colors"
           >
-            View all Experts
+            View all Coaches
           </button>
         </div>
       </div>

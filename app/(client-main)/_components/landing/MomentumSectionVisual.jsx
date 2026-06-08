@@ -6,7 +6,7 @@ import { useRef } from "react";
 export function MomentumSectionVisual({ children, className }) {
   const ref = useRef(null);
   const prefersReducedMotion = useReducedMotion();
-  const isInView = useInView(ref, { once: true, amount: 0.15 });
+  const isInView = useInView(ref, { once: true, amount: 0.12, margin: "0px 0px -8% 0px" });
 
   const revealed = prefersReducedMotion || isInView;
 

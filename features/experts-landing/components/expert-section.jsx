@@ -8,7 +8,7 @@ import { fetchData } from "@/features/experts-landing/helpers/network"
 function ExpertCard({ expert }) {
   const name = expert.coach?.name || "Expert Coach";
   const profileImage = expert.profilePhoto || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500&auto=format&fit=crop";
-  const specialty = expert.specializations?.join(", ") || "Wellness Expert";
+  const specialty = expert.specializations?.join(", ") || "Wellness Coach";
   const experience = expert.yearsExperience || 0;
   const locationText = `${expert.city}, ${expert.state}`;
   const centerName = expert.certifications?.institute || "Verified Institute";
@@ -70,7 +70,7 @@ function ExpertCard({ expert }) {
           </div>
 
           <Button className="bg-[var(--brand-primary)] hover:opacity-90 text-white rounded-full text-[11px] px-4 h-8 font-bold border-none">
-            Message Expert
+            Message Coach
           </Button>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function ExpertSection({ partner }) {
       </h3>
       
       <p className="text-gray-500 max-w-md mb-8">
-        {data?.message || "We couldn't load the wellness experts right now. Please check your connection and try again."}
+        {data?.message || "We couldn't load the wellness coaches right now. Please check your connection and try again."}
       </p>
 
       <Button 
@@ -153,7 +153,7 @@ export default function ExpertSection({ partner }) {
     <section className="bg-gray-50 py-16 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-center text-3xl md:text-4xl font-extrabold mb-12">
-          <span className="text-[#b1271c]">Our Top Curated</span> <span className="text-black">Experts</span>
+          <span className="text-[#b1271c]">Our Top Curated</span> <span className="text-black">Coaches</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
