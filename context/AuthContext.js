@@ -9,8 +9,31 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { fetchAPI } from "@/lib/api";
+import {
+  clearClientAuth,
+  consumeAuthSyncFromHash,
+  getClientAuthToken,
+  getClientAuthUser,
+  setClientAuth,
+  setClientAuthUser,
+} from "@/lib/clientAuthStorage";
 
 const AuthContext = createContext();
+
+/** Hydrate auth before child useEffects run (avoids chat socket starting without a token). */
+function getInitialClientAuth() {
+  if (typeof window === "undefined") {
+    return { token: null, user: null, isAuthenticated: false };
+  }
+  consumeAuthSyncFromHash();
+  const token = getClientAuthToken();
+  const user = getClientAuthUser();
+  return {
+    token,
+    user,
+    isAuthenticated: Boolean(token),
+  };
+}
 
 /** Same-tab relative path only; blocks protocol-relative and absolute URLs. */
 function isSafeInternalPath(p) {
@@ -47,23 +70,27 @@ function applyReturnPathForModalOpen(ref) {
 
 export function AuthProvider({ children }) {
   const router = useRouter();
-  const [token, setToken] = useState(null);
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const initialAuth = getInitialClientAuth();
+  const [token, setToken] = useState(initialAuth.token);
+  const [user, setUser] = useState(initialAuth.user);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    initialAuth.isAuthenticated,
+  );
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const returnPathAfterAuthRef = useRef(null);
   /** Passed from Login (number not registered) → GetStarted signup form pre-fill. Cleared after consume. */
   const signupDraftRef = useRef(null);
 
   const refreshUser = useCallback(async () => {
-    const storedToken = localStorage.getItem("client_token");
+    const storedToken = getClientAuthToken();
     if (!storedToken) return;
     try {
       const data = await fetchAPI("/experts/client/me", undefined, "GET");
       const snap = data?.client_snapshot;
       if (snap && typeof snap === "object") {
-        localStorage.setItem("client_data", JSON.stringify(snap));
+        setClientAuthUser(snap);
         setUser(snap);
       }
     } catch (e) {
@@ -72,20 +99,20 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("client_token");
-    const storedUser = localStorage.getItem("client_data");
+    const synced = consumeAuthSyncFromHash();
+    const storedToken = synced?.token || getClientAuthToken();
+    const storedUser = synced?.user || getClientAuthUser();
 
     if (storedToken) {
       setToken(storedToken);
       setIsAuthenticated(true);
+      if (synced?.token) {
+        setClientAuth(synced.token, synced.user || undefined);
+      }
     }
 
     if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse stored user data", e);
-      }
+      setUser(storedUser);
     }
 
     if (storedToken) {
@@ -99,14 +126,14 @@ export function AuthProvider({ children }) {
       setIsLoginModalOpen(true);
     };
     window.addEventListener("auth_unauthorized", handleUnauthorized);
+    setIsAuthLoading(false);
     return () =>
       window.removeEventListener("auth_unauthorized", handleUnauthorized);
   }, [router, refreshUser]);
 
   const login = (jwtToken, userData) => {
-    localStorage.setItem("client_token", jwtToken);
+    setClientAuth(jwtToken, userData || null);
     if (userData) {
-      localStorage.setItem("client_data", JSON.stringify(userData));
       setUser(userData);
     }
     setToken(jwtToken);
@@ -117,7 +144,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.clear();
+    clearClientAuth();
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
@@ -164,6 +191,7 @@ export function AuthProvider({ children }) {
         token,
         user,
         isAuthenticated,
+        isAuthLoading,
         login,
         logout,
         openLoginModal,

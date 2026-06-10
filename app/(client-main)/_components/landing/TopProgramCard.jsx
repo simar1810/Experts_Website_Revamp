@@ -32,7 +32,7 @@ export function TopProgramCard({
       className={cn(
         "flex h-full min-h-0 w-full max-h-none shrink-0 flex-col overflow-visible rounded-3xl bg-white/5 p-4 font-lato sm:max-h-[80vh] sm:overflow-y-auto sm:rounded-4xl sm:p-8 sm:w-[min(92vw,34.5rem)] sm:snap-center lg:w-[42.5rem]",
         emphasizeHover &&
-          "transition-[transform,background-color,box-shadow] duration-300 ease-out hover:scale-[1.02] hover:bg-white/12 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.14)]",
+          "transition-[transform,background-color,box-shadow] duration-300 ease-out hover:scale-[1.02] hover:bg-white/12 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.14)] motion-reduce:hover:scale-100",
         className,
       )}
     >

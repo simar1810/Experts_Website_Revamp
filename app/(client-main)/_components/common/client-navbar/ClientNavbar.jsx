@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import WellnessZLogoLink from "@/components/WellnessZLogoLink";
 import Image from "next/image";
 import GetStartedModal from "@/components/GetStartedModal";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Sheet,
   SheetContent,
@@ -50,6 +51,7 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
 
   const {
     isAuthenticated,
+    isAuthLoading,
     logout,
     isLoginModalOpen,
     openLoginModal,
@@ -136,7 +138,12 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
           ) : null}
 
           <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-4">
-            {isAuthenticated ? (
+            {isAuthLoading ? (
+              <Skeleton
+                className="h-9 w-24 rounded-lg sm:h-10 sm:w-36 sm:rounded-xl"
+                aria-hidden
+              />
+            ) : isAuthenticated ? (
               <div className="hidden md:block">
                 <ClientNavbarDropdown />
               </div>
@@ -194,7 +201,9 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
                   {link.name}
                 </Link>
               ))}
-              {!isAuthenticated ? (
+              {isAuthLoading ? (
+                <Skeleton className="mt-2 h-11 w-full rounded-lg" aria-hidden />
+              ) : !isAuthenticated ? (
                 <button
                   type="button"
                   onClick={() => {

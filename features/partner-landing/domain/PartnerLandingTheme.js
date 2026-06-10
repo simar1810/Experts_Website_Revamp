@@ -20,4 +20,8 @@ export class PartnerLandingTheme {
 
   static CTA_DESCRIPTION =
     "Connect with certified coaches on ZeeFit who start delivering real value from your very first consultation.";
+
+  static SECTION_EXPERTS_ID = "experts";
+
+  static SECTION_PRODUCTS_ID = "products";
 }

@@ -33,10 +33,22 @@ export function TopProgramsSection({ programs: programsFromApi = null }) {
           <span className="text-[#9AF45D]">{c.titleHighlight}</span>
         </h2>
 
-        <div className="relative mt-10 overflow-hidden pb-2 sm:mt-12 sm:-mx-2 sm:px-2">
+        <div className="mt-10 flex flex-col gap-6 sm:mt-12 sm:hidden">
+          {programs.map((p) => (
+            <TopProgramCard
+              key={p.id}
+              {...p}
+              emphasizeHover
+              enrollLabel="VIEW PROGRAM"
+              enrollHref={getProgramHref(p)}
+            />
+          ))}
+        </div>
+
+        <div className="relative mt-10 hidden overflow-hidden pb-2 sm:mt-12 sm:block sm:-mx-2 sm:overflow-x-hidden sm:overflow-y-visible sm:px-2 sm:py-4 sm:-my-4">
           <div
             className={cn(
-              "flex w-max gap-4 animate-top-programs-marquee motion-reduce:animate-none sm:gap-6",
+              "flex w-max gap-4 py-2 animate-top-programs-marquee motion-reduce:animate-none sm:gap-6",
               "[&:has(article:hover)]:paused",
               "[&:has(article:focus-within)]:paused",
             )}

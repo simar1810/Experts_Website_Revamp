@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { fetchAPI, fetchMultipart } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { setClientAuthUser } from "@/lib/clientAuthStorage";
 import AddressRegionFields from "@/components/experts/AddressRegionFields";
 import { addressFromStoredLocation } from "@/lib/addressRegionUtils";
 
@@ -69,7 +70,7 @@ export default function EditProfileModal({
   const persistClientSnapshot = React.useCallback(
     async (snap) => {
       if (!snap || typeof snap !== "object") return false;
-      localStorage.setItem("client_data", JSON.stringify(snap));
+      setClientAuthUser(snap);
       onProfileSaved?.(snap);
       await refreshUser?.();
       return true;
@@ -163,7 +164,7 @@ export default function EditProfileModal({
       );
       const snap = data?.client_snapshot;
       if (snap && typeof snap === "object") {
-        localStorage.setItem("client_data", JSON.stringify(snap));
+        setClientAuthUser(snap);
         onProfileSaved?.(snap);
         await refreshUser?.();
         toast.success("Profile updated.");

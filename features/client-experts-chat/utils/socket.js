@@ -1,4 +1,8 @@
 import toast from "react-hot-toast";
+import {
+  attachExpertsChatSocketLifecycle,
+  expertsChatSocketUrl,
+} from "./expertsChatSocket";
 
 function handleSocketMessages(raw, dispatch) {
   const parsed = JSON.parse(raw.data);
@@ -52,9 +56,8 @@ function handleSocketMessages(raw, dispatch) {
  * Opens expert chat WebSocket. Does not send a bare `join` on open (server requires threadId).
  */
 export function initializeClientChat(token, dispatch) {
-  const base =
-    process.env.NEXT_PUBLIC_EXPERTS_CHAT_SOCKET || "ws://localhost:8085";
-  const socket = new WebSocket(`${base}?token=${encodeURIComponent(token)}`);
+  const socket = new WebSocket(expertsChatSocketUrl(token));
+  attachExpertsChatSocketLifecycle(socket, dispatch);
   socket.addEventListener("message", (ev) => handleSocketMessages(ev, dispatch));
   return socket;
 }

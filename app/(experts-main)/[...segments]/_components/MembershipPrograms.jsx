@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
+import {
+  clearClientAuth,
+  getClientAuthToken,
+} from "@/lib/clientAuthStorage";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 // Must match backend `RAZORPAY_KEY_ID` (expert-program orders use config/razorPay.js `razorpay`, not RAZORPAY_API_KEY).
@@ -14,7 +18,7 @@ const RAZORPAY_KEY =
 async function postWithAuth(endpoint, body) {
   const headers = { "Content-Type": "application/json" };
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("client_token");
+    const token = getClientAuthToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
   const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -24,7 +28,7 @@ async function postWithAuth(endpoint, body) {
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401 && typeof window !== "undefined") {
-    localStorage.removeItem("client_token");
+    clearClientAuth();
     window.dispatchEvent(new Event("auth_unauthorized"));
   }
   if (!res.ok) {
@@ -36,7 +40,7 @@ async function postWithAuth(endpoint, body) {
 async function getWithAuth(endpoint) {
   const headers = {};
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("client_token");
+    const token = getClientAuthToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
   const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -45,7 +49,7 @@ async function getWithAuth(endpoint) {
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401 && typeof window !== "undefined") {
-    localStorage.removeItem("client_token");
+    clearClientAuth();
     window.dispatchEvent(new Event("auth_unauthorized"));
   }
   if (!res.ok) {

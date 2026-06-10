@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  formatProductPrice,
   getProductImageSrc,
+  getProductPriceDisplay,
 } from "@/lib/partnerProductsApi";
+import ProductDetailImage from "./ProductDetailImage";
 
 function partnerDisplayName(partner) {
   return (
@@ -26,6 +27,7 @@ function ProductCard({ partner, product }) {
   const href = `/collections/${partner.slug}/${product.slug}`;
   const imageSrc = getProductImageSrc(product);
   const displayName = partnerDisplayName(partner);
+  const { payLabel, listLabel } = getProductPriceDisplay(product);
 
   return (
     <article className="group w-[184px] shrink-0 sm:w-[216px] lg:w-[240px]">
@@ -34,12 +36,11 @@ function ProductCard({ partner, product }) {
         className="block rounded-[10px] outline-none transition focus-visible:ring-2 focus-visible:ring-[#84cc16] focus-visible:ring-offset-4"
       >
         <div className="relative aspect-4/5 overflow-hidden rounded-[10px] bg-[#f3f8e7]">
-          <Image
+          <ProductDetailImage
             src={imageSrc}
             alt={product.name || "Partner product"}
-            fill
-            className="object-cover transition duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 184px, (max-width: 1024px) 216px, 240px"
+            className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            loading="lazy"
           />
           {product.featured ? (
             <span className="absolute right-3 top-3 rounded-[3px] bg-[#357200] px-2.5 py-1 text-[8px] font-black uppercase tracking-wide text-white">
@@ -54,8 +55,13 @@ function ProductCard({ partner, product }) {
           <h3 className="line-clamp-2 text-[15px] font-bold leading-tight tracking-[-0.04em] text-[#273617] transition group-hover:text-[#5cae20]">
             {product.name || "Wellness product"}
           </h3>
-          <p className="mt-1 text-[12px] font-bold leading-none text-[#7d846e]">
-            {formatProductPrice(product)}
+          <p className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] font-bold leading-none text-[#7d846e]">
+            {listLabel ? (
+              <span className="text-[11px] font-semibold text-[#b5baa9] line-through">
+                {listLabel}
+              </span>
+            ) : null}
+            <span>{payLabel}</span>
           </p>
         </Link>
         
@@ -68,6 +74,7 @@ function ProductCard({ partner, product }) {
               src={partnerLogo(partner)}
               alt={displayName}
               fill
+              unoptimized
               className="object-cover"
               sizes="24px"
             />

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, LogOut, MessageCircle, User } from "lucide-react";
+import { ChevronDown, LogOut, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -10,19 +11,21 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { getMainSiteUrl, isShopBrowserHost } from "@/lib/shopHost";
 
 const ClientNavbarDropdown = () => {
   const { user, logout } = useAuth();
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const profileHref = getMainSiteUrl("/dashboard");
+  const profileLeavesShop = isShopBrowserHost();
 
   const DROPDOWN_MENU_ITEMS = [
     {
       label: "Profile",
       icon: <User className="size-5" />,
-      onClick: () => router.push("/dashboard"),
+      href: profileHref,
+      external: profileLeavesShop,
       customClassName: "text-base",
     },
     {
@@ -56,18 +59,44 @@ const ClientNavbarDropdown = () => {
         align="end"
         className="w-auto min-w-fit max-w-xs p-2"
       >
-        {DROPDOWN_MENU_ITEMS.map((item, idx) => (
-          <DropdownMenuItem
-            key={idx}
-            onClick={item.onClick}
-            className={`${item.customClassName}`}
-          >
-            <div className="flex items-center gap-2">
-              {item.icon}
-              <span>{item.label}</span>
-            </div>
-          </DropdownMenuItem>
-        ))}
+        {DROPDOWN_MENU_ITEMS.map((item, idx) =>
+          item.href ? (
+            <DropdownMenuItem
+              key={idx}
+              asChild
+              className={item.customClassName}
+            >
+              {item.external ? (
+                <a
+                  href={item.href}
+                  className="flex w-full cursor-pointer items-center gap-2"
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </a>
+              ) : (
+                <Link
+                  href={item.href}
+                  className="flex w-full cursor-pointer items-center gap-2"
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              )}
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              key={idx}
+              onSelect={item.onClick}
+              className={item.customClassName}
+            >
+              <div className="flex items-center gap-2">
+                {item.icon}
+                <span>{item.label}</span>
+              </div>
+            </DropdownMenuItem>
+          ),
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

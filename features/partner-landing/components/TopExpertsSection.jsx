@@ -4,68 +4,26 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import { ExpertsListingService } from "../services/ExpertsListingService";
 import { ExpertCardPresenter } from "../presenters/ExpertCardPresenter";
-import { ChevronDown, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
 import { fetchAPI } from "@/lib/api";
-import {
-  SUBMIT_ENQUIRY_COMPOSER_PREFILL,
-  ensureClientThreadForListing,
-} from "@/lib/expertListingChat";
-import { setPendingExpertEnquiry } from "@/lib/pendingExpertEnquiry";
+import { messageExpertListingClick } from "@/lib/expertListingChat";
 
-function ExpertCard({ item }) {
+function ExpertCard({ item, rawExpert }) {
   const { isAuthenticated, openRegisterModal } = useAuth();
   const router = useRouter();
-  const resolvedListingId =
-    item?.listingId || item?.id || item?._id || item?.expertListingId || "";
 
-  const handleMessageExpert = async (event) => {
-    event.stopPropagation();
-
-    if (!resolvedListingId) {
-      toast.error("Could not open chat for this expert.");
-      return;
-    }
-
-    if (!isAuthenticated) {
-      setPendingExpertEnquiry({
-        listingId: String(resolvedListingId),
-        consultationMode: item?.offersOnline ? "online" : "in_person",
-        composerDraft: SUBMIT_ENQUIRY_COMPOSER_PREFILL,
-      });
-      openRegisterModal();
-      // Partner landing route does not always mount auth modals;
-      // fallback to find-experts where auth modal flow is guaranteed.
-      setTimeout(() => {
-        window.location.assign("/find-experts");
-      }, 0);
-      return;
-    }
-
-    const dismiss = toast.loading("Opening chat...");
-    try {
-      const { threadId } = await ensureClientThreadForListing({
-        fetchAPI,
-        listingId: String(resolvedListingId),
-        offersOnline: Boolean(item?.offersOnline),
-      });
-      toast.dismiss(dismiss);
-      const q = new URLSearchParams();
-      q.set("thread", String(threadId));
-      q.set("draft", SUBMIT_ENQUIRY_COMPOSER_PREFILL);
-      window.location.assign(`/dashboard/enquiries?${q.toString()}`);
-    } catch (error) {
-      toast.dismiss(dismiss);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Could not open chat. Please try again.",
-      );
-    }
-  };
+  const handleMessageExpert = (event) =>
+    messageExpertListingClick({
+      event,
+      expert: rawExpert || item,
+      isAuthenticated,
+      openRegisterModal,
+      fetchAPI,
+      router,
+    });
 
   return (
     <article className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -108,16 +66,9 @@ function ExpertCard({ item }) {
         </p>
         <p className="text-xs text-[#414146]">{item.centerName}</p>
       </div>
-      <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-        <div className="flex items-center justify-center gap-x-2">
-          <span className="rounded bg-red-600 px-2 py-1 text-xs font-bold text-white flex items-center justify-center gap-x-1">
-            <Star className="h-3 w-3 fill-white" fill/><span>{item.rating.toFixed(1)}</span>
-          </span>
-          <div className="text-xs font-semibold text-[#414146] ">
-            <span className="underline underline-offset-2">{item.reviews}</span> Patient Stories
-          </div>
-        </div>
+      <div className="flex items-center justify-end border-t border-gray-100 px-4 py-3">
         <Button
+          type="button"
           onClick={handleMessageExpert}
           className="bg-(--brand-primary) text-sm font-semibold text-white p-5 transition hover:opacity-90"
         >
@@ -146,9 +97,8 @@ export default function TopExpertsSection({ partner }) {
     return () => window.removeEventListener("pageshow", handlePageShow);
   }, [mutate]);
 
-  const experts = Array.isArray(data?.experts)
-    ? data.experts.map((item) => ExpertCardPresenter.toCard(item))
-    : [];
+  const rawExperts = Array.isArray(data?.experts) ? data.experts : [];
+  const experts = rawExperts.map((item) => ExpertCardPresenter.toCard(item));
 
   if (isLoading) {
     return (
@@ -176,14 +126,13 @@ export default function TopExpertsSection({ partner }) {
           <span className="text-red-700">Our Top Curated</span> Coaches
         </h2>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {experts.map((expert) => (
-            <ExpertCard key={expert.id} item={expert} />
+          {experts.map((expert, index) => (
+            <ExpertCard
+              key={expert.id}
+              item={expert}
+              rawExpert={rawExperts[index]}
+            />
           ))}
-        </div>
-        <div className="mt-6 w-full flex justify-center items-center">
-          <button className="rounded-md bg-[#F2F4F2] px-6 py-3 text-xs font-semibold text-[#E4463B] transition hover:bg-gray-200 flex justify-center items-center gap-x-2">
-            <span>Load More Coaches</span> <ChevronDown className="h-4 w-4"/>
-          </button>
         </div>
       </div>
     </section>

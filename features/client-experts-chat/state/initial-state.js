@@ -1,6 +1,6 @@
 export function buildClientChatInitialState(threads) {
   return {
-    stage: "building-connection",
+    stage: "socket-connected",
     threads: Array.isArray(threads) ? threads : [],
     activeThreadId: "",
     hasError: false,

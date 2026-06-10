@@ -13,6 +13,10 @@ import {
   fetchDiscoverProgramsList,
   programDocumentToTopCard,
 } from "@/lib/discoverProgramsApi";
+import {
+  clearClientAuth,
+  getClientAuthToken,
+} from "@/lib/clientAuthStorage";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 const RAZORPAY_KEY =
@@ -26,7 +30,7 @@ const API_PAGE_LIMIT = 24;
 async function postPaymentWithAuth(endpoint, body) {
   const headers = { "Content-Type": "application/json" };
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("client_token");
+    const token = getClientAuthToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
@@ -38,7 +42,7 @@ async function postPaymentWithAuth(endpoint, body) {
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401 && typeof window !== "undefined") {
-    localStorage.removeItem("client_token");
+    clearClientAuth();
     window.dispatchEvent(new Event("auth_unauthorized"));
   }
   if (!res.ok) {
@@ -50,7 +54,7 @@ async function postPaymentWithAuth(endpoint, body) {
 async function getWithClientAuth(endpoint) {
   const headers = {};
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("client_token");
+    const token = getClientAuthToken();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
@@ -61,7 +65,7 @@ async function getWithClientAuth(endpoint) {
   const data = await res.json().catch(() => ({}));
 
   if (res.status === 401 && typeof window !== "undefined") {
-    localStorage.removeItem("client_token");
+    clearClientAuth();
     window.dispatchEvent(new Event("auth_unauthorized"));
   }
   if (!res.ok) {
@@ -99,6 +103,16 @@ function chunkPrograms(items, size) {
 
 const gridCardClassName =
   "w-full min-w-0 max-h-none max-w-none overflow-visible sm:w-full lg:w-full";
+
+const TOP_SELLING_HASH = "top-selling-programs";
+
+function scrollToTopSellingSection() {
+  if (typeof window === "undefined") return false;
+  const el = document.getElementById(TOP_SELLING_HASH);
+  if (!el) return false;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
+}
 
 function getSpecialtyOptionsFromPrograms(programs, selectedSpecialty = "") {
   const specialties = new Map();
@@ -248,6 +262,24 @@ export function TopSellingProgramsSection({
 
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(pageCount > 1);
+
+  useEffect(() => {
+    const scrollIfTargeted = () => {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash !== TOP_SELLING_HASH) return;
+      scrollToTopSellingSection();
+    };
+
+    scrollIfTargeted();
+    const retryIds = [0, 150, 500, 1200].map((ms) =>
+      window.setTimeout(scrollIfTargeted, ms),
+    );
+    window.addEventListener("hashchange", scrollIfTargeted);
+    return () => {
+      retryIds.forEach((id) => window.clearTimeout(id));
+      window.removeEventListener("hashchange", scrollIfTargeted);
+    };
+  }, []);
 
   const syncArrows = useCallback(() => {
     const el = scrollRef.current;
@@ -418,7 +450,7 @@ export function TopSellingProgramsSection({
   return (
     <section
       id="top-selling-programs"
-      className="w-full scroll-mt-24 bg-[#03632C] py-10 font-lato sm:py-14 lg:py-20"
+      className="w-full scroll-mt-0 bg-[#03632C] py-10 font-lato sm:py-14 lg:py-20"
     >
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-center font-lexend text-[1.8rem] font-bold leading-tight tracking-tighter sm:text-3xl lg:text-[3.6rem] text-[#9AF45D] ">
@@ -447,7 +479,7 @@ export function TopSellingProgramsSection({
         <div
           ref={scrollRef}
           onScroll={syncArrows}
-          className="scrollbar-hide -mx-4 mt-6 flex min-h-48 snap-x snap-mandatory overflow-x-auto pb-2 sm:mx-0 sm:mt-10"
+          className="scrollbar-hide -mx-4 mt-6 flex min-h-48 snap-x snap-mandatory overflow-x-auto overflow-y-visible py-3 pb-4 sm:mx-0 sm:mt-10 sm:py-4 sm:pb-6"
         >
           {loadState.status === "loading" && programs.length === 0 ? (
             <div className="flex w-full min-w-full items-center justify-center px-4 py-16 sm:px-0">
@@ -465,35 +497,39 @@ export function TopSellingProgramsSection({
             pages.map((pagePrograms) => (
               <div
                 key={pagePrograms[0].id}
-                className="w-full min-w-full shrink-0 snap-center px-4 sm:px-0"
+                className="w-full min-w-full shrink-0 snap-center px-4 sm:px-3"
               >
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+                <div className="grid grid-cols-1 gap-4 p-2 sm:grid-cols-2 sm:gap-6 sm:p-3">
                   {pagePrograms.map((p) => {
                     const alreadyEnrolled = enrolledProgramIds.has(
                       String(p.programId),
                     );
                     return (
-                      <TopProgramCard
+                      <div
                         key={p.id}
-                        className={gridCardClassName}
-                        emphasizeHover
-                        badgeLabel={p.badgeLabel}
-                        name={p.name}
-                        features={p.features}
-                        price={p.price}
-                        enrollLabel={
-                          alreadyEnrolled ? "Go to program" : p.enrollLabel
-                        }
-                        enrollHref={p.enrollHref}
-                        deliveryTags={p.deliveryTags}
-                        authorName={p.authorName}
-                        enrollmentLine={p.enrollmentLine}
-                        authorAvatarSrc={p.authorAvatarSrc}
-                        imageSrc={p.imageSrc}
-                        imageAlt={p.imageAlt}
-                        onEnroll={() => handleEnroll(p)}
-                        enrollDisabled={enrollingProgramId === p.programId}
-                      />
+                        className="min-h-0 overflow-visible p-1 sm:p-1.5"
+                      >
+                        <TopProgramCard
+                          className={gridCardClassName}
+                          emphasizeHover
+                          badgeLabel={p.badgeLabel}
+                          name={p.name}
+                          features={p.features}
+                          price={p.price}
+                          enrollLabel={
+                            alreadyEnrolled ? "Go to program" : p.enrollLabel
+                          }
+                          enrollHref={p.enrollHref}
+                          deliveryTags={p.deliveryTags}
+                          authorName={p.authorName}
+                          enrollmentLine={p.enrollmentLine}
+                          authorAvatarSrc={p.authorAvatarSrc}
+                          imageSrc={p.imageSrc}
+                          imageAlt={p.imageAlt}
+                          onEnroll={() => handleEnroll(p)}
+                          enrollDisabled={enrollingProgramId === p.programId}
+                        />
+                      </div>
                     );
                   })}
                 </div>
