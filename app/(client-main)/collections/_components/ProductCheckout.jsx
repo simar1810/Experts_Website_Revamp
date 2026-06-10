@@ -4,6 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import CouponCodeInput from "./CouponCodeInput";
+import { showPurchaseSuccessToast } from "@/lib/purchaseSuccessToast";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 const RAZORPAY_KEY =
@@ -125,7 +126,7 @@ export default function ProductCheckout({ partner, product, price = "" }) {
               razorpayPaymentId: rzResponse.razorpay_payment_id,
               razorpaySignature: rzResponse.razorpay_signature,
             });
-            toast.success("Payment successful");
+            showPurchaseSuccessToast();
           } catch (err) {
             toast.error(err.message || "Payment verification failed");
           }

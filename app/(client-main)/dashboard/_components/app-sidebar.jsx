@@ -15,6 +15,7 @@ import {
   Album,
   ChevronRight,
   MessageCircle,
+  Receipt,
   User,
 } from "lucide-react";
 import Image from "next/image";
@@ -32,6 +33,11 @@ const NAV_ITEMS = [
     label: "My Programs",
     href: "/dashboard/programs",
     icon: Album,
+  },
+  {
+    label: "Purchase History",
+    href: "/dashboard/purchases",
+    icon: Receipt,
   },
   // {
   //   label: "Sessions/Meetings",

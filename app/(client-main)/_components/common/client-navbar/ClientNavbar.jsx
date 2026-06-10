@@ -10,6 +10,7 @@ import {
   LogOut,
   MessageCircle,
   Menu,
+  Receipt,
   User,
   X,
 } from "lucide-react";
@@ -33,6 +34,11 @@ const APP_DRAWER_ITEMS = [
   { label: "Chat", href: "/dashboard/enquiries", icon: MessageCircle },
   { label: "My Coach", href: "/dashboard", icon: User },
   { label: "My Programs", href: "/dashboard/programs", icon: Album },
+  {
+    label: "Purchase History",
+    href: "/dashboard/purchases",
+    icon: Receipt,
+  },
 ];
 
 export default function ClientNavbar({ isDashboard, hideNavLinks = false }) {

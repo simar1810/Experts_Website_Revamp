@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { showPurchaseSuccessToast } from "@/lib/purchaseSuccessToast";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 // Must match backend `RAZORPAY_KEY_ID` (expert-program orders use config/razorPay.js `razorpay`, not RAZORPAY_API_KEY).
@@ -178,7 +179,7 @@ function ProgramCard({
               razorpayPaymentId: rzResponse.razorpay_payment_id,
               razorpaySignature: rzResponse.razorpay_signature,
             });
-            toast.success("Payment successful");
+            showPurchaseSuccessToast();
             router.push("/dashboard/programs");
           } catch (err) {
             console.error(err);
