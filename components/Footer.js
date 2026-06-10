@@ -53,16 +53,21 @@ export default function Footer() {
 
                 {/* Items */}
                 <div className="space-y-2">
-                  {section.items.map((item) => (
-                    <Link
-                      target="_blank"
-                      href={item.location}
-                      key={item.id}
-                      className="block text-xs sm:text-sm text-white/40 hover:text-white transition-colors cursor-pointer"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+                  {section.items.map((item) => {
+                    const isExternal = /^https?:\/\//.test(item.location);
+
+                    return (
+                      <Link
+                        target={isExternal ? "_blank" : undefined}
+                        rel={isExternal ? "noopener noreferrer" : undefined}
+                        href={item.location}
+                        key={item.id}
+                        className="block text-xs sm:text-sm text-white/40 hover:text-white transition-colors cursor-pointer"
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -75,7 +80,7 @@ export default function Footer() {
             </p>
             <button
               type="button"
-              onClick={() => router.push("/pricing")}
+              onClick={() => router.push("/getlisted")}
               className="rounded-lg border border-white/40 px-8 py-3.5 text-[10px] font-black tracking-widest text-white/40 transition-all hover:bg-white hover:text-black sm:px-10 sm:py-4 sm:text-xs"
             >
               GET LISTED

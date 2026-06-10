@@ -1,21 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import {
   Album,
   ChevronRight,
   MessageCircle,
-  Search,
-  User
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,14 +23,14 @@ import { usePathname } from "next/navigation";
 import { getMainSiteUrl, isShopBrowserHost } from "@/lib/shopHost";
 
 const NAV_ITEMS = [
-  { label: "Profile Overview", href: "/dashboard", icon: User },
+  { label: "My Coach", href: "/dashboard", icon: User },
   {
-    label: "Coach Chats",
+    label: "Chat",
     href: "/dashboard/enquiries",
     icon: MessageCircle,
   },
   {
-    label: "Programs",
+    label: "My Programs",
     href: "/dashboard/programs",
     icon: Album,
   },
@@ -68,28 +68,31 @@ function navHref(path) {
 export function AppSidebar() {
   const pathname = usePathname() ?? "";
   const linksLeaveShop = isShopBrowserHost();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [pathname, isMobile, setOpenMobile]);
+
+  const closeMobileSidebar = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar collapsible="offcanvas" className="border-r border-sidebar-border">
       <SidebarHeader className="gap-4 border-b border-zinc-800/60 p-4 pb-5">
         <WellnessLogo />
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
-          <input
-            type="search"
-            name="sidebar-search"
-            placeholder="Search features..."
-            className="h-11 w-full rounded-full border border-zinc-800 bg-zinc-900/90 pl-10 pr-4 text-sm text-zinc-200 outline-none placeholder:text-zinc-500 focus:border-[#70C136]/40 focus:ring-1 focus:ring-[#70C136]/25"
-            autoComplete="off"
-          />
-        </div>
       </SidebarHeader>
 
       <SidebarContent className="font-lato px-2 py-3">
         <SidebarMenu className="gap-2">
           {NAV_ITEMS.map(
-            ({ label, href, icon: Icon, chevron, isNew, notify }) => {
-                           const active =
+            ({ label, href, icon: Icon, chevron, notify }) => {
+              const active =
                 pathname === href ||
                 (href !== "/dashboard" && pathname.startsWith(href));
 
@@ -108,6 +111,7 @@ export function AppSidebar() {
                     {linksLeaveShop ? (
                       <a
                         href={navHref(href)}
+                        onClick={closeMobileSidebar}
                         className="flex w-full items-center gap-3"
                       >
                         <span className="relative inline-flex size-5 shrink-0 items-center justify-center">
@@ -136,6 +140,7 @@ export function AppSidebar() {
                     ) : (
                       <Link
                         href={href}
+                        onClick={closeMobileSidebar}
                         className="flex w-full items-center gap-3"
                       >
                         <span className="relative inline-flex size-5 shrink-0 items-center justify-center">
@@ -169,16 +174,6 @@ export function AppSidebar() {
           )}
         </SidebarMenu>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-zinc-800/60 p-3">
-        <button
-          type="button"
-          className="flex size-11 items-center justify-center rounded-full bg-zinc-900 text-sm font-bold text-white ring-1 ring-zinc-700/80 transition hover:bg-zinc-800"
-          aria-label="Account"
-        >
-          N
-        </button>
-      </SidebarFooter>
     </Sidebar>
   );
 }

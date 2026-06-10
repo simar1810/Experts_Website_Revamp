@@ -451,14 +451,8 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
     </section>
   );
 
-  return (
-    <div
-      className={cn(
-        "flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/80 shadow-sm lg:h-full lg:max-h-full",
-        embedInSheet &&
-          "h-full max-h-full rounded-none border-0 bg-white shadow-none",
-      )}
-    >
+  const panelBody = (
+    <>
       {!embedInSheet && (
         <div className="shrink-0 bg-[#1a4d2e] p-5 text-white lg:p-6">
           <div className="flex items-center justify-between gap-2 mb-1">
@@ -599,7 +593,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
                     WZ Assured only
                   </span>
                   <span className="mt-0.5 block text-xs text-gray-500">
-                    Show experts with the WZ Assured badge
+                    Show coaches with the WZ Assured badge
                   </span>
                 </span>
               </label>
@@ -672,7 +666,7 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
           )}
         </>
       ) : (
-        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-y-contain bg-white p-5 lg:space-y-8 lg:p-7 [scrollbar-gutter:stable]">
+        <div className="min-h-0 flex-1 space-y-6 overflow-x-hidden overflow-y-auto overscroll-y-contain bg-white p-5 lg:space-y-8 lg:p-7 lg:[scrollbar-gutter:stable]">
           <div className="space-y-1">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -840,6 +834,22 @@ const ExpertsFiltersSidebar = forwardRef(function ExpertsFiltersSidebar(
           </div>
         </div>
       )}
+    </>
+  );
+
+  if (embedInSheet) {
+    return (
+      <div className="flex h-full max-h-full min-h-0 w-full flex-col overflow-hidden rounded-none border-0 bg-white shadow-none">
+        {panelBody}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full min-h-0 w-full flex-col rounded-2xl shadow-sm lg:max-h-full">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/80 lg:h-full">
+        {panelBody}
+      </div>
     </div>
   );
 });

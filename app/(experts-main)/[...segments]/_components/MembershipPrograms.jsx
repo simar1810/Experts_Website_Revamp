@@ -170,7 +170,7 @@ function ProgramCard({
         key: checkoutKey,
         // With order_id, amount/currency come from the order; passing them here often causes "Payment failed" if they drift.
         name: "WellnessZ",
-        description: title || "Expert program",
+        description: title || "Coach program",
         order_id: orderId,
         prefill,
         theme: { color: "#0a5b22" },

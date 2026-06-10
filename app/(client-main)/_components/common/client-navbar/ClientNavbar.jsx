@@ -4,16 +4,37 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LoginModal from "@/components/LoginModal";
-import { Menu, X, ArrowLeftIcon, LogOut } from "lucide-react";
+import {
+  Album,
+  ArrowLeftIcon,
+  LogOut,
+  MessageCircle,
+  Menu,
+  User,
+  X,
+} from "lucide-react";
 
 import ClientNavbarDropdown from "./ClientNavbarDropdown";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import WellnessZLogoLink from "@/components/WellnessZLogoLink";
 import Image from "next/image";
 import GetStartedModal from "@/components/GetStartedModal";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+
+const APP_DRAWER_ITEMS = [
+  { label: "Chat", href: "/dashboard/enquiries", icon: MessageCircle },
+  { label: "My Coach", href: "/dashboard", icon: User },
+  { label: "My Programs", href: "/dashboard/programs", icon: Album },
+];
 
 export default function ClientNavbar({ isDashboard, hideNavLinks = false }) {
   const pathname = usePathname();
@@ -26,6 +47,7 @@ export default function ClientNavbar({ isDashboard, hideNavLinks = false }) {
 function Container({ isDashboard = false, hideNavLinks = false }) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAppDrawerOpen, setIsAppDrawerOpen] = useState(false);
 
   const {
     isAuthenticated,
@@ -57,8 +79,7 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Find Experts", href: "/find-experts" },
-    // { name: "Collections", href: "/collections" },
+    { name: "Find Coaches", href: "/find-experts" },
     { name: "Browse Programs", href: "/discover-programs" },
   ];
 
@@ -75,10 +96,13 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
         >
           {isDashboard ? (
             <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-              <SidebarTrigger className="shrink-0 text-zinc-700 md:hidden" />
+              <SidebarTrigger
+                aria-label="Open sidebar"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-zinc-700 hover:bg-gray-100 hover:text-zinc-700 md:hidden [&_svg]:size-5"
+              />
               <div
                 className={cn(
-                  "flex min-w-0 flex-1 items-center gap-4 overflow-x-auto md:gap-6 lg:gap-12",
+                  "hidden min-w-0 flex-1 items-center gap-4 overflow-x-auto md:flex md:gap-6 lg:gap-12",
                   "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
                 )}
               >
@@ -120,42 +144,48 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
                 aria-hidden
               />
             ) : isAuthenticated ? (
-              <ClientNavbarDropdown />
-            ) : (
-              <div className="flex items-center gap-1.5 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={openRegisterModal}
-                  className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-[var(--brand-primary)] px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-lime-500/10 transition-all hover:bg-[#76b813] sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
-                >
-                  Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
-                </button>
+              <div className="hidden md:block">
+                <ClientNavbarDropdown />
               </div>
-            )}
-
-            {/* Mobile site nav (dashboard shows Home/Experts in the top bar) */}
-            {!isDashboard && (
+            ) : (
               <button
                 type="button"
-                className="rounded-lg p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-black md:hidden"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={openLoginModal}
+                className="flex items-center gap-1 whitespace-nowrap rounded-lg bg-(--brand-primary) px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-lime-500/10 transition-all hover:bg-[#76b813] sm:rounded-xl sm:px-8 sm:py-2.5 sm:text-sm"
               >
-                {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Image
-                    src="/svg/hamburger.svg"
-                    height={20}
-                    width={20}
-                    alt="Hamburger menu"
-                  />
-                )}
+                Login/Signup{" "}
+                <ArrowLeftIcon className="h-3 w-3 rotate-180" />
               </button>
             )}
+
+            {/* Mobile site nav — dashboard: right side; other pages: same control */}
+            <button
+              type="button"
+              aria-label="Open navigation menu"
+              className={cn(
+                "rounded-lg p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-black md:hidden",
+                isDashboard &&
+                  "inline-flex size-9 shrink-0 items-center justify-center text-zinc-700",
+              )}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="size-5" />
+              ) : isDashboard ? (
+                <Menu className="size-5" />
+              ) : (
+                <Image
+                  src="/svg/hamburger.svg"
+                  height={20}
+                  width={20}
+                  alt="Hamburger menu"
+                />
+              )}
+            </button>
           </div>
         </nav>
 
-        {!isDashboard && !hideNavLinks && isMobileMenuOpen && (
+        {!hideNavLinks && isMobileMenuOpen && (
           <div
             id="client-nav-mobile-menu"
             className="md:hidden bg-white border-t border-gray-100"
@@ -177,12 +207,12 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
                 <button
                   type="button"
                   onClick={() => {
-                    openRegisterModal();
+                    openLoginModal();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="mt-2 flex w-full items-center gap-2 rounded-lg bg-[var(--brand-primary)] px-4 py-3 text-left text-sm font-bold text-white hover:bg-[#76b813]"
+                  className="mt-2 flex w-full items-center gap-2 rounded-lg bg-(--brand-primary) px-4 py-3 text-left text-sm font-bold text-white hover:bg-[#76b813]"
                 >
-                  Get Started <ArrowLeftIcon className="h-3 w-3 rotate-180" />
+                  Login/Signup <ArrowLeftIcon className="h-3 w-3 rotate-180" />
                 </button>
               ) : (
                 <button
@@ -198,6 +228,60 @@ function Container({ isDashboard = false, hideNavLinks = false }) {
           </div>
         )}
       </header>
+
+      {isAuthenticated ? (
+        <button
+          type="button"
+          aria-label="Open app drawer"
+          onClick={() => setIsAppDrawerOpen(true)}
+          className="fixed bottom-5 right-5 z-40 inline-flex size-14 items-center justify-center rounded-full bg-[#67BC2A] text-white shadow-xl shadow-lime-700/20 transition-all hover:bg-[#58a923] focus:outline-none focus:ring-2 focus:ring-[#67BC2A] focus:ring-offset-2 md:hidden"
+        >
+          <User className="size-6" strokeWidth={2} />
+        </button>
+      ) : null}
+
+      <Sheet open={isAppDrawerOpen} onOpenChange={setIsAppDrawerOpen}>
+        <SheetContent
+          side="bottom"
+          showCloseButton
+          className="font-lato gap-0 rounded-t-3xl border border-gray-200 bg-white p-0 shadow-xl [&>button]:right-4 [&>button]:top-4"
+        >
+          <SheetHeader className="border-b border-gray-100 px-5 pb-4 pt-5 text-left">
+            <SheetTitle className="font-lato text-lg font-bold text-gray-900">
+              App Menu
+            </SheetTitle>
+            <SheetDescription className="font-lato text-sm text-gray-500">
+              Jump to your conversations, coach, and programs.
+            </SheetDescription>
+          </SheetHeader>
+          <nav className="px-4 py-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="grid gap-2">
+              {APP_DRAWER_ITEMS.map(({ label, href, icon: Icon }) => {
+                const active =
+                  pathname === href ||
+                  (href !== "/dashboard" && pathname?.startsWith(href));
+
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setIsAppDrawerOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-base font-semibold transition-colors",
+                      active
+                        ? "bg-[#67BC2A] text-white"
+                        : "bg-gray-50 text-gray-800 hover:bg-gray-100",
+                    )}
+                  >
+                    <Icon className="size-5 shrink-0" strokeWidth={1.8} />
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        </SheetContent>
+      </Sheet>
 
       <GetStartedModal
         isOpen={isRegisterModalOpen}

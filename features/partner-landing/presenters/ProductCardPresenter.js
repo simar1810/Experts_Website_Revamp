@@ -58,7 +58,7 @@ export class ProductCardPresenter {
       product?.metadata?.coachName ||
       product?.metadata?.expertName ||
       "";
-    return leadBy ? `Led by ${leadBy}` : "Led by Wellness Expert";
+    return leadBy ? `Led by ${leadBy}` : "Led by Wellness Coach";
   }
 
   /**

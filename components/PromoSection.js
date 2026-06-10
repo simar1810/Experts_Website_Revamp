@@ -47,7 +47,7 @@ export default function PromoSection() {
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-[900] text-white leading-[1.1] tracking-[-0.03em]">
                 Join the <br />
                 <span className="text-[#152e06]">
-                  WellnessZ Expert Network
+                  WellnessZ Coach Network
                 </span>{" "}
                 and <br />
                 Grow Your <br />
@@ -56,17 +56,17 @@ export default function PromoSection() {
             </div>
 
             <p className="text-white/90 text-sm sm:text-lg md:text-xl font-medium leading-relaxed max-w-lg mb-8 tracking-tight mx-auto lg:mx-0 mt-6">
-              Get discovered by people actively searching for wellness experts.
+              Get discovered by people actively searching for wellness coaches.
               Build your professional presence, connect with new clients, and
               grow your coaching business with WellnessZ.
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-4 pt-4">
               <Link
-                href="/pricing"
+                href="/getlisted"
                 className="bg-[#84CC16] hover:bg-[#a3e635] text-white px-6 py-3 rounded-[15px] sm:rounded-[20px] font-black text-base sm:text-lg transition-all inline-flex items-center justify-center gap-3 shadow-2xl shadow-black/30 hover:-translate-y-1 active:scale-95"
               >
-                Become a Expert <span className="text-xl sm:text-2xl">→</span>
+                Become a Coach <span className="text-xl sm:text-2xl">→</span>
               </Link>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function PromoSection() {
               <div className="bg-white/20 backdrop-blur-2xl p-5 rounded-2xl border border-white/30 shadow-2xl transform lg:hover:rotate-2 transition-all duration-700">
                 <div className="w-10 h-10 bg-white rounded-lg mb-3 shadow-xl"></div>
                 <h4 className="text-white font-black text-lg mb-2 leading-tight">
-                  Expert Networking
+                  Coach Networking
                 </h4>
                 <p className="text-white/80 text-[10px] leading-relaxed font-bold tracking-wide uppercase opacity-90">
                   Be part of a growing ecosystem of experts who are redefining

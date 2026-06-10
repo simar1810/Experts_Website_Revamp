@@ -48,18 +48,10 @@ const ClientResultsSection = dynamic(
   { loading: () => <LandingSectionSkeleton /> },
 );
 
-const FinalCtaSection = dynamic(
-  () =>
-    import("./_components/landing/FinalCtaSection").then((m) => ({
-      default: m.FinalCtaSection,
-    })),
-  { loading: () => <LandingSectionSkeleton /> },
-);
-
-const TITLE = "Zeefit";
+const TITLE = "Best Listing Platform for Dietitians & Coaches in India";
 
 const DESCRIPTION =
-  "The curated marketplace connecting high-performance athletes with elite-level coaches. Discover transformation programs by nutritionists, fitness coaches, and wellness experts.";
+  "Discover Zeefit by WellnessZ, India's best listing platform for dietitians, nutritionists, wellness coaches, and health professionals to grow and connect with clients.";
 
 export const metadata = {
   metadataBase: new URL(`${SITE_URL_NORMALIZED}/`),
@@ -104,12 +96,11 @@ export default async function ClientLandingPage() {
     <main className="min-h-screen bg-white font-lato text-neutral-900">
       <HeroSection />
       <SecondaryHeroSection />
+      <CuratedEliteSection />
       <PrecisionSelectionSection />
       <TopProgramsSection programs={topPrograms} />
-      <CuratedEliteSection />
-      <MomentumSection />
       <ClientResultsSection />
-      <FinalCtaSection />
+      <MomentumSection />
     </main>
   );
 }

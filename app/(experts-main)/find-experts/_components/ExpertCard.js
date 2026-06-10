@@ -14,7 +14,7 @@ export default function ExpertCard({
 }) {
   const { isAuthenticated, openRegisterModal } = useAuth();
   const router = useRouter();
-  const resolvedName = expert.coach?.name || expert.name || "Expert";
+  const resolvedName = expert.coach?.name || expert.name || "Coach";
   const resolvedPhoto =
     expert.profilePhoto || expert.coach?.profilePhoto || "/file.svg";
   const resolvedListingId =
@@ -209,7 +209,7 @@ export default function ExpertCard({
                 : "text-[15px] sm:text-xl md:text-2xl pr-1",
             )}
           >
-            {expert.name || expert.coach?.name || "Expert"}
+            {expert.name || expert.coach?.name || "Coach"}
           </h3>
           <p className="text-sm text-gray-500 font-medium mt-1.5">
             {specializations_string}

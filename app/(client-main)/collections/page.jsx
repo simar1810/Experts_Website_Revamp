@@ -4,7 +4,7 @@ import CollectionsList from "./_components/CollectionsList";
 import { fetchPartnerProductCollections } from "@/lib/partnerProductsApi";
 
 export const metadata = {
-  title: "Collections | WellnessZ Experts",
+  title: "Collections | WellnessZ Coaches",
   description:
     "Browse handpicked wellness products from WellnessZ expert partners.",
 };

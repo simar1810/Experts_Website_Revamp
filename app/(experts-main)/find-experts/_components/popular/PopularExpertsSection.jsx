@@ -128,21 +128,21 @@ export default function PopularExpertsSection({
             <div>
               <h2 className="text-lg font-black tracking-tight text-gray-900 sm:text-3xl md:text-left">
 
-                <span className="md:inline">Popular Experts</span>
+                <span className="md:inline">Popular Coaches</span>
               </h2>
               <p className="mt-1 hidden text-[10px] font-bold uppercase tracking-widest text-gray-400 sm:block sm:text-sm">
-                Highly rated experts you can choose from
+                Highly rated coaches you can choose from
               </p>
             </div>
             {typeof onPageSizeChange === "function" ? (
               <label className="flex w-full shrink-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center">
                 <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-500 sm:text-xs">
-                  Experts per page
+                  Coaches per page
                 </span>
                 <select
                   className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm outline-none transition-colors hover:border-[#70C136] focus-visible:ring-2 focus-visible:ring-[#70C136]/35"
                   value={pageSize}
-                  aria-label="Experts per page"
+                  aria-label="Coaches per page"
                   onChange={(e) => {
                     onPageSizeChange(Number(e.target.value));
                   }}

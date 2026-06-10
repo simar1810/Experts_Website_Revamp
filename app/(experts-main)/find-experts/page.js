@@ -184,12 +184,12 @@ function ExpertsPageInner() {
 
         <div className="relative z-10 w-full max-w-5xl mx-auto space-y-3 sm:space-y-5 pt-8 md:pt-10 max-lg:hidden">
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-[1.1]">
-            <span className="text-[#70C136]">{displayName}</span> gives you access to top fitness experts.
+            <span className="text-[#70C136]">{displayName}</span> gives you access to top fitness coaches.
           </h1>
           <div className="max-w-4xl mx-auto">
             <p className="text-white/80 text-[10px] sm:text-sm md:text-base leading-relaxed font-medium max-w-lg mx-auto line-clamp-2 sm:line-clamp-none">
-              Search from 7,000+ verified fitness experts and connect with the
-              right fitness expert for your health goals.
+              Search from 7,000+ verified fitness coaches and connect with the
+              right coach for your health goals.
             </p>
           </div>
 
@@ -220,7 +220,7 @@ function ExpertsPageInner() {
             {/*
               ~Full-viewport tall filter rail; inner ExpertsFiltersSidebar scrolls its white body.
             */}
-            <aside className="sticky top-16 z-10 flex h-auto min-h-0 w-full flex-col overflow-hidden lg:h-[calc(100dvh-5rem)]">
+            <aside className="sticky top-16 z-10 flex h-auto min-h-0 w-full flex-col pb-4 lg:h-[calc(100dvh-5rem)] lg:max-h-[calc(100dvh-5rem)]">
               <ExpertsFiltersSidebar {...filterSidebarProps} />
             </aside>
           </div>
@@ -273,7 +273,9 @@ function ExpertsPageInner() {
         </div>
       </div>
 
-      <ExpertsReviewsSection />
+      <div className="mt-10">
+        <ExpertsReviewsSection />
+      </div>
     </main>
   );
 }
